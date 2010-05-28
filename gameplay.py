@@ -39,7 +39,9 @@ class GamePlayGUI(wx.Frame):
 	def __init__(self, parent, *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
-		self.SetBackgroundColour(wx.GREEN)
+		
+		# the pretty background
+		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
 		
 		# get the user params from the database
 		self.get_user_params()
@@ -96,6 +98,8 @@ class GamePlayGUI(wx.Frame):
 		self.decreasebtn.Bind(wx.EVT_BUTTON, lambda event, name='decrease':self.OnChangeWager(event, name))
 		self.increasebtn.Bind(wx.EVT_BUTTON, lambda event, name='increase':self.OnChangeWager(event, name))
 		self.Bind(wx.EVT_BUTTON, self.OnSpin, self.spinbtn)
+		self.Bind(wx.EVT_PAINT, self.OnPaint)
+		self.Bind(wx.EVT_SIZE, self.OnSize)
 		
 		# create the initial instructions dialog
 		dialog = InfoDialog(self, "Welcome to " + cfg.program_name, cfg.introfile)
@@ -174,13 +178,13 @@ class GamePlayGUI(wx.Frame):
 		wager = self.num_val(self.wagertext.GetValue())
 		
 		# if we can't increase beyond zero, stop doing anything
-		if "increase" in name:
+		if 'increase' in name:
 			if self.balance < self.wagerstep and not self.debtallowed:
 				return
 			wager += self.wagerstep
 			self.balance -= self.wagerstep
 		
-		elif "decrease" in name:
+		elif 'decrease' in name:
 			# we can't automatically win money!
 			if wager < self.wagerstep:
 				return
@@ -212,7 +216,15 @@ class GamePlayGUI(wx.Frame):
 		self.numrounds -= 1
 		if self.numrounds is 0:
 			wx.MessageBox("Game over!")
-			
+	
+	def OnPaint(self, event):
+		dc = wx.BufferedPaintDC(self, self.background)
+		
+	def OnSize(self, event):
+		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND, size=self.GetSize())
+		event.Skip()
+		self.Refresh(False)
+		
 if __name__ == "__main__":
 	app = wx.App(False)
 	mainframe = GamePlayGUI(None)
