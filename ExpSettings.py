@@ -52,4 +52,45 @@ class Payouts:
 		pickle.dump(self, f)
 		f.close()
 
+class Symbols:
+	def __init__(self, payoffs = [100, 50, 20, 10, 5, 3, 1], symbols = ["gold", "chest", "bar", "cherry", "bell"]):
+		self.payoffs = payoffs
+		self.symbols = symbols
+		self.createCombos()
+
+	def createCombos(self):
+		#create combos from available symbols
+		combos = []
+		for s in self.symbols:
+			combos.append([s, s, s])
+
+		combos.append([s, s, None])
+		combos.append([s, None, None])
+		self.combos = combos
+
+	def setPayoff(self, i, value, combo):
+		#set the value of a particular payoff given an index, value, and combintation of symbols [str]
+		self.combos[i] = combo
+		self.payoffs[i] = value
+
+	def getPayoff(self, i):
+		#get a list of 3 imgs and payoff value given an index
+		row = [self.combos[i][0], self.combos[i][1], self.combos[i][2], self.payoffs[i]]
+		return row
+
+	def hasDuplicates(self):
+		#returns whether there are duplicate entries in the combo list (a bad thing)
+		dupes = False
+		for c in self.combos:
+			if self.combos.count(c) > 1:
+				dupes = True
+
+		return dupes
+
+	def __str__(self):
+		output = ""		
+		for i in range(0, len(self.combos)):
+			output = "%s\n%s" % (output, self.getPayoff(i))
+		return output
+
 
