@@ -21,6 +21,7 @@ class Payouts:
 		return winnings
 		
 	def getMaxPay(self):
+		#returns the maximum amount of money that can be won
 		maxpay = self.seed
 		subtractor = (self.rounds * self.betsizes[0] * ((100-self.odds)/100.))
 		for j in range(0, len(self.values)):
@@ -29,6 +30,7 @@ class Payouts:
 		return maxpay
 
 	def getMinPay(self):
+		#returns the minimum amount of money that can be one
 		minpay = self.seed
 		subtractor = (self.rounds * self.betsizes[-1] * ((100-self.odds)/100.))
 		for j in range(0, len(self.values)):
@@ -37,6 +39,7 @@ class Payouts:
 		return minpay
 
 	def printTable(self):
+		#prints the payout table to the terminal
 		for i in range(0, len(self.values)):
 			line = ""
 			for j in range(0, len(self.betsizes)):
@@ -44,7 +47,8 @@ class Payouts:
 			print line				
 
 	def preserve(self):
-		f = open("%s.odd" % self.name, "w")
+		#preserves the payouts table as a pickled file with extension .payout
+		f = open("%s.payout" % self.name, "w")
 		pickle.dump(self, f)
 		f.close()
 
