@@ -38,13 +38,14 @@ class Payouts:
 		minpay = minpay - subtractor
 		return minpay
 
-	def printTable(self):
-		#prints the payout table to the terminal
+	def __str__(self):
+		output = ""
 		for i in range(0, len(self.values)):
 			line = ""
 			for j in range(0, len(self.betsizes)):
 				line = "%s %s" % (line, round(self.getWinnings(i, j), 2))
-			print line				
+			output="%s\n%s" % (output, line)
+		return output
 
 	def preserve(self):
 		#preserves the payouts table as a pickled file with extension .payout
@@ -93,4 +94,6 @@ class Symbols:
 			output = "%s\n%s" % (output, self.getPayoff(i))
 		return output
 
+p = Payouts()
+print p
 
