@@ -1,13 +1,12 @@
 import pickle
 
 class Payouts:
-	def __init__(self, values= [20., 12., 10., 5., 3., 2., 1.], betsizes = [0, 0.01, 0.05, 0.1, 0.25], odds = 85, rounds = 100, seed=5, name = "unnamed"):
+	def __init__(self, values = [20., 12., 10., 5., 3., 2., 1.], betsizes = [0, 10, 25, 50, 100], odds = 85, rounds = 100, seed=5):
 		self.values = values
 		self.betsizes = betsizes
 		self.odds = odds
 		self.rounds = rounds
 		self.seed = seed
-		self.name = name
 
 	def getPayoff(self, i, j):
 		#returns the payoff given indeces of the payout size and bet size  
@@ -54,7 +53,7 @@ class Payouts:
 		f.close()
 
 class Symbols:
-	def __init__(self, payoffs = [100, 50, 20, 10, 5, 3, 1], symbols = ["gold", "chest", "bar", "cherry", "bell"]):
+	def __init__(self, payoffs = [20., 12., 10., 5., 3., 2., 1.], symbols = ["gold", "chest", "bar", "cherry", "bell"]):
 		self.payoffs = payoffs
 		self.symbols = symbols
 		self.createCombos()
@@ -95,13 +94,36 @@ class Symbols:
 		return output
 
 class Bets:
-	def __init__(self, rounds=100, debt=False, seed=5, currency="Credits", wagers = [0, 10, 25, 50, 100]):
+	def __init__(self, rounds=100, debt=False, seed=5, currency="Credits", betsizes = [0, 10, 25, 50, 100]):
 		self.rounds = rounds
 		self.debt = debt
 		self.seed = seed
 		self.currency = currency
-		self.wagers = wagers
+		self.betsizes = betsizes
+
+class Settings:
+	def __init__(self, name="unnamed"):
+		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
+		self.name = name
+		self.setupSettings()
+
+	def setupSettings(self, betsizes=[], symbols=""):
+		#Method to synchronize
+		if betsizes:
+			self.bets = Bets(betsizes=betsizes)
+		else:
+			self.bets = Bets()
+
+		self.payouts = Payouts(betsizes = self.bets.betsizes)
+
+		if symbols:
+			self.symbols = Symbols(payoffs = self.payouts.values, symbols=symbols)
+		else:
+			self.symbols = Symbols(payoffs = self.payouts.values)
+
+	def __str__(self):
+		output = "%s\n%s\n%s" % (self.bets, self.payouts, self.symbols)
+		return output
+
 
 	
-		
-
