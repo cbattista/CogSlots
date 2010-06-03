@@ -1,8 +1,5 @@
 import wx
 
-program_name = 'CogSlots'
-introfile = 'introtext.html'
-
 # slot machine images
 SLOT_SIZE = (16,16)
 IM_CHERRIES = wx.ART_MISSING_IMAGE

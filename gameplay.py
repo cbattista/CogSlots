@@ -3,36 +3,9 @@
 import sys
 import wx, wx.html
 import cfg
+import commongui
 
 import random # this is just temporary
-
-class InfoDialog(wx.Dialog):
-	""" A simple dialogue to display an html file """
-	def __init__(self, parent, title, htmlfile, okaytext="Start Game"):
-		wx.Dialog.__init__(self, parent, wx.ID_ANY, title)
-		
-		# create the sizers
-		sizer = wx.BoxSizer(wx.VERTICAL)
-		buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
-		
-		# create the html view window
-		self.html = wx.html.HtmlWindow(self, wx.ID_ANY, size=(320, 320))
-		self.html.SetBorders(10)
-		self.set_html_file(htmlfile)
-		
-		# create the buttons
-		buttonflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT).Border(wx.ALL, 10)
-		buttonsizer.AddF(wx.Button(self, wx.ID_CANCEL), buttonflag)
-		buttonsizer.AddF(wx.Button(self, wx.ID_OK, okaytext), buttonflag)
-		
-		# put it all together
-		sizer.AddF(self.html, wx.SizerFlags(0).Expand().Border(wx.ALL, 10) )
-		sizer.AddF(buttonsizer, buttonflag)
-		
-		self.SetSizerAndFit(sizer)
-	
-	def set_html_file(self, htmlfile):
-		self.html.LoadFile(htmlfile)
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
@@ -53,7 +26,8 @@ class GamePlayGUI(wx.Frame):
 			self.sizer.AddGrowableCol(i)
 		
 		# populate the payout sizer with values from the database
-		payouttable = self.create_payout_table()
+		payoutgrid = commongui.create_payout_table(self, self.currency)
+		payouttable = self.populate_payout_table(payoutgrid)
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
@@ -69,7 +43,7 @@ class GamePlayGUI(wx.Frame):
 		balancesizer, self.balancetext = self.create_labeled_num_box("Balance", str(self.balance))
 		
 		# the buttons will have to go in a separate sub-sizer
-		bottomflag = wx.SizerFlags(1).Align(wx.ALIGN_BOTTOM|wx.ALIGN_CENTER)
+		bottomflag = wx.SizerFlags(1).Align(wx.ALIGN_BOTTOM|wx.ALIGN_CENTER).Border(wx.ALL, 5)
 		buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
 		self.increasebtn = wx.Button(self, wx.ID_ANY, "Increase Wager")
 		self.decreasebtn = wx.Button(self, wx.ID_ANY, "Decrease Wager")
@@ -102,7 +76,7 @@ class GamePlayGUI(wx.Frame):
 		self.Bind(wx.EVT_SIZE, self.OnSize)
 		
 		# create the initial instructions dialog
-		dialog = InfoDialog(self, "Welcome to " + cfg.program_name, cfg.introfile)
+		dialog = commongui.InfoDialog(self, "Welcome to CogSlots", 'introtext.html')
 		
 		if (dialog.ShowModal() == wx.ID_CANCEL):
 			sys.exit(0)
@@ -110,40 +84,6 @@ class GamePlayGUI(wx.Frame):
 		# show thyself
 		self.Centre()
 		self.Show(True)
-		
-	def create_payout_table(self):
-		# create the payout table frame and sizer
-		payoutsizer = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
-		payoutgrid = wx.FlexGridSizer(1, 6, 10, 10)
-		
-		# the top row just has headers
-		# but the first four columns don"t have headers
-		for i in range(0,4):
-			payoutgrid.AddStretchSpacer()
-		
-		payoutgrid.Add(wx.StaticText(self, wx.ID_ANY, "10 Credits"), wx.ALIGN_CENTRE)
-		payoutgrid.Add(wx.StaticText(self, wx.ID_ANY, "20 Credits"), wx.ALIGN_CENTRE)
-		
-		#NOTE: this should be "while payout data available from database"
-		flag = wx.SizerFlags(1).Align(wx.ALIGN_RIGHT)
-		payoutnum = 1
-		while payoutnum < 5:
-			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "Payout %d" %payoutnum), flag)
-			#NOTE: I would put in a switch statement here depending on what icons are desired
-			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY, 
-				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
-			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY,
-				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
-			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY, 
-				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
-			#NOTE: again, a temporary number until there"s real data
-			credits = random.randrange(10, 1000)
-			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%d" %credits), flag)
-			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%d" %(credits*2)), flag)
-			payoutnum += 1
-		
-		payoutsizer.AddF(payoutgrid, wx.SizerFlags(1).Expand())
-		return payoutsizer
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
 		box = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
@@ -168,6 +108,29 @@ class GamePlayGUI(wx.Frame):
 			return float(text)
 		elif self.currency is 'credits':
 			return int(text)
+	
+	def populate_payout_table(self, payoutgrid):
+		payoutsizer = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
+		#NOTE: this should be "while payout data available from database"
+		flag = wx.SizerFlags(1).Align(wx.ALIGN_RIGHT)
+		payoutnum = 1
+		while payoutnum < 5:
+			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "Payout %d" %payoutnum), flag)
+			#NOTE: I would put in a switch statement here depending on what icons are desired
+			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY, 
+				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
+			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY,
+				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
+			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY, 
+				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
+			#NOTE: again, a temporary number until there"s real data
+			credits = random.randrange(10, 1000)
+			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%d" %credits), flag)
+			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%d" %(credits*2)), flag)
+			payoutnum += 1
+		
+		payoutsizer.AddF(payoutgrid, wx.SizerFlags(1).Expand())
+		return payoutsizer
 	
 	def create_spinning_wheel(self, sizer):
 		#NOTE: this will be the real spinning gui stuff
