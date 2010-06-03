@@ -139,7 +139,7 @@ class SetupGUI(wx.Frame):
 		parent = self.amountentry.GetParent()
 		index = len(self.wagers)
 		deletebtn = wx.Button(parent, wx.ID_ANY, "Delete")
-		deletebtn.Bind(wx.EVT_BUTTON, lambda event : self.OnDeleteWager(event, index))
+		self.Bind(wx.EVT_BUTTON, self.OnDeleteWager, deletebtn)
 		self.wagernum.Append(str(index+1))
 		
 		# create the new sizer
@@ -164,7 +164,12 @@ class SetupGUI(wx.Frame):
 			# need to subtract one from the index to account for the "New" item
 			self.addbtn.Bind(wx.EVT_BUTTON, lambda event : self.OnEditWager(event, index-1))
 
-	def OnDeleteWager(self, event, index):
+	def OnDeleteWager(self, event):
+		index = -1
+		for wager in self.wagers:
+			if wager.GetItem(2).GetWindow() is event.GetEventObject():
+				index = self.wagers.index(wager)
+				
 		self.wagertable.Hide(self.wagers[index])
 		self.wagers[index].DeleteWindows()
 		del self.wagers[index]
@@ -173,7 +178,7 @@ class SetupGUI(wx.Frame):
 		# fix the wager numbering
 		i = 1
 		for wager in self.wagers:
-			number = self.wagers[index].GetItem(0).GetWindow()
+			number = wager.GetItem(0).GetWindow()
 			number.SetLabel("Wager " + str(i) + ":")
 			self.wagernum.SetString(i, str(i))
 			i += 1
