@@ -94,6 +94,14 @@ class Symbols:
 			output = "%s\n%s" % (output, self.getPayoff(i))
 		return output
 
-p = Payouts()
-print p
+class Bets:
+	def __init__(self, rounds=100, debt=False, seed=5, currency="Credits", wagers = [0, 10, 25, 50, 100]):
+		self.rounds = rounds
+		self.debt = debt
+		self.seed = seed
+		self.currency = currency
+		self.wagers = wagers
+
+	
+		
 
