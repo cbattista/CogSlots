@@ -2,11 +2,17 @@ import wx
 
 # slot machine images
 SLOT_SIZE = (16,16)
-IM_CHERRIES = wx.ART_MISSING_IMAGE
-IM_BELL = wx.ART_MISSING_IMAGE
 IM_BAR = wx.ART_MISSING_IMAGE
+IM_BELL = wx.ART_MISSING_IMAGE
+IM_CHERRIES = wx.ART_MISSING_IMAGE
+IM_CLOVER = wx.ART_MISSING_IMAGE
 IM_GOLDBARS = wx.ART_MISSING_IMAGE
 IM_TREASURECHEST = wx.ART_MISSING_IMAGE
+IM_EMPTY = ""
+
+# pack them in to a tuple to make things easier
+symbols = (IM_BAR, IM_BELL, IM_CHERRIES, IM_CLOVER, IM_GOLDBARS, IM_TREASURECHEST, IM_EMPTY)
+symbolnames = ("bar", "bell", "cherries", "clover", "goldbars", "treasurechest", "anything")
 
 # interface button images
 IM_BACKGROUND = wx.ART_MISSING_IMAGE

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import wx, wx.html
+import wx
 import cfg
 import commongui
 
