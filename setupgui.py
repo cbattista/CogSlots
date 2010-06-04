@@ -27,7 +27,7 @@ class SetupGUI(wx.Frame):
 		# and the same border flag/label flag
 		self.bflag = wx.SizerFlags().Border(wx.ALL, 5)
 		self.eflag = self.bflag.Expand()
-		lflag = wx.SizerFlags().Border(wx.LEFT, 10)
+		hflag = wx.SizerFlags().Border(wx.LEFT, 10)
 
 		#*******************************************
 		# 				The bets page
@@ -50,7 +50,7 @@ class SetupGUI(wx.Frame):
 		# number of rounds stuff
 		roundslabel = wx.StaticText(betspage, wx.ID_ANY, "Number of Rounds:")
 		roundslabel.SetFont(hfont)
-		betssizer.AddF(roundslabel, lflag)
+		betssizer.AddF(roundslabel, hflag)
 		numroundsbox = wx.BoxSizer(wx.HORIZONTAL)
 		numroundsbox.AddF(self.roundsentry, self.bflag)
 		numroundsbox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Subject Debt:"), self.bflag)
@@ -61,7 +61,7 @@ class SetupGUI(wx.Frame):
 		# the currency stuff
 		currencylabel = wx.StaticText(betspage, wx.ID_ANY, "Currency:")
 		currencylabel.SetFont(hfont)
-		betssizer.AddF(currencylabel, lflag)
+		betssizer.AddF(currencylabel, hflag)
 		currencybox = wx.BoxSizer(wx.HORIZONTAL)
 		currencybox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Seed Amount:"), self.bflag)
 		currencybox.AddF(self.seedentry, self.bflag)
@@ -72,7 +72,7 @@ class SetupGUI(wx.Frame):
 		# the wager stuff
 		wagerlabel = wx.StaticText(betspage, wx.ID_ANY, "Wagers:")
 		wagerlabel.SetFont(hfont)
-		betssizer.AddF(wagerlabel, lflag)
+		betssizer.AddF(wagerlabel, hflag)
 		wagerbox = wx.BoxSizer(wx.HORIZONTAL)
 		wagerbox.AddF(self.wagernum, self.bflag)
 		wagerbox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Amount:"), self.bflag)
@@ -80,6 +80,10 @@ class SetupGUI(wx.Frame):
 		wagerbox.AddF(self.addbtn, self.bflag)
 		betssizer.AddF(wagerbox, self.bflag)
 		betssizer.AddF(self.wagertable, self.eflag)
+		
+		# Bindings, woot
+		self.Bind(wx.EVT_BUTTON, self.OnAddWager, self.addbtn)
+		self.Bind(wx.EVT_CHOICE, self.OnChooseWager, self.wagernum)
 
 		#*******************************************
 		# 				The Symbols page
@@ -89,7 +93,7 @@ class SetupGUI(wx.Frame):
 		# Visible types of symbols
 		symbolslabel = wx.StaticText(symbolspage, wx.ID_ANY, "Visible Types of Symbols")
 		symbolslabel.SetFont(hfont)
-		symbolssizer.AddF(symbolslabel, lflag)
+		symbolssizer.AddF(symbolslabel, hflag)
 		symbolsbox = wx.BoxSizer(wx.HORIZONTAL)
 		for i in range (0, len(cfg.symbols)):
 			symbolsbox.AddF(self.create_symbols_checkbox(symbolspage, i), self.bflag)
@@ -99,7 +103,7 @@ class SetupGUI(wx.Frame):
 		# Winning Combinations
 		comboslabel = wx.StaticText(symbolspage, wx.ID_ANY, "Winning Combinations")
 		comboslabel.SetFont(hfont)
-		symbolssizer.AddF(comboslabel, lflag)
+		symbolssizer.AddF(comboslabel, hflag)
 		symbolssizer.AddF(self.autoselect, self.bflag)
 		symbolssizer.AddF(wx.StaticText(symbolspage, wx.ID_ANY, "Payout (x wager)"), wx.SizerFlags().Align(wx.ALIGN_RIGHT).Border(wx.RIGHT, 15))
 		for i in range(0,7):
@@ -112,31 +116,133 @@ class SetupGUI(wx.Frame):
 		# Auto
 		self.autoodds = wx.CheckBox(oddspage, wx.ID_ANY, "Auto Odds")
 		self.autoodds.SetFont(hfont)
-		self.autopercent = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
+		self.autowinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
+		self.autolosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
 		self.autopayout = wx.Choice(oddspage, wx.ID_ANY, choices=["Equal Odds", "Casino Odds", "Linear Odds"])
 		
 		# Manual
 		self.manualodds = wx.CheckBox(oddspage, wx.ID_ANY, "Manual Odds")
 		self.manualodds.SetFont(hfont)
+		self.payoutodds = []
+		for i in range(0,7):
+			self.payoutodds.append(wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT))
+		self.manwinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
+		self.manlosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
 		
 		# Near Misses
 		self.nearmisses = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
 		self.chance = wx.CheckBox(oddspage, wx.ID_ANY, "Chance")
 		
+		# Some useful stuff
+		percentsign = lambda: wx.StaticText(oddspage, wx.ID_ANY, "%")
+		rflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT).Border(wx.ALL, 5)
+		
 		# Pack together the auto stuff
-		oddssizer.AddF(self.autoodds, lflag)
-		autogrid = wx.FlexGridSizer(3, 3)
-		autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Winning:"), self.bflag)
-		autogrid.AddF(self.autopercent, self.bflag)
-		autogrid.Add(wx.StaticText(oddspage, wx.ID_ANY, "%"))
-		autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Losing:"), self.bflag)
-		autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "100"), self.bflag.Align(wx.ALIGN_RIGHT))
-		autogrid.Add(wx.StaticText(oddspage, wx.ID_ANY, "%"))
-		oddssizer.AddF(autogrid, self.eflag)
-		oddssizer.AddF(self.manualodds, lflag)
+		oddssizer.AddF(self.autoodds, hflag)
+		self.autogrid = wx.FlexGridSizer(3, 3)
+		self.autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Winning:"), self.bflag)
+		self.autogrid.AddF(self.autowinningodds, self.bflag)
+		self.autogrid.AddF(percentsign(), self.bflag)
+		self.autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Losing:"), self.bflag)
+		self.autogrid.AddF(self.autolosingodds, rflag)
+		self.autogrid.AddF(percentsign(), self.bflag)
+		self.autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Auto Odds Payouts 1-7:"), self.bflag)
+		self.autogrid.AddF(self.autopayout, self.bflag)
+		oddssizer.AddF(self.autogrid, self.eflag)
+		oddssizer.AddF(wx.StaticLine(oddspage), self.eflag)
 		
+		# pack up the manual stuff
+		oddssizer.AddF(self.manualodds, hflag)
+		self.manualgrid = wx.FlexGridSizer(7, 6)
+		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Payout 1:"), self.bflag)
+		self.manualgrid.AddF(self.payoutodds[0], self.bflag)
+		self.manualgrid.AddF(percentsign(), self.bflag)
+		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Winning:"), rflag)
+		self.manualgrid.AddF(self.manwinningodds, rflag)
+		self.manualgrid.AddF(percentsign(), rflag)
+		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Payout 2:"), self.bflag)
+		self.manualgrid.AddF(self.payoutodds[1], self.bflag)
+		self.manualgrid.AddF(percentsign(), self.bflag)
+		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Losing:"), rflag)
+		self.manualgrid.AddF(self.manlosingodds, rflag)
+		self.manualgrid.AddF(percentsign(), rflag)
 		
+		# the rest don't have anything in the last three columns
+		for i in range(2,len(self.payoutodds)):
+			self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Payout " + str(i+1) + ":"), self.bflag)
+			self.manualgrid.AddF(self.payoutodds[i], self.bflag)
+			self.manualgrid.AddF(percentsign(), self.bflag)
+			for x in range(0,3):
+				self.manualgrid.AddStretchSpacer()
 		
+		oddssizer.AddF(self.manualgrid, self.eflag)
+		oddssizer.AddF(wx.StaticLine(oddspage), self.eflag)
+		
+		# Near misses... made more sense to have its own section, as it's used in both manual and auto
+		nearmissrow = wx.BoxSizer(wx.HORIZONTAL)
+		nearmissrow.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Near Misses:"), self.bflag)
+		nearmissrow.AddF(self.nearmisses, self.bflag)
+		nearmissrow.AddF(percentsign(), self.bflag)
+		nearmissrow.AddF(self.chance, self.bflag)
+		oddssizer.AddF(nearmissrow, self.eflag)
+		
+		# Odds page bindings
+		self.Bind(wx.EVT_CHECKBOX, self.OnOddsTypeChecked, self.autoodds)
+		self.Bind(wx.EVT_CHECKBOX, self.OnOddsTypeChecked, self.manualodds)
+		self.Bind(wx.EVT_CHECKBOX, self.OnChanceChecked, self.chance)
+		
+		#*******************************************
+		# 				The Info page
+		#*******************************************
+		# subject info
+		self.collectname = wx.CheckBox(infopage, wx.ID_ANY, "Name")
+		self.collectage = wx.CheckBox(infopage, wx.ID_ANY, "Age")
+		self.collectsex = wx.CheckBox(infopage, wx.ID_ANY, "Sex")
+		self.collecthandedness = wx.CheckBox(infopage, wx.ID_ANY, "Handedness")
+		
+		# subjective probability estimate
+		self.getprobestimate = wx.CheckBox(infopage, wx.ID_ANY, "Obtain Subject Probability Estimate")
+		self.getprobestimate.SetFont(hfont)
+		self.estimatetiming = wx.Choice(infopage, wx.ID_ANY, choices=["At Beginning", "At End"])
+		self.estimateinterval = wx.TextCtrl(infopage, wx.ID_ANY, style=wx.TE_RIGHT)
+		
+		# save as
+		self.filenamebox = wx.TextCtrl(infopage, wx.ID_ANY)
+		self.sessionnumbox = wx.TextCtrl(infopage, wx.ID_ANY, style=wx.TE_RIGHT)
+		
+		# info collection package
+		infolabel = wx.StaticText(infopage, wx.ID_ANY, "Collect Subject Information")
+		infolabel.SetFont(hfont)
+		infosizer.AddF(infolabel, hflag)
+		infosizer.AddF(self.collectname, self.bflag)
+		infosizer.AddF(self.collectage, self.bflag)
+		infosizer.AddF(self.collectsex, self.bflag)
+		infosizer.AddF(self.collecthandedness, self.bflag)
+		infosizer.AddF(wx.StaticLine(infopage), self.eflag)
+		
+		# probability estimate stuff
+		infosizer.AddF(self.getprobestimate, hflag)
+		self.probrow = wx.BoxSizer(wx.HORIZONTAL)
+		self.probrow.AddF(self.estimatetiming, self.bflag)
+		self.probrow.AddF(wx.StaticText(infopage, wx.ID_ANY, "of every"), self.bflag)
+		self.probrow.AddF(self.estimateinterval, self.bflag)
+		self.probrow.AddF(wx.StaticText(infopage, wx.ID_ANY, "rounds"), self.bflag)
+		infosizer.AddF(self.probrow, self.eflag)
+		infosizer.AddF(wx.StaticLine(infopage), self.eflag)
+		
+		# Save as
+		saveaslabel = wx.StaticText(infopage, wx.ID_ANY, "Save As:")
+		saveaslabel.SetFont(hfont)
+		infosizer.AddF(saveaslabel, hflag)
+		savegrid = wx.FlexGridSizer(2,2)
+		savegrid.AddF(wx.StaticText(infopage, wx.ID_ANY, "Filename:"), self.bflag)
+		savegrid.AddF(self.filenamebox, self.bflag)
+		savegrid.AddF(wx.StaticText(infopage, wx.ID_ANY, "Session Number:"), self.bflag)
+		savegrid.AddF(self.sessionnumbox, self.bflag)
+		infosizer.AddF(savegrid, self.eflag)
+		
+		# Bind some stuff
+		self.Bind(wx.EVT_CHECKBOX, self.OnGetProbEstimate, self.getprobestimate)
 		#*******************************************
 		# 				Common Elements
 		#*******************************************
@@ -161,13 +267,9 @@ class SetupGUI(wx.Frame):
 		# the outer sizer to pack everything into
 		outersizer = wx.BoxSizer(wx.VERTICAL)
 		outersizer.AddF(self.book, self.bflag)
-		outersizer.AddF(payoutlabel, lflag.Border(wx.LEFT, 15))
+		outersizer.AddF(payoutlabel, hflag.Border(wx.LEFT, 15))
 		outersizer.AddF(payoutframe, self.bflag)
 		outersizer.AddF(buttonsizer, self.bflag)
-
-		# Bindings, woot
-		self.Bind(wx.EVT_BUTTON, self.OnAddWager, self.addbtn)
-		self.Bind(wx.EVT_CHOICE, self.OnChooseWager, self.wagernum)
 
 		self.SetSizerAndFit(outersizer)
 		self.Show(True)
@@ -204,6 +306,12 @@ class SetupGUI(wx.Frame):
 				combobox.Append(cfg.symbolnames[i], wx.ArtProvider.GetBitmap(cfg.symbols[i]))
 		row.AddF(wx.TextCtrl(parent), self.bflag)
 		return row
+	
+	def enable_sizer_items(self, sizer, enable):
+		for item in sizer.GetChildren():
+			window = item.GetWindow()
+			if window is not None:
+				window.Enable(enable)
 
 	def update_wagers(self):
 		parent = self.amountentry.GetParent()
@@ -275,6 +383,33 @@ class SetupGUI(wx.Frame):
 	def OnSymbolChecked(self, event, index):
 		# do something to show/hide the icons in the comboboxes
 		print "Not yet implemented"
+	
+	#*******************************************
+	# 				Odds Callbacks
+	#*******************************************
+	def OnChanceChecked(self, event):
+		self.nearmisses.Enable(not event.IsChecked())
+
+	def OnOddsTypeChecked(self, event):
+		checked = event.IsChecked()
+		if event.GetEventObject() is self.autoodds:
+			otherbox = self.manualodds
+			othergrid = self.manualgrid
+			self.enable_sizer_items(self.autogrid, checked)
+		elif event.GetEventObject() is self.manualodds:
+			otherbox = self.autoodds
+			othergrid = self.autogrid
+			self.enable_sizer_items(self.manualgrid, checked)
+		else:
+			return
+		otherbox.SetValue(not checked)
+		self.enable_sizer_items(othergrid, not checked)
+	
+	#*******************************************
+	# 				Info Callbacks
+	#*******************************************
+	def OnGetProbEstimate(self, event):
+		self.enable_sizer_items(self.probrow, event.IsChecked())
 
 if __name__ == '__main__':
     app = wx.App(False)
