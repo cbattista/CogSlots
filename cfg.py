@@ -12,7 +12,7 @@ IM_EMPTY = ""
 
 # pack them in to a tuple to make things easier
 symbols = (IM_BAR, IM_BELL, IM_CHERRIES, IM_CLOVER, IM_GOLDBARS, IM_TREASURECHEST, IM_EMPTY)
-symbolnames = ("bar", "bell", "cherries", "clover", "goldbars", "treasurechest", "anything")
+symbolnames = ("Bar", "Bell", "Cherries", "Clover", "Gold Bars", "Treasure", "Any")
 
 # interface button images
 IM_BACKGROUND = wx.ART_MISSING_IMAGE

@@ -27,8 +27,7 @@ class GamePlayGUI(wx.Frame):
 		# populate the payout sizer with values from the database
 		payoutgrid = commongui.create_payout_table(self, self.currency)
 		payouttable = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
-		for i in range (1,8):
-			commongui.create_payout_row(self, payoutgrid, i)
+		
 		payouttable.AddF(payoutgrid, wx.SizerFlags().Border(wx.ALL, 5))
 		
 		# create the first row

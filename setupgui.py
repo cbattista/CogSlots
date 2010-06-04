@@ -107,7 +107,7 @@ class SetupGUI(wx.Frame):
 		symbolssizer.AddF(self.autoselect, self.bflag)
 		symbolssizer.AddF(wx.StaticText(symbolspage, wx.ID_ANY, "Payout (x wager)"), wx.SizerFlags().Align(wx.ALIGN_RIGHT).Border(wx.RIGHT, 15))
 		for i in range(0,7):
-			symbolssizer.Add(self.create_winning_combo(symbolspage, i))
+			symbolssizer.Add(self.create_winning_combo(symbolspage, i+1))
 		symbolssizer.AddF(wx.StaticLine(symbolspage), self.eflag)
 		
 		#*******************************************
@@ -265,6 +265,9 @@ class SetupGUI(wx.Frame):
 		buttonsizer.AddF(savebtn, self.bflag)
 		buttonsizer.AddF(cancelbtn, self.bflag)
 		buttonsizer.AddF(okaybtn, self.bflag)
+		
+		# button bindings
+		self.Bind(wx.EVT_BUTTON, self.OnOkay, okaybtn)
 
 		# the outer sizer to pack everything into
 		bottomflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand()
@@ -415,6 +418,16 @@ class SetupGUI(wx.Frame):
 	#*******************************************
 	def OnGetProbEstimate(self, event):
 		self.enable_sizer_items(self.probrow, event.IsChecked())
+	
+	#*******************************************
+	# 				Common Callbacks
+	#*******************************************
+	def OnOkay(self, event):
+		message = wx.MessageDialog(self, "Do you want to accept these settings?", caption="",
+			style=wx.YES_NO|wx.ICON_QUESTION)
+		ans = message.ShowModal()
+		if ans == wx.ID_YES:
+			print "game time"
 
 if __name__ == '__main__':
     app = wx.App(False)
