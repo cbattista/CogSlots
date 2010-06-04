@@ -5,16 +5,15 @@ import wx
 import cfg
 import commongui
 
-import random # this is just temporary
-
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
 	def __init__(self, parent, *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 		
-		# the pretty background
-		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
+		# the pretty background - not working properly yet
+#		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
+		self.SetBackgroundColour((0,153,0))
 		
 		# get the user params from the database
 		self.get_user_params()
@@ -27,7 +26,10 @@ class GamePlayGUI(wx.Frame):
 		
 		# populate the payout sizer with values from the database
 		payoutgrid = commongui.create_payout_table(self, self.currency)
-		payouttable = self.populate_payout_table(payoutgrid)
+		payouttable = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
+		for i in range (1,8):
+			commongui.create_payout_row(self, payoutgrid, i)
+		payouttable.AddF(payoutgrid, wx.SizerFlags().Border(wx.ALL, 5))
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
@@ -71,9 +73,11 @@ class GamePlayGUI(wx.Frame):
 		# bindings
 		self.decreasebtn.Bind(wx.EVT_BUTTON, lambda event, name='decrease':self.OnChangeWager(event, name))
 		self.increasebtn.Bind(wx.EVT_BUTTON, lambda event, name='increase':self.OnChangeWager(event, name))
-		self.Bind(wx.EVT_BUTTON, self.OnSpin, self.spinbtn)
-		self.Bind(wx.EVT_PAINT, self.OnPaint)
-		self.Bind(wx.EVT_SIZE, self.OnSize)
+	
+		# these bindings are for the not-quite-functional background
+	#	self.Bind(wx.EVT_BUTTON, self.OnSpin, self.spinbtn)
+	#	self.Bind(wx.EVT_PAINT, self.OnPaint)
+	#	self.Bind(wx.EVT_SIZE, self.OnSize)
 		
 		# create the initial instructions dialog
 		dialog = commongui.InfoDialog(self, "Welcome to CogSlots", 'introtext.html')
@@ -108,29 +112,6 @@ class GamePlayGUI(wx.Frame):
 			return float(text)
 		elif self.currency is 'credits':
 			return int(text)
-	
-	def populate_payout_table(self, payoutgrid):
-		payoutsizer = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
-		#NOTE: this should be "while payout data available from database"
-		flag = wx.SizerFlags(1).Align(wx.ALIGN_RIGHT)
-		payoutnum = 1
-		while payoutnum < 5:
-			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "Payout %d" %payoutnum), flag)
-			#NOTE: I would put in a switch statement here depending on what icons are desired
-			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY, 
-				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
-			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY,
-				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
-			payoutgrid.Add(wx.StaticBitmap(self, wx.ID_ANY, 
-				wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
-			#NOTE: again, a temporary number until there"s real data
-			credits = random.randrange(10, 1000)
-			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%d" %credits), flag)
-			payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%d" %(credits*2)), flag)
-			payoutnum += 1
-		
-		payoutsizer.AddF(payoutgrid, wx.SizerFlags(1).Expand())
-		return payoutsizer
 	
 	def create_spinning_wheel(self, sizer):
 		#NOTE: this will be the real spinning gui stuff

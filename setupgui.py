@@ -236,9 +236,9 @@ class SetupGUI(wx.Frame):
 		infosizer.AddF(saveaslabel, hflag)
 		savegrid = wx.FlexGridSizer(2,2)
 		savegrid.AddF(wx.StaticText(infopage, wx.ID_ANY, "Filename:"), self.bflag)
-		savegrid.AddF(self.filenamebox, self.bflag)
+		savegrid.AddF(self.filenamebox, self.eflag)
 		savegrid.AddF(wx.StaticText(infopage, wx.ID_ANY, "Session Number:"), self.bflag)
-		savegrid.AddF(self.sessionnumbox, self.bflag)
+		savegrid.AddF(self.sessionnumbox, self.eflag)
 		infosizer.AddF(savegrid, self.eflag)
 		
 		# Bind some stuff
@@ -249,6 +249,8 @@ class SetupGUI(wx.Frame):
 		# Payout table
 		payoutframe = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
 		self.payouttable = commongui.create_payout_table(self, 'credits')
+		for i in range (1,8):
+			commongui.create_payout_row(self, self.payouttable, i)
 		payoutframe.AddF(self.payouttable, wx.SizerFlags().Expand())
 		payoutlabel = wx.StaticText(self, wx.ID_ANY, "Payout Table:")
 		payoutlabel.SetFont(hfont)
@@ -265,13 +267,15 @@ class SetupGUI(wx.Frame):
 		buttonsizer.AddF(okaybtn, self.bflag)
 
 		# the outer sizer to pack everything into
+		bottomflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand()
 		outersizer = wx.BoxSizer(wx.VERTICAL)
-		outersizer.AddF(self.book, self.bflag)
+		outersizer.AddF(self.book, wx.SizerFlags(1).Expand())
 		outersizer.AddF(payoutlabel, hflag.Border(wx.LEFT, 15))
-		outersizer.AddF(payoutframe, self.bflag)
-		outersizer.AddF(buttonsizer, self.bflag)
+		outersizer.AddF(payoutframe, bottomflag)
+		outersizer.AddF(buttonsizer, bottomflag)
 
 		self.SetSizerAndFit(outersizer)
+		self.SetSize((400, 600)) # a reasonable size to start with
 		self.Show(True)
 		
 	#*******************************************
@@ -283,6 +287,7 @@ class SetupGUI(wx.Frame):
 		self.book.AddPage(page, name)
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		page.SetSizer(sizer)
+		page.SetupScrolling()
 		return page, sizer
 
 	def create_symbols_checkbox(self, parent, index):

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-import wx
+import wx, wx.html
+import cfg
+import random # just for now
 
 class InfoDialog(wx.Dialog):
 	""" A simple dialogue to display an html file """
@@ -31,6 +33,23 @@ class InfoDialog(wx.Dialog):
 		self.html.LoadFile(htmlfile)
 
 # Some functions
+def create_payout_row(parent, payoutgrid, index): # and payouts/symbols etc, see TODO below
+	#TODO: I'm not sure how your symbols and payouts classes are supposed to work, I'll leave
+	# that stuff up to you.  For now, I'll fake it with random cherries.
+	
+	flag = wx.SizerFlags(1).Align(wx.ALIGN_RIGHT)
+	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), flag)
+	payoutgrid.Add(wx.StaticBitmap(parent, wx.ID_ANY, 
+		wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
+	payoutgrid.Add(wx.StaticBitmap(parent, wx.ID_ANY,
+		wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
+	payoutgrid.Add(wx.StaticBitmap(parent, wx.ID_ANY, 
+		wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
+	#NOTE: again, a temporary number until there"s real data
+	credits = random.randrange(10, 1000)
+	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "%d" %credits), flag)
+	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "%d" %(credits*2)), flag)
+
 def create_payout_table(parent, currency):
 	# create the payout table frame and sizer
 	payoutgrid = wx.FlexGridSizer(1, 6, 10, 10)
