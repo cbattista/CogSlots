@@ -88,7 +88,7 @@ class SetupGUI(wx.Frame):
 		#*******************************************
 		# 				The Symbols page
 		#*******************************************
-		self.autoselect = wx.CheckBox(symbolspage, wx.ID_ANY, "Autoselect")
+		self.autocombos = wx.CheckBox(symbolspage, wx.ID_ANY, "Autoselect")
 
 		# Visible types of symbols
 		symbolslabel = wx.StaticText(symbolspage, wx.ID_ANY, "Visible Types of Symbols")
@@ -104,10 +104,14 @@ class SetupGUI(wx.Frame):
 		comboslabel = wx.StaticText(symbolspage, wx.ID_ANY, "Winning Combinations")
 		comboslabel.SetFont(hfont)
 		symbolssizer.AddF(comboslabel, hflag)
-		symbolssizer.AddF(self.autoselect, self.bflag)
-		symbolssizer.AddF(wx.StaticText(symbolspage, wx.ID_ANY, "Payout (x wager)"), wx.SizerFlags().Align(wx.ALIGN_RIGHT).Border(wx.RIGHT, 15))
+		wingrid = wx.FlexGridSizer(8,5,2,2)
+		wingrid.Add(self.autocombos)
+		for i in range(0,3):
+			wingrid.AddStretchSpacer()
+		wingrid.Add(wx.StaticText(symbolspage, wx.ID_ANY, "Payout (x wager)"))
 		for i in range(0,7):
-			symbolssizer.Add(self.create_winning_combo(symbolspage, i+1))
+			self.create_winning_combo(symbolspage, wingrid, i+1)
+		symbolssizer.AddF(wingrid, self.eflag)
 		symbolssizer.AddF(wx.StaticLine(symbolspage), self.eflag)
 		
 		#*******************************************
@@ -295,25 +299,26 @@ class SetupGUI(wx.Frame):
 
 	def create_symbols_checkbox(self, parent, index):
 		sizer = wx.BoxSizer(wx.VERTICAL)
-		bmp = wx.StaticBitmap(parent, wx.ID_ANY, wx.ArtProvider.GetBitmap(cfg.symbols[index]))
-		checkbox = wx.CheckBox(parent, wx.ID_ANY, cfg.symbolnames[index])
+		bmp = wx.StaticBitmap(parent, wx.ID_ANY, wx.ArtProvider.GetBitmap(cfg.symbols[index], size=cfg.SLOT_SIZE))
+		checkbox = wx.CheckBox(parent, wx.ID_ANY, "")
 		sizer.AddF(bmp, self.bflag) 
 		sizer.AddF(checkbox, self.bflag)
 		return sizer
 
-	def create_winning_combo(self, parent, index):
-		row = wx.BoxSizer(wx.HORIZONTAL)
-		row.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), self.bflag)
+	def create_winning_combo(self, parent, grid, index):
+		grid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), self.bflag)
 		comboboxes = []
-		# TODO: this makes kinda ugly wide combobox items that can't seem to shrink
+		# This seems like a terrible way to get the default size, but it works...
+		unused = wx.combo.BitmapComboBox(parent)
+		h = unused.GetSize().y
+		unused.Destroy()
 		for i in range(0,3):
-			comboboxes.append(wx.combo.BitmapComboBox(parent, style=wx.CB_READONLY))
-			row.Add(comboboxes[i])
+			comboboxes.append(wx.combo.BitmapComboBox(parent, style=wx.CB_READONLY, size=(h*2, h)))
+			grid.Add(comboboxes[i])
 		for combobox in comboboxes:
 			for i in range (0, len(cfg.symbols)):
-				combobox.Append(cfg.symbolnames[i], wx.ArtProvider.GetBitmap(cfg.symbols[i]))
-		row.AddF(wx.TextCtrl(parent), self.bflag)
-		return row
+				combobox.Append(cfg.symbolnames[i], wx.ArtProvider.GetBitmap(cfg.symbols[i], size=cfg.SLOT_SIZE))
+		grid.AddF(wx.TextCtrl(parent), self.bflag)
 	
 	def enable_sizer_items(self, sizer, enable):
 		for item in sizer.GetChildren():
