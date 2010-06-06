@@ -31,7 +31,6 @@ class InfoDialog(wx.Dialog):
 	
 	def set_html_file(self, htmlfile):
 		self.html.LoadFile(htmlfile)
-		wx.Dialog.__init__(self, parent, wx.ID_ANY, title)
 
 # Some functions
 def create_payout_row(parent, payoutgrid, index): # and payouts/symbols etc, see TODO below

@@ -12,8 +12,8 @@ class GamePlayGUI(wx.Frame):
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 		
 		# the pretty background - not working properly yet
-#		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
-		self.SetOwnBackgroundColour((0,153,0))
+		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
+#		self.SetOwnBackgroundColour((0,153,0))
 		
 		# get the user params from the database
 		self.get_user_params()
@@ -25,11 +25,11 @@ class GamePlayGUI(wx.Frame):
 			self.sizer.AddGrowableCol(i)
 		
 		# populate the payout sizer with values from the database
-		payoutgrid = commongui.create_payout_table(self, self.currency)
-		for i in range (1,8):
-			commongui.create_payout_row(self, payoutgrid, i)
 		payoutpanel = wx.Panel(self)
 		payoutpanel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+		payoutgrid = commongui.create_payout_table(payoutpanel, self.currency)
+		for i in range (1,8):
+			commongui.create_payout_row(payoutpanel, payoutgrid, i)
 		payoutpanel.SetSizerAndFit(payoutgrid)
 		
 		# create the first row
@@ -75,10 +75,11 @@ class GamePlayGUI(wx.Frame):
 		self.decreasebtn.Bind(wx.EVT_BUTTON, lambda event, name='decrease':self.OnChangeWager(event, name))
 		self.increasebtn.Bind(wx.EVT_BUTTON, lambda event, name='increase':self.OnChangeWager(event, name))
 	
+		self.Bind(wx.EVT_BUTTON, self.OnSpin, self.spinbtn)
+	
 		# these bindings are for the not-quite-functional background
-	#	self.Bind(wx.EVT_BUTTON, self.OnSpin, self.spinbtn)
-	#	self.Bind(wx.EVT_PAINT, self.OnPaint)
-	#	self.Bind(wx.EVT_SIZE, self.OnSize)
+		self.Bind(wx.EVT_PAINT, self.OnPaint)
+		self.Bind(wx.EVT_SIZE, self.OnSize)
 		
 		# create the initial instructions dialog
 		dialog = commongui.InfoDialog(self, "Welcome to CogSlots", 'introtext.html')
