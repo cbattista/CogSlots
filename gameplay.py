@@ -13,7 +13,7 @@ class GamePlayGUI(wx.Frame):
 		
 		# the pretty background - not working properly yet
 #		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
-		self.SetBackgroundColour((0,153,0))
+		self.SetOwnBackgroundColour((0,153,0))
 		
 		# get the user params from the database
 		self.get_user_params()
@@ -26,15 +26,17 @@ class GamePlayGUI(wx.Frame):
 		
 		# populate the payout sizer with values from the database
 		payoutgrid = commongui.create_payout_table(self, self.currency)
-		payouttable = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
-		
-		payouttable.AddF(payoutgrid, wx.SizerFlags().Border(wx.ALL, 5))
+		for i in range (1,8):
+			commongui.create_payout_row(self, payoutgrid, i)
+		payoutpanel = wx.Panel(self)
+		payoutpanel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+		payoutpanel.SetSizerAndFit(payoutgrid)
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
 			cfg.IM_ORNAMENT_LEFT, size=(40,80))), centeredflag)
-		self.sizer.AddF(payouttable, centeredflag)
+		self.sizer.AddF(payoutpanel, centeredflag.Expand())
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
 			cfg.IM_ORNAMENT_RIGHT, size=(40,80))), centeredflag)
 			
@@ -89,7 +91,9 @@ class GamePlayGUI(wx.Frame):
 		self.Show(True)
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
-		box = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
+		staticbox = wx.StaticBox(self)
+		staticbox.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+		box = wx.StaticBoxSizer(staticbox, wx.VERTICAL)
 		box.AddF(wx.StaticText(self, wx.ID_ANY, label), wx.SizerFlags().Centre())
 		textbox = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_RIGHT)
 		box.AddF(textbox, wx.SizerFlags().Centre())

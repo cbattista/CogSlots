@@ -5,6 +5,7 @@ import wx, wx.combo, wx.lib.scrolledpanel
 import cfg
 import commongui
 import gameplay
+import subjectinfo
 
 class SetupGUI(wx.Frame):
 	""" The interface for the tester to set up parameters """
@@ -432,7 +433,15 @@ class SetupGUI(wx.Frame):
 			style=wx.YES_NO|wx.ICON_QUESTION)
 		ans = message.ShowModal()
 		if ans == wx.ID_YES:
-			print "game time"
+			infodialog = subjectinfo.SubjectInfoDialog(self, "Subject Info")
+			infodialog.enable_control("Name", self.collectname.IsChecked())
+			infodialog.enable_control("Age", self.collectage.IsChecked())
+			infodialog.enable_control("Sex", self.collectsex.IsChecked())
+			infodialog.enable_control("Handedness", self.collecthandedness.IsChecked())
+			
+			ans2 = infodialog.ShowModal()
+			if ans2 == wx.ID_SAVE:
+				infodialog.save_info()
 
 if __name__ == '__main__':
     app = wx.App(False)
