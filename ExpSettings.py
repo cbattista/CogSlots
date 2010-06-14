@@ -1,8 +1,8 @@
 import pickle
 
 class Payouts:
-	def __init__(self, values = [20., 12., 10., 5., 3., 2., 1.], betsizes = [0, 10, 25, 50, 100], odds = 85, rounds = 100, seed=5):
-		self.values = values
+	def __init__(self, payouts = [20., 12., 10., 5., 3., 2., 1.], betsizes = [0, 10, 25, 50, 100], odds = 85, rounds = 100, seed=5):
+		self.payouts = payouts
 		self.betsizes = betsizes
 		self.odds = odds
 		self.rounds = rounds
@@ -10,20 +10,20 @@ class Payouts:
 
 	def getPayoff(self, i, j):
 		#returns the payoff given indeces of the payout size and bet size  
-		payout = self.values[i] * self.betsizes[j]
+		payout = self.payouts[i] * self.betsizes[j]
 		return payout
 
 	def getWinnings(self, i, j):
 		#returns the winnings given indeces of the payout size and bet size  
-		op =  self.odds / float(len(self.values))
-		winnings = op * self.values[i] * self.betsizes[j]
+		op =  self.odds / float(len(self.payouts))
+		winnings = op * self.payouts[i] * self.betsizes[j]
 		return winnings
 		
 	def getMaxPay(self):
 		#returns the maximum amount of money that can be won
 		maxpay = self.seed
 		subtractor = (self.rounds * self.betsizes[0] * ((100-self.odds)/100.))
-		for j in range(0, len(self.values)):
+		for j in range(0, len(self.payouts)):
 			maxpay = maxpay + self.getWinnings(j, -1) 
 		maxpay = maxpay - subtractor
 		return maxpay
@@ -32,14 +32,14 @@ class Payouts:
 		#returns the minimum amount of money that can be one
 		minpay = self.seed
 		subtractor = (self.rounds * self.betsizes[-1] * ((100-self.odds)/100.))
-		for j in range(0, len(self.values)):
+		for j in range(0, len(self.payouts)):
 			minpay = minpay + self.getWinnings(j, 0)
 		minpay = minpay - subtractor
 		return minpay
 
 	def __str__(self):
 		output = ""
-		for i in range(0, len(self.values)):
+		for i in range(0, len(self.payouts)):
 			line = ""
 			for j in range(0, len(self.betsizes)):
 				line = "%s %s" % (line, round(self.getWinnings(i, j), 2))
@@ -69,13 +69,16 @@ class Symbols:
 		self.combos = combos
 
 	def setPayoff(self, i, value, combo):
-		#set the value of a particular payoff given an index, value, and combintation of symbols [str]
+		#set the value of a particular payoff given an index, value, and combination of symbols [str]
 		self.combos[i] = combo
 		self.payoffs[i] = value
 
 	def getPayoff(self, i):
 		#get a list of 3 imgs and payoff value given an index
-		row = [self.combos[i][0], self.combos[i][1], self.combos[i][2], self.payoffs[i]]
+		if len(self.payoffs) > i:
+			row = [self.combos[i][0], self.combos[i][1], self.combos[i][2], self.payoffs[i]]
+		else:
+			row = ""
 		return row
 
 	def hasDuplicates(self):
@@ -101,29 +104,56 @@ class Bets:
 		self.currency = currency
 		self.betsizes = betsizes
 
-class Settings:
-	def __init__(self, name="unnamed"):
-		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
-		self.name = name
-		self.setupSettings()
-
-	def setupSettings(self, betsizes=[], symbols=""):
-		#Method to synchronize
-		if betsizes:
-			self.bets = Bets(betsizes=betsizes)
-		else:
-			self.bets = Bets()
-
-		self.payouts = Payouts(betsizes = self.bets.betsizes)
-
-		if symbols:
-			self.symbols = Symbols(payoffs = self.payouts.values, symbols=symbols)
-		else:
-			self.symbols = Symbols(payoffs = self.payouts.values)
-
 	def __str__(self):
-		output = "%s\n%s\n%s" % (self.bets, self.payouts, self.symbols)
+		output = "Rounds : %s\nDebt : %s\nSeed : %s\nCurrency : %s\nBetsizes : %s" % (self.rounds, self.debt, self.seed, self.currency, self.betsizes)
 		return output
 
+class Settings:
+	def __init__(self, name="unnamed", betsizes=[], payouts=[20., 12., 10., 5., 3., 2., 1.], symbols=[], rounds=100, odds=85, seed=5):
+		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
+		self.name = name
+		self.odds = odds
+		self.symbol_imgs = symbols
+		self.payouts = payouts
+		self.setBets(betsizes, rounds, seed)
+
+	def setBets(self, betsizes, rounds, seed):
+		#set bets, set payouts
+		if betsizes:
+			self.bets = Bets(betsizes=betsizes, rounds=rounds, seed=seed)
+		else:
+			self.bets = Bets(rounds=rounds, seed=seed)
+		self.setPayouts(self.payouts)
+
+	def setPayouts(self, payouts):
+		#set payouts, set symbols
+		if payouts:
+			self.payoffs = Payouts(payouts = payouts, rounds = self.bets.rounds, seed = self.bets.seed, betsizes = self.bets.betsizes, odds = self.odds)
+		else:
+			self.payoffs = Payouts(rounds = self.bets.rounds, seed = self.bets.seed, betsizes = self.bets.betsizes, odds = self.odds)
+		self.setSymbols()
+
+	def setSymbols(self):
+		if self.symbol_imgs:
+			self.symbols = Symbols(payoffs = self.payoffs.payouts, symbols=self.symbols_imgs)
+		else:
+			self.symbols = Symbols(payoffs = self.payoffs.payouts)
+
+	def preserve(self):
+		f = open("%s.set" % self.name, "w")
+		pickle.dump(self, f)
+		f.close()
+
+	def __str__(self):
+		output = "%s\n%s\n%s" % (self.bets, self.payoffs, self.symbols)
+		return output
+
+s = Settings()
+print s
+s.setBets([0, 1, 5, 10], 50, 2) 
+s.setPayouts([10, 8, 5, 2, 1, 1])
+
+print s
+s.preserve()
 
 	
