@@ -321,7 +321,6 @@ class SetupGUI(wx.Frame):
 	# 				Helper Functions
 	#*******************************************
 	def create_page(self, name):
-		# TODO: scrolling doesn't seem to behave
 		page = wx.lib.scrolledpanel.ScrolledPanel(self.book)
 		self.book.AddPage(page, name)
 		sizer = wx.BoxSizer(wx.VERTICAL)
@@ -360,9 +359,7 @@ class SetupGUI(wx.Frame):
 
 	def update_wagers(self):
 		parent = self.amountentry.GetParent()
-		parent.Layout()
-		self.Layout()
-		self.Fit()
+		parent.Fit()
 			
 	#*******************************************
 	# 				Wager Callbacks
