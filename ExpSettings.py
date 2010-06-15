@@ -115,14 +115,16 @@ class Settings:
 		self.odds = odds
 		self.symbol_imgs = symbols
 		self.payouts = payouts
+		self.seed = seed
+		self.rounds = rounds
 		self.setBets(betsizes, rounds, seed)
 
-	def setBets(self, betsizes, rounds, seed):
+	def setBets(self, betsizes, debt, currency):
 		#set bets, set payouts
 		if betsizes:
-			self.bets = Bets(betsizes=betsizes, rounds=rounds, seed=seed)
+			self.bets = Bets(self.rounds, debt, self.seed, currency, betsizes)
 		else:
-			self.bets = Bets(rounds=rounds, seed=seed)
+			self.bets = Bets(rounds=self.rounds, seed=self.seed)
 		self.setPayouts(self.payouts)
 
 	def setPayouts(self, payouts):

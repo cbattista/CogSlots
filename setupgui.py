@@ -6,12 +6,15 @@ import cfg
 import commongui
 import gameplay
 import subjectinfo
+from ExpSettings import *
 
 class SetupGUI(wx.Frame):
 	""" The interface for the tester to set up parameters """
 	def __init__(self, parent, *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
+
+		self.settings = Settings()
 
 		# the notebook
 		self.book = wx.Notebook(self, wx.ID_ANY)
@@ -34,12 +37,13 @@ class SetupGUI(wx.Frame):
 		# 				The bets page
 		#*******************************************
 		# Number of rounds
-		self.roundsentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
+		self.roundsentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT, value=str(self.settings.bets.rounds))
+		self.seedentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT, value=str(self.settings.bets.seed))
+
 		self.debtallowed = wx.Choice(betspage, wx.ID_ANY, choices=["Allowed", "Not Allowed"])
 
-		# Currency
-		self.seedentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
-		self.currencytype = wx.Choice(betspage, wx.ID_ANY, choices=["Credits", "Dollars"])
+		self.Bind(wx.EVT_TEXT, self.OnEditText, self.roundsentry)
+		self.Bind(wx.EVT_TEXT, self.OnEditText, self.seedentry)
 
 		# Wagers
 		self.wagernum = wx.Choice(betspage, wx.ID_ANY, choices=["New"])
@@ -66,7 +70,7 @@ class SetupGUI(wx.Frame):
 		currencybox = wx.BoxSizer(wx.HORIZONTAL)
 		currencybox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Seed Amount:"), self.bflag)
 		currencybox.AddF(self.seedentry, self.bflag)
-		currencybox.AddF(self.currencytype, self.bflag)
+		#currencybox.AddF(self.currencytype, self.bflag)
 		betssizer.AddF(currencybox, self.bflag)
 		betssizer.AddF(wx.StaticLine(betspage), self.eflag)
 
@@ -83,6 +87,9 @@ class SetupGUI(wx.Frame):
 		betssizer.AddF(self.wagertable, self.eflag)
 		
 		# Bindings, woot
+
+		# Currency
+		self.currencytype = wx.Choice(betspage, wx.ID_ANY, choices=["Credits", "Dollars"])
 		self.Bind(wx.EVT_BUTTON, self.OnAddWager, self.addbtn)
 		self.Bind(wx.EVT_CHOICE, self.OnChooseWager, self.wagernum)
 
@@ -285,7 +292,26 @@ class SetupGUI(wx.Frame):
 		self.SetSizerAndFit(outersizer)
 		self.SetSize((400, 600)) # a reasonable size to start with
 		self.Show(True)
-		
+
+	def OnEditText(self, event):
+		self.setBets()
+
+
+	def setBets(self):
+		debt = self.debtallowed.GetCurrentSelection()
+		currency = self.currencytype.GetCurrentSelection()
+		self.settings.seed = self.seedentry.GetValue()
+		self.settings.rounds = self.roundsentry.GetValue()
+		betsizes = []
+		for w in self.wagers:
+			wagertext = w.GetItem(1).GetWindow()
+			betsizes.append(float(wagertext.GetLabel().split(' ')[0]))
+
+		self.settings.setBets(betsizes, debt, currency)	
+		print self.settings
+
+
+
 	#*******************************************
 	# 				Helper Functions
 	#*******************************************
