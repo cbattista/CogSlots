@@ -67,10 +67,11 @@ class SetupGUI(wx.Frame):
 		currencylabel = wx.StaticText(betspage, wx.ID_ANY, "Currency:")
 		currencylabel.SetFont(hfont)
 		betssizer.AddF(currencylabel, hflag)
+		self.currencytype = wx.Choice(betspage, wx.ID_ANY, choices=["Credits", "Dollars"])
 		currencybox = wx.BoxSizer(wx.HORIZONTAL)
 		currencybox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Seed Amount:"), self.bflag)
 		currencybox.AddF(self.seedentry, self.bflag)
-		#currencybox.AddF(self.currencytype, self.bflag)
+		currencybox.AddF(self.currencytype, self.bflag)
 		betssizer.AddF(currencybox, self.bflag)
 		betssizer.AddF(wx.StaticLine(betspage), self.eflag)
 
@@ -89,7 +90,6 @@ class SetupGUI(wx.Frame):
 		# Bindings, woot
 
 		# Currency
-		self.currencytype = wx.Choice(betspage, wx.ID_ANY, choices=["Credits", "Dollars"])
 		self.Bind(wx.EVT_BUTTON, self.OnAddWager, self.addbtn)
 		self.Bind(wx.EVT_CHOICE, self.OnChooseWager, self.wagernum)
 
@@ -292,6 +292,11 @@ class SetupGUI(wx.Frame):
 		self.SetSizerAndFit(outersizer)
 		self.SetSize((400, 600)) # a reasonable size to start with
 		self.Show(True)
+		#initially populate the wagers
+		for w in self.settings.bets.betsizes:
+			w = str(w)
+			self.AddWager(w, betspage)
+
 
 	def OnEditText(self, event):
 		self.setBets()
@@ -362,14 +367,11 @@ class SetupGUI(wx.Frame):
 	#*******************************************
 	# 				Wager Callbacks
 	#*******************************************
-	def OnAddWager(self, event):
-		wager = self.amountentry.GetValue()
-		parent = self.amountentry.GetParent()
+	def AddWager(self, wager, parent):
 		index = len(self.wagers)
 		deletebtn = wx.Button(parent, wx.ID_ANY, "Delete")
 		self.Bind(wx.EVT_BUTTON, self.OnDeleteWager, deletebtn)
 		self.wagernum.Append(str(index+1))
-
 		# create the new sizer
 		row = wx.BoxSizer(wx.HORIZONTAL)
 		row.AddF(wx.StaticText(parent, wx.ID_ANY, "Wager " + str(index+1) + ":"), self.bflag)
@@ -378,6 +380,11 @@ class SetupGUI(wx.Frame):
 		self.wagers.append(row)
 		self.wagertable.AddF(row, self.bflag)
 		self.update_wagers()
+
+	def OnAddWager(self, event):
+		wager = self.amountentry.GetValue()
+		parent = self.amountentry.GetParent()
+		self.AddWager(wager, parent)
 
 	def OnChooseWager(self, event):
 		index = event.GetSelection()
