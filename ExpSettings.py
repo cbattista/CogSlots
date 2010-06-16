@@ -1,4 +1,5 @@
 import pickle
+import cfg
 
 class Payouts:
 	def __init__(self, payouts = [20., 12., 10., 5., 3., 2., 1.], betsizes = [0, 10, 25, 50, 100], odds = 85, rounds = 100, seed=5):
@@ -53,7 +54,7 @@ class Payouts:
 		f.close()
 
 class Symbols:
-	def __init__(self, payoffs = [20., 12., 10., 5., 3., 2., 1.], symbols = ["gold", "chest", "bar", "cherry", "bell"]):
+	def __init__(self, payoffs = [20., 12., 10., 5., 3., 2., 1.], symbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL]):
 		self.payoffs = payoffs
 		self.symbols = symbols
 		self.createCombos()
@@ -64,8 +65,8 @@ class Symbols:
 		for s in self.symbols:
 			combos.append([s, s, s])
 
-		combos.append([s, s, None])
-		combos.append([s, None, None])
+		combos.append([s, s, cfg.IM_EMPTY])
+		combos.append([s, cfg.IM_EMPTY, cfg.IM_EMPTY])
 		self.combos = combos
 
 	def setPayoff(self, i, value, combo):

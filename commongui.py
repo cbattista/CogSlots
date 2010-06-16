@@ -33,18 +33,23 @@ class InfoDialog(wx.Dialog):
 		self.html.LoadFile(htmlfile)
 
 # Some functions
-def create_payout_row(parent, payoutgrid, index): # and payouts/symbols etc, see TODO below
+def create_payout_row(parent, payoutgrid, index, icons): # and payouts/symbols etc, see TODO below
 	#TODO: I'm not sure how your symbols and payouts classes are supposed to work, I'll leave
 	# that stuff up to you.  For now, I'll fake it with random cherries.
 	
 	flag = wx.SizerFlags(1).Align(wx.ALIGN_RIGHT)
 	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), flag)
-	payoutgrid.Add(wx.StaticBitmap(parent, wx.ID_ANY, 
-		wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
-	payoutgrid.Add(wx.StaticBitmap(parent, wx.ID_ANY,
-		wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
-	payoutgrid.Add(wx.StaticBitmap(parent, wx.ID_ANY, 
-		wx.ArtProvider.GetBitmap(cfg.IM_CHERRIES, size=cfg.SLOT_SIZE)))
+
+	for icon in icons:
+		if icon:
+			img = wx.Image(icon)
+			img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+			bitmap = wx.BitmapFromImage(img)
+			bitmap.SetHeight(cfg.SLOT_SIZE[0])
+			bitmap.SetWidth(cfg.SLOT_SIZE[1])
+			icon = wx.StaticBitmap(parent, wx.ID_ANY, bitmap)
+			payoutgrid.Add(icon)
+
 	#NOTE: again, a temporary number until there"s real data
 	credits = random.randrange(10, 1000)
 	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "%d" %credits), flag)
