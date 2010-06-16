@@ -117,8 +117,10 @@ class SetupGUI(wx.Frame):
 		for i in range(0,3):
 			wingrid.AddStretchSpacer()
 		wingrid.Add(wx.StaticText(symbolspage, wx.ID_ANY, "Payout (x wager)"))
+		i = 0
 		for c in self.settings.symbols.combos: 
-			self.create_winning_combo(symbolspage, wingrid, i+1, c)
+			self.create_winning_combo(symbolspage, wingrid, i+1, c, self.settings.symbols.payoffs[i])
+			i = i + 1
 		symbolssizer.AddF(wingrid, self.eflag)
 		symbolssizer.AddF(wx.StaticLine(symbolspage), self.eflag)
 		
@@ -353,7 +355,7 @@ class SetupGUI(wx.Frame):
 		bitmap.SetWidth(cfg.SLOT_SIZE[1])
 		return bitmap
 
-	def create_winning_combo(self, parent, grid, index, combos):
+	def create_winning_combo(self, parent, grid, index, combos, value):
 		grid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), self.bflag)
 		comboboxes = []
 		# This seems like a terrible way to get the default size, but it works...
@@ -370,7 +372,7 @@ class SetupGUI(wx.Frame):
 			comboboxes.append(combo)
 			grid.Add(combo)
 
-		grid.AddF(wx.TextCtrl(parent), self.bflag)
+		grid.AddF(wx.TextCtrl(parent, value=str(value)), self.bflag)
 	
 	def enable_sizer_items(self, sizer, enable):
 		for item in sizer.GetChildren():
