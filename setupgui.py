@@ -117,8 +117,8 @@ class SetupGUI(wx.Frame):
 		for i in range(0,3):
 			wingrid.AddStretchSpacer()
 		wingrid.Add(wx.StaticText(symbolspage, wx.ID_ANY, "Payout (x wager)"))
-		for i in range(0,7):
-			self.create_winning_combo(symbolspage, wingrid, i+1)
+		for c in self.settings.symbols.combos: 
+			self.create_winning_combo(symbolspage, wingrid, i+1, c)
 		symbolssizer.AddF(wingrid, self.eflag)
 		symbolssizer.AddF(wx.StaticLine(symbolspage), self.eflag)
 		
@@ -335,7 +335,6 @@ class SetupGUI(wx.Frame):
 
 	def create_symbols_checkbox(self, parent, index):
 		sizer = wx.BoxSizer(wx.VERTICAL)
-		print index
 		img = wx.Image(index)
 		img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
 		bitmap = wx.BitmapFromImage(img)
@@ -346,19 +345,31 @@ class SetupGUI(wx.Frame):
 		sizer.AddF(checkbox, self.bflag)
 		return sizer
 
-	def create_winning_combo(self, parent, grid, index):
+	def makeBitmap(self, filename):
+		img = wx.Image(filename)
+		img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+		bitmap = wx.BitmapFromImage(img)
+		bitmap.SetHeight(cfg.SLOT_SIZE[0])
+		bitmap.SetWidth(cfg.SLOT_SIZE[1])
+		return bitmap
+
+	def create_winning_combo(self, parent, grid, index, combos):
 		grid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), self.bflag)
 		comboboxes = []
 		# This seems like a terrible way to get the default size, but it works...
 		unused = wx.combo.BitmapComboBox(parent)
 		h = unused.GetSize().y
 		unused.Destroy()
-		for i in range(0,3):
-			comboboxes.append(wx.combo.BitmapComboBox(parent, style=wx.CB_READONLY, size=(h*2, h)))
-			grid.Add(comboboxes[i])
-		for combobox in comboboxes:
+		for c in combos:
+			combo = wx.combo.BitmapComboBox(parent, style=wx.CB_READONLY, size=(h*2, h))
 			for i in range (0, len(cfg.symbols)):
-				combobox.Append(cfg.symbolnames[i], wx.ArtProvider.GetBitmap(cfg.symbols[i], size=cfg.SLOT_SIZE))
+				combo.Append(cfg.symbolnames[i], self.makeBitmap(cfg.symbols[i]))
+
+			
+			combo.SetStringSelection(cfg.symbolnames[cfg.symbols.index(c)])
+			comboboxes.append(combo)
+			grid.Add(combo)
+
 		grid.AddF(wx.TextCtrl(parent), self.bflag)
 	
 	def enable_sizer_items(self, sizer, enable):
