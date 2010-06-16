@@ -103,7 +103,7 @@ class SetupGUI(wx.Frame):
 		symbolslabel.SetFont(hfont)
 		symbolssizer.AddF(symbolslabel, hflag)
 		symbolsbox = wx.BoxSizer(wx.HORIZONTAL)
-		for i in range (0, len(cfg.symbols)):
+		for i in cfg.symbols:
 			symbolsbox.AddF(self.create_symbols_checkbox(symbolspage, i), self.bflag)
 		symbolssizer.AddF(symbolsbox, self.bflag)
 		symbolssizer.AddF(wx.StaticLine(symbolspage), self.bflag)
@@ -335,7 +335,12 @@ class SetupGUI(wx.Frame):
 
 	def create_symbols_checkbox(self, parent, index):
 		sizer = wx.BoxSizer(wx.VERTICAL)
-		bmp = wx.StaticBitmap(parent, wx.ID_ANY, wx.ArtProvider.GetBitmap(cfg.symbols[index], size=cfg.SLOT_SIZE))
+		print index
+		img = wx.Image(index)
+		img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+		bitmap = wx.BitmapFromImage(img)
+
+		bmp = wx.StaticBitmap(parent, wx.ID_ANY, bitmap)
 		checkbox = wx.CheckBox(parent, wx.ID_ANY, "")
 		sizer.AddF(bmp, self.bflag) 
 		sizer.AddF(checkbox, self.bflag)
