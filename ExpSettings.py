@@ -116,11 +116,40 @@ class Bets:
 		output = "Rounds : %s\nDebt : %s\nSeed : %s\nCurrency : %s\nBetsizes : %s" % (self.rounds, self.debt, self.seed, self.currency, self.betsizes)
 		return output
 
+class Odds:
+	def __init__(self, odds="85", auto=True, kind="equal", payouts=[20., 12., 10., 5., 3., 2., 1.]):
+		self.odds = odds
+		self.kind = kind
+		self.payouts = payouts
+		self.payoutOdds = []
+		self.setAutoOdds()
+
+	def setAutoOdds(self):
+		num = len(self.payouts)
+
+		if self.kind=="equal":
+			for i in range(0, num):
+				self.payoutOdds.append(self.odds / num)
+		elif self.kind=="linear":
+			for p in self.payouts:
+				self.payoutOdds.append((1./float(p)/max(self.payouts)) * self.odds)
+			
+
+	def setCustomOdds(self):
+		pass
+
+	def __str__(self):
+		output = ""
+		for i, j in zip(self.payouts, self.payoutOdds):
+			output="%s\n%s, %s" % (output, i, j)
+		return output
+
 class Settings:
-	def __init__(self, name="unnamed", betsizes=[], payouts=[20., 12., 10., 5., 3., 2., 1.], symbols=[], rounds=100, odds=85, seed=5):
+	def __init__(self, name="unnamed", betsizes=[], payouts=[20., 12., 10., 5., 3., 2., 1.], symbols=[], rounds=100, winOdds=85, seed=5):
 		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
 		self.name = name
-		self.odds = odds
+		self.winOdds = winOdds
+		
 		self.symbol_imgs = symbols
 		self.payouts = payouts
 		self.seed = seed
@@ -138,10 +167,14 @@ class Settings:
 	def setPayouts(self, payouts):
 		#set payouts, set symbols
 		if payouts:
-			self.payoffs = Payouts(payouts = payouts, rounds = self.bets.rounds, seed = self.bets.seed, betsizes = self.bets.betsizes, odds = self.odds)
+			self.payoffs = Payouts(payouts = payouts, rounds = self.bets.rounds, seed = self.bets.seed, betsizes = self.bets.betsizes, odds = self.winOdds)
 		else:
 			self.payoffs = Payouts(rounds = self.bets.rounds, seed = self.bets.seed, betsizes = self.bets.betsizes, odds = self.odds)
+		self.setOdds()
 		self.setSymbols()
+
+	def setOdds(self, auto=True, kind="linear"):
+		self.odds = Odds(self.winOdds, auto, kind, self.payoffs.payouts)
 
 	def setSymbols(self):
 		if self.symbol_imgs:
@@ -155,7 +188,7 @@ class Settings:
 		f.close()
 
 	def __str__(self):
-		output = "%s\n%s\n%s" % (self.bets, self.payoffs, self.symbols)
+		output = "%s\n%s\n%s\n%s" % (self.bets, self.payoffs, self.symbols, self.odds)
 		return output
 
 s = Settings()
