@@ -132,17 +132,22 @@ class SetupGUI(wx.Frame):
 		self.autoodds.SetFont(hfont)
 		self.autowinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
 		self.autolosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
-		self.autopayout = wx.Choice(oddspage, wx.ID_ANY, choices=["Equal Odds", "Casino Odds", "Linear Odds"])
-		
+		self.autowinningodds.SetValue(str(self.settings.winOdds))
+		self.autolosingodds.SetValue(str(100 - self.settings.winOdds))
+		self.autopayout = wx.Choice(oddspage, wx.ID_ANY, choices=["equal", "casino", "linear"])
+		self.autopayout.SetStringSelection(self.settings.odds.kind)
+
 		# Manual
 		self.manualodds = wx.CheckBox(oddspage, wx.ID_ANY, "Manual Odds")
 		self.manualodds.SetFont(hfont)
 		self.payoutodds = []
-		for i in range(0,7):
-			self.payoutodds.append(wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT))
-		self.manwinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
-		self.manlosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
 		
+		for o in self.settings.odds.payoutOdds:
+			tc = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
+			tc.SetValue(str(o))
+			self.payoutodds.append(tc)
+			
+			
 		# Near Misses
 		self.nearmisses = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
 		self.chance = wx.CheckBox(oddspage, wx.ID_ANY, "Chance")
@@ -166,6 +171,11 @@ class SetupGUI(wx.Frame):
 		oddssizer.AddF(wx.StaticLine(oddspage), self.eflag)
 		
 		# pack up the manual stuff
+		self.manwinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
+		self.manlosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
+		self.manwinningodds.SetValue(str(self.settings.winOdds))
+		self.manlosingodds.SetValue(str(100 - self.settings.winOdds))		
+		
 		oddssizer.AddF(self.manualodds, hflag)
 		self.manualgrid = wx.FlexGridSizer(7, 6)
 		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Payout 1:"), self.bflag)
