@@ -33,38 +33,33 @@ class InfoDialog(wx.Dialog):
 		self.html.LoadFile(htmlfile)
 
 # Some functions
-def create_payout_row(parent, payoutgrid, index, icons): # and payouts/symbols etc, see TODO below
-	#TODO: I'm not sure how your symbols and payouts classes are supposed to work, I'll leave
-	# that stuff up to you.  For now, I'll fake it with random cherries.
+def create_payout_row(parent, payoutgrid, index, icons, value): # and payouts/symbols etc
 	
 	flag = wx.SizerFlags(1).Align(wx.ALIGN_RIGHT)
 	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), flag)
 
 	for icon in icons:
-		if icon:
-			img = wx.Image(icon)
-			img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
-			bitmap = wx.BitmapFromImage(img)
-			bitmap.SetHeight(cfg.SLOT_SIZE[0])
-			bitmap.SetWidth(cfg.SLOT_SIZE[1])
-			icon = wx.StaticBitmap(parent, wx.ID_ANY, bitmap)
-			payoutgrid.Add(icon)
+		img = wx.Image(icon)
+		img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+		bitmap = wx.BitmapFromImage(img)
+		bitmap.SetHeight(cfg.SLOT_SIZE[0])
+		bitmap.SetWidth(cfg.SLOT_SIZE[1])
+		icon = wx.StaticBitmap(parent, wx.ID_ANY, bitmap)
+		payoutgrid.Add(icon)
 
-	#NOTE: again, a temporary number until there"s real data
-	credits = random.randrange(10, 1000)
-	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "%d" %credits), flag)
-	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "%d" %(credits*2)), flag)
+	for v in value:
+		payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "%s" % v), flag)
 
-def create_payout_table(parent, currency):
+def create_payout_table(parent, currency, bets):
 	# create the payout table frame and sizer
-	payoutgrid = wx.FlexGridSizer(1, 6, 10, 10)
+	payoutgrid = wx.FlexGridSizer(1, len(bets) + 4, 10, 10)
 	
 	# the top row just has headers
 	# but the first four columns don"t have headers
 	for i in range(0,4):
 		payoutgrid.AddStretchSpacer()
-	
-	payoutgrid.Add(wx.StaticText(parent, wx.ID_ANY, "10 " + currency.title()), wx.ALIGN_CENTRE)
-	payoutgrid.Add(wx.StaticText(parent, wx.ID_ANY, "20 " + currency.title()), wx.ALIGN_CENTRE)
+
+	for b in bets:	
+		payoutgrid.Add(wx.StaticText(parent, wx.ID_ANY, "%s %s" % (b, currency.title())), wx.ALIGN_CENTRE)
 
 	return payoutgrid

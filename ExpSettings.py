@@ -14,6 +14,13 @@ class Payouts:
 		payout = self.payouts[i] * self.betsizes[j]
 		return payout
 
+	def getPayoffRow(self, i):
+		#returns the payoff row for a given payout size
+		payouts = []
+		for b in self.betsizes:
+			payouts.append(self.payouts[i] * b)
+		return payouts
+
 	def getWinnings(self, i, j):
 		#returns the winnings given indeces of the payout size and bet size  
 		op =  self.odds / float(len(self.payouts))

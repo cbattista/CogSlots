@@ -260,9 +260,14 @@ class SetupGUI(wx.Frame):
 		#*******************************************
 		# Payout table
 		payoutframe = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
-		self.payouttable = commongui.create_payout_table(self, 'credits')
-		for i in range (1,8):
-			commongui.create_payout_row(self, self.payouttable, i)
+		self.payouttable = commongui.create_payout_table(self, 'credits', self.settings.bets.betsizes)
+
+		for i in range(len(self.settings.symbols.combos)):
+			payoff = self.settings.symbols.getPayoff(i)
+			values = self.settings.payoffs.getPayoffRow(i)
+
+			commongui.create_payout_row(self, self.payouttable, i, payoff[0:3], values)
+
 		payoutframe.AddF(self.payouttable, wx.SizerFlags().Expand())
 		payoutlabel = wx.StaticText(self, wx.ID_ANY, "Payout Table:")
 		payoutlabel.SetFont(hfont)
