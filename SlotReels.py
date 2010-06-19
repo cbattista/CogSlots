@@ -4,10 +4,10 @@ import cfg
 import copy
 
 class Slots:
-	def __init__(self, reels=3):
+	def __init__(self, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], numreels=3):
 		self.reels = []
-		for i in range(0, reels):
-			reel = Reel()
+		for i in range(0, numreels):
+			reel = Reel(symbols)
 			self.reels.append(copy.deepcopy(reel))
 
 	def spin(self):
@@ -29,7 +29,7 @@ class Slots:
 		return output
 
 class Reel:
-	def __init__(self, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], stops=[]):
+	def __init__(self, symbols, stops=[]):
 		#symbols are the images which can appear on the stops, stops is a list of which symbols (their indeces) appear when on each reel
 		self.symbols = symbols
 		random.seed()
@@ -38,6 +38,15 @@ class Reel:
 			self.stops = stops
 		else:
 			self.stops = range(0, len(symbols)) * 4
+
+	def getIndex(self, i):
+		#returns the first symbol on the reel
+		
+		if i >= len(self.stops):
+			return
+
+		output = self.symbols[self.stops[i]]
+		return output
 
 	def spin(self, before = 9, after = 2):
 		#seed the num generator w the system time

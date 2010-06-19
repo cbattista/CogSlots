@@ -2,7 +2,6 @@
 
 import wx, wx.html
 import cfg
-import random # just for now
 
 class InfoDialog(wx.Dialog):
 	""" A simple dialogue to display an html file """
@@ -63,3 +62,14 @@ def create_payout_table(parent, currency, bets, maxpayouts = 2):
 		payoutgrid.Add(wx.StaticText(parent, wx.ID_ANY, "%s %s" % (b, currency.title())), wx.ALIGN_CENTRE)
 
 	return payoutgrid
+
+def makeBitmap(filename, scale=()):
+	#make wx.Bitmap of an image from a file, and optionally scale it
+	img = wx.Image(filename)
+	if scale:
+		img = img.Scale(scale[0], scale[1], 1)
+	bitmap = wx.BitmapFromImage(img)
+	if scale:
+		bitmap.SetHeight(scale[0])
+		bitmap.SetWidth(scale[1])
+	return bitmap

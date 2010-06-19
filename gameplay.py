@@ -5,6 +5,7 @@ import wx
 import cfg
 import commongui
 from ExpSettings import *
+import SlotReels
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
@@ -12,11 +13,15 @@ class GamePlayGUI(wx.Frame):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
+		#initialize the game settings
 		self.settings = Settings()
 		
+		#create a Slots object
+		self.slots = SlotReels.Slots(self.settings.symbols.symbols)
+
 		# the pretty background - not working properly yet
-		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
-#		self.SetOwnBackgroundColour((0,153,0))
+		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
+		self.SetOwnBackgroundColour(cfg.FELT_GREEN)
 		
 		# get the user params from the database
 		self.get_user_params()
@@ -129,7 +134,18 @@ class GamePlayGUI(wx.Frame):
 	
 	def create_spinning_wheel(self, sizer):
 		#NOTE: this will be the real spinning gui stuff
-		sizer.AddStretchSpacer()
+		reelBox = wx.GridSizer(3, 3)
+		
+		for i in [-1, 0, 1]:
+			for r in self.slots.reels:
+				#create reel image
+				bmpfile = r.getIndex(i)
+				bmp = commongui.makeBitmap(bmpfile, (50, 50))
+				#put it on a button
+				button = wx.BitmapButton(self, -1, bmp)
+				reelBox.Add(button)
+
+		sizer.Add(reelBox)
 	
 	# Callbacks!
 	def OnChangeWager(self, event, name):
@@ -190,10 +206,11 @@ class GamePlayGUI(wx.Frame):
 			wx.MessageBox("Game over!")
 	
 	def OnPaint(self, event):
-		dc = wx.BufferedPaintDC(self, self.background)
+		#dc = wx.BufferedPaintDC(self, self.background)
+		pass
 		
 	def OnSize(self, event):
-		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND, size=self.GetSize())
+		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND, size=self.GetSize())
 		event.Skip()
 		self.Refresh(False)
 		
