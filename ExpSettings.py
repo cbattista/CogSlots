@@ -2,7 +2,7 @@ import pickle
 import cfg
 
 class Payouts:
-	def __init__(self, payouts = [20., 12., 10., 5., 3., 2., 1.], betsizes = [0, 10, 25, 50, 100], odds = 85, rounds = 100, seed=5):
+	def __init__(self, payouts = [20., 12., 10., 5., 3., 2., 1.], betsizes = [1, 2, 5, 10, 50], odds = 85, rounds = 100, seed=20):
 		self.payouts = payouts
 		self.betsizes = betsizes
 		self.odds = odds
@@ -105,7 +105,7 @@ class Symbols:
 		return output
 
 class Bets:
-	def __init__(self, rounds=100, debt=False, seed=5, currency="Credits", betsizes = [0, 10, 25, 50, 100]):
+	def __init__(self, rounds=100, debt=False, seed=20, currency="Credits", betsizes = [1, 2, 5, 10, 50]):
 		self.rounds = rounds
 		self.debt = debt
 		self.seed = seed
@@ -145,7 +145,7 @@ class Odds:
 		return output
 
 class Settings:
-	def __init__(self, name="unnamed", betsizes=[], payouts=[20., 12., 10., 5., 3., 2., 1.], symbols=[], rounds=100, winOdds=85, seed=5):
+	def __init__(self, name="unnamed", betsizes=[], payouts=[20., 12., 10., 5., 3., 2., 1.], symbols=[], rounds=100, winOdds=85, seed=20):
 		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
 		self.name = name
 		self.winOdds = winOdds
@@ -173,7 +173,7 @@ class Settings:
 		self.setOdds()
 		self.setSymbols()
 
-	def setOdds(self, auto=True, kind="linear"):
+	def setOdds(self, auto=True, kind="equal"):
 		self.odds = Odds(self.winOdds, auto, kind, self.payoffs.payouts)
 
 	def setSymbols(self):

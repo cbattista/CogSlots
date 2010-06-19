@@ -4,12 +4,15 @@ import sys
 import wx
 import cfg
 import commongui
+from ExpSettings import *
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
 	def __init__(self, parent, *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
+
+		self.settings = Settings()
 		
 		# the pretty background - not working properly yet
 		self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
@@ -27,9 +30,14 @@ class GamePlayGUI(wx.Frame):
 		# populate the payout sizer with values from the database
 		payoutpanel = wx.Panel(self)
 		payoutpanel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-		payoutgrid = commongui.create_payout_table(payoutpanel, self.currency)
-		for i in range (1,8):
-			commongui.create_payout_row(payoutpanel, payoutgrid, i)
+		payoutgrid = commongui.create_payout_table(payoutpanel, self.currency, self.settings.bets.betsizes)
+
+		for i in range(len(self.settings.symbols.combos)):
+			payoff = self.settings.symbols.getPayoff(i)
+			values = self.settings.payoffs.getPayoffRow(i)
+
+			commongui.create_payout_row(self, payoutgrid, i, payoff[0:3], values)
+
 		payoutpanel.SetSizerAndFit(payoutgrid)
 		
 		# create the first row
@@ -42,6 +50,7 @@ class GamePlayGUI(wx.Frame):
 			
 		# create the text boxes
 		wagersizer, self.wagertext = self.create_labeled_num_box("Wager")
+		self.wagertext.SetValue(str(self.settings.bets.betsizes[0]))
 		winsizer, self.wintext = self.create_labeled_num_box("Win")
 		balancesizer, self.balancetext = self.create_labeled_num_box("Balance", str(self.balance))
 		
@@ -103,12 +112,13 @@ class GamePlayGUI(wx.Frame):
 	
 	def get_user_params(self):
 		#NOTE: this is stuff that should be retrieved from the database
-		self.balance = 50
-		self.debtallowed = False
-		self.currency = 'dollars'
+		self.balance = self.settings.seed - self.settings.bets.betsizes[0]
+		self.debtallowed = self.settings.bets.debt
+		self.currency = self.settings.bets.currency
 		self.wagerstep = 10
-		self.numrounds = 5
-	
+		self.numrounds = self.settings.rounds
+		self.betsizes = self.settings.bets.betsizes	
+
 	def num_val(self, text):
 		if text is '':
 			return self.num_val('0')
@@ -123,21 +133,35 @@ class GamePlayGUI(wx.Frame):
 	
 	# Callbacks!
 	def OnChangeWager(self, event, name):
-		wager = self.num_val(self.wagertext.GetValue())
-		
+		wager = self.wagertext.GetValue()
+		print wager		
+
+		i = self.betsizes.index(int(wager))
+		print i
+
 		# if we can't increase beyond zero, stop doing anything
 		if 'increase' in name:
-			if self.balance < self.wagerstep and not self.debtallowed:
+			if (i + 1) >= len(self.betsizes):
 				return
-			wager += self.wagerstep
-			self.balance -= self.wagerstep
+
+			self.wagerstep = self.betsizes[i+1]
+
+			if self.balance < self.wagerstep and not self.debtallowed:
+				return 
+			self.balance -= self.wagerstep - int(wager)
+			wager = self.wagerstep
 		
 		elif 'decrease' in name:
+			if i == 0:
+				return
+
+			self.wagerstep = self.betsizes[i-1]
+
 			# we can't automatically win money!
 			if wager < self.wagerstep:
 				return
-			wager -= self.wagerstep
-			self.balance += self.wagerstep
+			self.balance += int(wager) - self.wagerstep
+			wager = self.wagerstep
 		
 		self.wagertext.SetValue(str(wager))
 		self.balancetext.SetValue(str(self.balance))
@@ -158,7 +182,7 @@ class GamePlayGUI(wx.Frame):
 			self.wintext.SetValue(str(-wager))
 		
 		# Reset the wager to zero
-		self.wagertext.SetValue('0')
+		self.wagertext.SetValue(self.settings.bets.betsizes[0])
 		
 		# Check to see if the maximum number of rounds has been reached 
 		self.numrounds -= 1
