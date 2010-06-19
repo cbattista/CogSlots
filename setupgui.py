@@ -19,8 +19,8 @@ class SetupGUI(wx.Frame):
 		self.settings = Settings()
 
 		# the notebook
-		nbH = self.FRAME_SIZE[0] * 0.75
-		nbW = self.FRAME_SIZE[1] * 0.5
+		nbH = self.FRAME_SIZE[0] * 0.8
+		nbW = self.FRAME_SIZE[1] * 0.4
 		self.book = wx.Notebook(self, wx.ID_ANY, size=(nbH, nbW))
 
 
@@ -306,7 +306,7 @@ class SetupGUI(wx.Frame):
 
 		# the outer sizer to pack everything into
 		bottomflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand()
-		outersizer = wx.BoxSizer(wx.VERTICAL)
+		outersizer = wx.FlexGridSizer(3, 1)
 		middleSizer = wx.BoxSizer(wx.HORIZONTAL)
 		payoutSizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -315,6 +315,8 @@ class SetupGUI(wx.Frame):
 
 		middleSizer.AddF(self.book, wx.SizerFlags(1).Expand())
 		middleSizer.AddF(payoutSizer, bottomflag)
+		midSize = (self.FRAME_SIZE[0] * 0.5, self.FRAME_SIZE[1] * 0.85)
+		middleSizer.SetMinSize(midSize)
 
 		outersizer.AddF(middleSizer, bottomflag)
 		outersizer.AddF(buttonsizer, bottomflag)
@@ -351,10 +353,7 @@ class SetupGUI(wx.Frame):
 	# 				Helper Functions
 	#*******************************************
 	def create_page(self, name):
-		nbH = self.FRAME_SIZE[0] * 0.7
-		nbW = self.FRAME_SIZE[1] * 0.45
-
-		page = wx.lib.scrolledpanel.ScrolledPanel(self.book, size=(nbH, nbW))
+		page = wx.lib.scrolledpanel.ScrolledPanel(self.book)
 		self.book.AddPage(page, name)
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		page.SetSizer(sizer)
