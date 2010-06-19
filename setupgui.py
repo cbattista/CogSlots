@@ -14,10 +14,16 @@ class SetupGUI(wx.Frame):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
+		self.FRAME_SIZE = (800, 600)
+
 		self.settings = Settings()
 
 		# the notebook
-		self.book = wx.Notebook(self, wx.ID_ANY)
+		nbH = self.FRAME_SIZE[0] * 0.75
+		nbW = self.FRAME_SIZE[1] * 0.5
+		self.book = wx.Notebook(self, wx.ID_ANY, size=(nbH, nbW))
+
+
 		betspage, betssizer = self.create_page('Bets')
 		symbolspage, symbolssizer = self.create_page('Symbols')
 		oddspage, oddssizer = self.create_page('Odds')
@@ -301,13 +307,20 @@ class SetupGUI(wx.Frame):
 		# the outer sizer to pack everything into
 		bottomflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand()
 		outersizer = wx.BoxSizer(wx.VERTICAL)
-		outersizer.AddF(self.book, wx.SizerFlags(1).Expand())
-		outersizer.AddF(payoutlabel, hflag.Border(wx.LEFT, 15))
-		outersizer.AddF(payoutframe, bottomflag)
+		middleSizer = wx.BoxSizer(wx.HORIZONTAL)
+		payoutSizer = wx.BoxSizer(wx.VERTICAL)
+
+		payoutSizer.AddF(payoutlabel, hflag.Border(wx.LEFT, 15))
+		payoutSizer.AddF(payoutframe, bottomflag)
+
+		middleSizer.AddF(self.book, wx.SizerFlags(1).Expand())
+		middleSizer.AddF(payoutSizer, bottomflag)
+
+		outersizer.AddF(middleSizer, bottomflag)
 		outersizer.AddF(buttonsizer, bottomflag)
 
 		self.SetSizerAndFit(outersizer)
-		self.SetSize((400, 600)) # a reasonable size to start with
+		self.SetSize(self.FRAME_SIZE)
 		self.Show(True)
 		#initially populate the wagers
 		for w in self.settings.bets.betsizes:
@@ -338,7 +351,10 @@ class SetupGUI(wx.Frame):
 	# 				Helper Functions
 	#*******************************************
 	def create_page(self, name):
-		page = wx.lib.scrolledpanel.ScrolledPanel(self.book)
+		nbH = self.FRAME_SIZE[0] * 0.7
+		nbW = self.FRAME_SIZE[1] * 0.45
+
+		page = wx.lib.scrolledpanel.ScrolledPanel(self.book, size=(nbH, nbW))
 		self.book.AddPage(page, name)
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		page.SetSizer(sizer)
