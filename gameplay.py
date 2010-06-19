@@ -136,17 +136,31 @@ class GamePlayGUI(wx.Frame):
 		#NOTE: this will be the real spinning gui stuff
 		reelBox = wx.GridSizer(3, 3)
 		
-		for i in [-1, 0, 1]:
+		self.slotButtons = []
+
+		for i in [-2, -1, 0, 1]:
 			for r in self.slots.reels:
 				#create reel image
 				bmpfile = r.getIndex(i)
 				bmp = commongui.makeBitmap(bmpfile, (50, 50))
 				#put it on a button
 				button = wx.BitmapButton(self, -1, bmp)
+				#add this to the list to access when spinning occurs
+				self.slotButtons.append(button)
 				reelBox.Add(button)
 
 		sizer.Add(reelBox)
 	
+	def spin(self):
+		imageList = self.slots.spin(2)
+		print imageList
+		for sb, img in zip(self.slotButtons, imageList):
+			print img
+			bmp = commongui.makeBitmap(img, (50, 50))
+			sb.SetBitmapLabel(bmp)
+		
+
+
 	# Callbacks!
 	def OnChangeWager(self, event, name):
 		wager = self.wagertext.GetValue()
@@ -183,9 +197,12 @@ class GamePlayGUI(wx.Frame):
 		self.balancetext.SetValue(str(self.balance))
 	
 	def OnSpin(self, event):
+		self.spin()
 		wager = self.num_val(self.wagertext.GetValue())
+
 		if wager < self.wagerstep:
 			return
+
 			
 		#NOTE: actual spinning and winning would occur...
 		win = random.randint(0,1)

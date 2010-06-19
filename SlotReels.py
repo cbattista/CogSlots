@@ -6,20 +6,42 @@ import copy
 class Slots:
 	def __init__(self, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], numreels=3):
 		self.reels = []
+		self.numreels = numreels
 		for i in range(0, numreels):
 			reel = Reel(symbols)
 			self.reels.append(copy.deepcopy(reel))
 
-	def spin(self):
+	def spin(self, before = 1, after = 1):
 		pres = [] 
 		winners = []
 		posts = []
 		for r in self.reels:
-			pre, sym, post = r.spin()
+			pre, sym, post = r.spin(before, after)
 			pres.append(pre)
 			winners.append(sym)
 			posts.append(post)
-		return pres, winners, posts
+
+		print pres
+		print winners
+		print posts
+
+		outputList = []
+
+
+		for j in range(0,before):
+			for i in range(self.numreels):
+				print i, j
+				outputList.append(pres[i][j])
+
+		outputList += winners
+		
+
+		for k in range(0,after):
+			for l in range(self.numreels):
+				print l, k
+				outputList.append(posts[l][k])
+
+		return outputList
 
 	def __str__(self):
 		output = ""
@@ -48,7 +70,7 @@ class Reel:
 		output = self.symbols[self.stops[i]]
 		return output
 
-	def spin(self, before = 9, after = 2):
+	def spin(self, before = 1, after = 1):
 		#seed the num generator w the system time
 		random.seed()
 		#randomly select a stop
@@ -66,6 +88,7 @@ class Reel:
 
 		preSymbols = []
 		for p in pre:
+			print p
 			preSymbols.append(self.symbols[p])
 
 		#and a few that follow
@@ -77,7 +100,9 @@ class Reel:
 			post = post + self.stops[0 : goforward]
 
 		postSymbols = []
+
 		for p in post:
+			print p
 			postSymbols.append(self.symbols[p])
 
 		return preSymbols, self.symbols[symbolIndex], postSymbols
@@ -87,4 +112,10 @@ class Reel:
 		for s in self.stops:
 			output = "%s\n%s" % (output, self.symbols[s])
 		return "%s\n" % output
+
+s = Slots()
+
+print s
+
+print s.spin(2)
 
