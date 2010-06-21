@@ -37,6 +37,12 @@ class Slots:
 
 		return outputList, winners
 
+	def getComboOdds(self, combo):
+		odds = 1
+		for c, r in zip(combo, self.reels):
+			odds *= r.getSymbolOdds(c)
+		return odds
+
 	def __str__(self):
 		output = ""
 		for r in self.reels:
@@ -53,7 +59,7 @@ class Reel:
 		if stops:
 			self.stops = stops
 		else:
-			self.stops = range(0, len(symbols)) * 4
+			self.stops = range(0, len(symbols)) * 4 + ([0] * 6)
 
 	def getIndex(self, i):
 		#returns the first symbol on the reel
@@ -63,6 +69,20 @@ class Reel:
 
 		output = self.symbols[self.stops[i]]
 		return output
+
+	def getOdds(self):
+		#returns a dictionary of the odds of each symbol on the reel
+		d = {}
+		for s in self.symbols:
+			d[s] = self.getSymbolOdds(s)
+		return d
+
+	def getSymbolOdds(self, symbol):
+		#returns the odds f a given symbol coming up, if i not provided returns the odds of each
+		i = self.symbols.index(symbol)
+		howmany = self.stops.count(i)
+		odds = float(howmany) / float(len(self.stops))
+		return odds
 
 	def spin(self, before = 2, after = 1):
 		#seed the num generator w the system time
@@ -112,4 +132,3 @@ class Reel:
 		return "%s\n" % output
 
 s = Slots()
-
