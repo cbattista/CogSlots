@@ -21,16 +21,11 @@ class Slots:
 			winners.append(sym)
 			posts.append(post)
 
-		print pres
-		print winners
-		print posts
-
 		outputList = []
 
 
 		for j in range(0,before):
 			for i in range(self.numreels):
-				print i, j
 				outputList.append(pres[i][j])
 
 		outputList += winners
@@ -38,7 +33,6 @@ class Slots:
 
 		for k in range(0,after):
 			for l in range(self.numreels):
-				print l, k
 				outputList.append(posts[l][k])
 
 		return outputList
@@ -74,22 +68,29 @@ class Reel:
 		#seed the num generator w the system time
 		random.seed()
 		#randomly select a stop
-		stopNum = random.randrange(0, len(self.stops), 1)
+		stopNum = random.randrange(0, len(self.stops) - 1, 1)
 		#which symbol does this correspond with?
+
 		symbolIndex = self.stops[stopNum]
+		print "####SPINNING###"
+		print "StopNum : %s SymbolIndex : %s Before : %s" % (stopNum, symbolIndex, before)
 
 		#also we'll want to see the symbols which precede the selected stop
-		if stopNum > before:
-			pre = self.stops[stopNum-before-1 : stopNum-1]
+		pre = []
+
+		if stopNum >= before:
+			pre = self.stops[stopNum-before : stopNum]
 		else:
-			pre = self.stops[0 : stopNum-1]
-			goback = stopNum - before
+			pre = self.stops[0 : stopNum]
+			goback = len(self.stops) - stopNum - before
 			pre = pre + self.stops[goback : -1]
 
 		preSymbols = []
+
 		for p in pre:
-			print p
 			preSymbols.append(self.symbols[p])
+
+		print preSymbols
 
 		#and a few that follow
 		if len(self.stops) >= (stopNum + after + 1):
@@ -102,7 +103,6 @@ class Reel:
 		postSymbols = []
 
 		for p in post:
-			print p
 			postSymbols.append(self.symbols[p])
 
 		return preSymbols, self.symbols[symbolIndex], postSymbols
@@ -115,7 +115,6 @@ class Reel:
 
 s = Slots()
 
-print s
 
 print s.spin(2)
 
