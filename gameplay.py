@@ -51,7 +51,7 @@ class GamePlayGUI(wx.Frame):
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
 			cfg.IM_ORNAMENT_LEFT, size=(40,80))), centeredflag)
-		self.sizer.AddF(payoutpanel, centeredflag.Expand())
+		self.sizer.AddF(payoutpanel, wx.SizerFlags(1).Expand().Border(wx.ALL, 10))
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
 			cfg.IM_ORNAMENT_RIGHT, size=(40,80))), centeredflag)
 			
@@ -108,14 +108,15 @@ class GamePlayGUI(wx.Frame):
 		self.Show(True)
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
-		staticbox = wx.StaticBox(self)
-		staticbox.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-		box = wx.StaticBoxSizer(staticbox, wx.VERTICAL)
-		box.AddF(wx.StaticText(self, wx.ID_ANY, label), wx.SizerFlags().Centre())
-		textbox = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_RIGHT)
-		box.AddF(textbox, wx.SizerFlags().Centre())
+		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+		box = wx.BoxSizer(wx.VERTICAL)
+		box.AddF(wx.StaticText(panel, wx.ID_ANY, label), wx.SizerFlags().Centre().Border(wx.TOP|wx.LEFT|wx.RIGHT, 10))
+		textbox = wx.TextCtrl(panel, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_RIGHT)
+		box.AddF(textbox, wx.SizerFlags().Centre().Border(wx.BOTTOM|wx.LEFT|wx.RIGHT, 10))
 		textbox.SetValue(defaultvalue)
-		return box, textbox
+		panel.SetSizer(box)
+		return panel, textbox
 	
 	def get_user_params(self):
 		#NOTE: this is stuff that should be retrieved from the database
