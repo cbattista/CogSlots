@@ -80,8 +80,10 @@ class Reel:
 
 		if stopNum >= before:
 			pre = self.stops[stopNum-before : stopNum]
+		elif stopNum == 0:
+			pre = self.stops[-before : -1] + [self.stops[-1]]
 		else:
-			pre = self.stops[0 : stopNum]
+			#pre = self.stops[0 : stopNum]
 			goback = len(self.stops) - stopNum - before
 			pre = pre + self.stops[goback : -1]
 
@@ -97,7 +99,7 @@ class Reel:
 			post = self.stops[stopNum + 1 : stopNum + after + 1]
 		else:
 			post = self.stops[stopNum + 1 : -1]
-			goforward = after - (len(self.stops) - stopNum)
+			goforward = after - len(self.stops) - stopNum
 			post = post + self.stops[0 : goforward]
 
 		postSymbols = []
