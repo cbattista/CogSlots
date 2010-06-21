@@ -29,7 +29,6 @@ class SetupGUI(wx.Frame):
 		symbolspage, symbolssizer = self.create_page('Symbols')
 		self.symbolspage = symbolspage
 		oddspage, oddssizer = self.create_page('Odds')
-		infopage, infosizer = self.create_page('Info')
 
 		# same font for all the headers
 		hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
@@ -228,49 +227,51 @@ class SetupGUI(wx.Frame):
 		# 				The Info page
 		#*******************************************
 		# subject info
-		self.collectname = wx.CheckBox(infopage, wx.ID_ANY, "Name")
-		self.collectage = wx.CheckBox(infopage, wx.ID_ANY, "Age")
-		self.collectsex = wx.CheckBox(infopage, wx.ID_ANY, "Sex")
-		self.collecthandedness = wx.CheckBox(infopage, wx.ID_ANY, "Handedness")
+		infosizer = wx.BoxSizer(wx.VERTICAL)
+
+		self.collectname = wx.CheckBox(self, wx.ID_ANY, "Name")
+		self.collectage = wx.CheckBox(self, wx.ID_ANY, "Age")
+		self.collectsex = wx.CheckBox(self, wx.ID_ANY, "Sex")
+		self.collecthandedness = wx.CheckBox(self, wx.ID_ANY, "Handedness")
 		
 		# subjective probability estimate
-		self.getprobestimate = wx.CheckBox(infopage, wx.ID_ANY, "Obtain Subject Probability Estimate")
+		self.getprobestimate = wx.CheckBox(self, wx.ID_ANY, "Obtain Subject Probability Estimate")
 		self.getprobestimate.SetFont(hfont)
-		self.estimatetiming = wx.Choice(infopage, wx.ID_ANY, choices=["At Beginning", "At End"])
-		self.estimateinterval = wx.TextCtrl(infopage, wx.ID_ANY, style=wx.TE_RIGHT)
+		self.estimatetiming = wx.Choice(self, wx.ID_ANY, choices=["At Beginning", "At End"])
+		self.estimateinterval = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_RIGHT)
 		
 		# save as
-		self.filenamebox = wx.TextCtrl(infopage, wx.ID_ANY)
-		self.sessionnumbox = wx.TextCtrl(infopage, wx.ID_ANY, style=wx.TE_RIGHT)
+		self.filenamebox = wx.TextCtrl(self, wx.ID_ANY)
+		self.sessionnumbox = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_RIGHT)
 		
 		# info collection package
-		infolabel = wx.StaticText(infopage, wx.ID_ANY, "Collect Subject Information")
+		infolabel = wx.StaticText(self, wx.ID_ANY, "Collect Subject Information")
 		infolabel.SetFont(hfont)
 		infosizer.AddF(infolabel, hflag)
 		infosizer.AddF(self.collectname, self.bflag)
 		infosizer.AddF(self.collectage, self.bflag)
 		infosizer.AddF(self.collectsex, self.bflag)
 		infosizer.AddF(self.collecthandedness, self.bflag)
-		infosizer.AddF(wx.StaticLine(infopage), self.eflag)
+		infosizer.AddF(wx.StaticLine(self), self.eflag)
 		
 		# probability estimate stuff
 		infosizer.AddF(self.getprobestimate, hflag)
 		self.probrow = wx.BoxSizer(wx.HORIZONTAL)
 		self.probrow.AddF(self.estimatetiming, self.bflag)
-		self.probrow.AddF(wx.StaticText(infopage, wx.ID_ANY, "of every"), self.bflag)
+		self.probrow.AddF(wx.StaticText(self, wx.ID_ANY, "of every"), self.bflag)
 		self.probrow.AddF(self.estimateinterval, self.bflag)
-		self.probrow.AddF(wx.StaticText(infopage, wx.ID_ANY, "rounds"), self.bflag)
+		self.probrow.AddF(wx.StaticText(self, wx.ID_ANY, "rounds"), self.bflag)
 		infosizer.AddF(self.probrow, self.eflag)
-		infosizer.AddF(wx.StaticLine(infopage), self.eflag)
+		infosizer.AddF(wx.StaticLine(self), self.eflag)
 		
 		# Save as
-		saveaslabel = wx.StaticText(infopage, wx.ID_ANY, "Save As:")
+		saveaslabel = wx.StaticText(self, wx.ID_ANY, "Save As:")
 		saveaslabel.SetFont(hfont)
 		infosizer.AddF(saveaslabel, hflag)
 		savegrid = wx.FlexGridSizer(2,2)
-		savegrid.AddF(wx.StaticText(infopage, wx.ID_ANY, "Filename:"), self.bflag)
+		savegrid.AddF(wx.StaticText(self, wx.ID_ANY, "Filename:"), self.bflag)
 		savegrid.AddF(self.filenamebox, self.eflag)
-		savegrid.AddF(wx.StaticText(infopage, wx.ID_ANY, "Session Number:"), self.bflag)
+		savegrid.AddF(wx.StaticText(self, wx.ID_ANY, "Session Number:"), self.bflag)
 		savegrid.AddF(self.sessionnumbox, self.eflag)
 		infosizer.AddF(savegrid, self.eflag)
 		
@@ -319,9 +320,9 @@ class SetupGUI(wx.Frame):
 		outersizer = wx.FlexGridSizer(3, 1)
 		middleSizer = wx.BoxSizer(wx.HORIZONTAL)
 		payoutSizer = wx.BoxSizer(wx.VERTICAL)
-
 		payoutSizer.AddF(payoutlabel, hflag.Border(wx.LEFT, 15))
 		payoutSizer.AddF(payoutframe, bottomflag)
+		payoutSizer.AddF(infosizer, bottomflag)
 
 		middleSizer.AddF(self.book, wx.SizerFlags(1).Expand())
 		middleSizer.AddF(payoutSizer, bottomflag)
@@ -456,7 +457,6 @@ class SetupGUI(wx.Frame):
 
 		for i, j in zip(self.mgIndeces, payoutOdds):
 			tc = self.manualgrid.GetItem(i).GetWindow()
-			print tc
 			tc.SetValue(str(j))
 		
 
