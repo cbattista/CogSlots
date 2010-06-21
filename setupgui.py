@@ -122,6 +122,7 @@ class SetupGUI(wx.Frame):
 		wingrid.Add(self.autocombos)
 		self.wcount = 0
 		self.comboIndexes = []
+		self.payoutIndexes = []
 	
 		for i in range(0,3):
 			wingrid.AddStretchSpacer()
@@ -423,6 +424,11 @@ class SetupGUI(wx.Frame):
 				wingrid.GetItem(self.comboIndexes[count]).GetWindow().SetStringSelection(sym)
 				count+=1
 		
+		count = 0		
+
+		for p in self.settings.symbols.payoffs:
+			wingrid.GetItem(self.payoutIndexes[count]).GetWindow().SetValue(str(p))
+			count+=1
 
 	def SetSymbolSettings(self):
 		#sets the values of the symbol object based on the gui contents
@@ -529,6 +535,8 @@ class SetupGUI(wx.Frame):
 
 		grid.AddF(tc, self.bflag)
 		self.wcount += 1
+		self.payoutIndexes.append(self.wcount)
+
 	
 	def enable_sizer_items(self, sizer, enable):
 		for item in sizer.GetChildren():
