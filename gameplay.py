@@ -132,19 +132,25 @@ class GamePlayGUI(wx.Frame):
 		elif self.currency is 'credits':
 			return int(text)
 	
-	def create_spinning_wheel(self, sizer):
+	def create_spinning_wheel(self, sizer, before=2, after=1):
 		#NOTE: this will be the real spinning gui stuff
 		reelBox = wx.GridSizer(3, 3)
-		
-		self.slotButtons = []
 
-		for i in [-2, -1, 0, 1]:
+		self.slotButtons = []
+		span = range(-before,after+1)
+
+
+		for i in span:
 			for r in self.slots.reels:
 				#create reel image
 				bmpfile = r.getIndex(i)
 				bmp = commongui.makeBitmap(bmpfile, (50, 50))
 				#put it on a button
-				button = wx.BitmapButton(self, -1, bmp)
+				if i == 0:
+					button = wx.BitmapButton(self, -1, bmp)
+					button.SetBackgroundColour(cfg.WINNING_GOLD)
+				else:
+					button = wx.BitmapButton(self, -1, bmp)
 				#add this to the list to access when spinning occurs
 				self.slotButtons.append(button)
 				reelBox.Add(button)
@@ -152,13 +158,15 @@ class GamePlayGUI(wx.Frame):
 		sizer.Add(reelBox)
 	
 	def spin(self):
-		imageList = self.slots.spin(2)
-		print imageList
+		imageList, payline = self.slots.spin(2)
 		for sb, img in zip(self.slotButtons, imageList):
-			print img
 			bmp = commongui.makeBitmap(img, (50, 50))
 			sb.SetBitmapLabel(bmp)
-		
+
+		if payline in self.settings.symbols.combos:
+			return self.settings.symbols.combos.index(payline)
+
+		return 0
 
 
 	# Callbacks!
@@ -197,30 +205,35 @@ class GamePlayGUI(wx.Frame):
 		self.balancetext.SetValue(str(self.balance))
 	
 	def OnSpin(self, event):
-		self.spin()
-		wager = self.num_val(self.wagertext.GetValue())
+		win = self.spin()
+		wager = int(self.wagertext.GetValue())
 
-		if wager < self.wagerstep:
-			return
+		payout = self.settings.payouts[win]
 
-			
-		#NOTE: actual spinning and winning would occur...
-		win = random.randint(0,1)
-		if win is 1:
-			self.balance += wager*2
+		if win:
+			self.balance += wager*payout
 			# Update the balance text box with the current balance
-			self.balancetext.SetValue(str(self.balance))
-			self.wintext.SetValue(str(wager))
-		elif win is 0:
+			self.wintext.SetValue(str(wager*payout))
+		else:
+			self.balance -= wager
 			self.wintext.SetValue(str(-wager))
+
+		if self.balance <= 0:
+			self.gameOver()
+
+		self.balancetext.SetValue(str(self.balance))
+
 		
 		# Reset the wager to zero
-		self.wagertext.SetValue(self.settings.bets.betsizes[0])
+		self.wagertext.SetValue(str(self.settings.bets.betsizes[0]))
 		
 		# Check to see if the maximum number of rounds has been reached 
 		self.numrounds -= 1
 		if self.numrounds is 0:
-			wx.MessageBox("Game over!")
+			self.gameOver()	
+
+	def gameOver(self):
+		wx.MessageBox("Game over!")
 	
 	def OnPaint(self, event):
 		#dc = wx.BufferedPaintDC(self, self.background)

@@ -35,7 +35,7 @@ class Slots:
 			for l in range(self.numreels):
 				outputList.append(posts[l][k])
 
-		return outputList
+		return outputList, winners
 
 	def __str__(self):
 		output = ""
@@ -64,7 +64,7 @@ class Reel:
 		output = self.symbols[self.stops[i]]
 		return output
 
-	def spin(self, before = 1, after = 1):
+	def spin(self, before = 2, after = 1):
 		#seed the num generator w the system time
 		random.seed()
 		#randomly select a stop
@@ -72,8 +72,6 @@ class Reel:
 		#which symbol does this correspond with?
 
 		symbolIndex = self.stops[stopNum]
-		print "####SPINNING###"
-		print "StopNum : %s SymbolIndex : %s Before : %s" % (stopNum, symbolIndex, before)
 
 		#also we'll want to see the symbols which precede the selected stop
 		pre = []
@@ -91,8 +89,6 @@ class Reel:
 
 		for p in pre:
 			preSymbols.append(self.symbols[p])
-
-		print preSymbols
 
 		#and a few that follow
 		if len(self.stops) >= (stopNum + after + 1):
@@ -116,7 +112,4 @@ class Reel:
 		return "%s\n" % output
 
 s = Slots()
-
-
-print s.spin(2)
 
