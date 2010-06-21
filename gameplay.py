@@ -6,6 +6,7 @@ import cfg
 import commongui
 from ExpSettings import *
 import SlotReels
+from CogSub import Subject
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
@@ -15,9 +16,10 @@ class GamePlayGUI(wx.Frame):
 
 		#initialize the game settings
 		self.settings = Settings()
-		
+		self.subject= Subject()
 		#create a Slots object
 		self.slots = SlotReels.Slots(self.settings.symbols.symbols)
+		self.round = 1
 
 		# the pretty background - not working properly yet
 		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
@@ -159,13 +161,23 @@ class GamePlayGUI(wx.Frame):
 	
 	def spin(self):
 		imageList, payline = self.slots.spin(2)
+		pcount = 1
+		for p in payline:
+			self.subject.inputData(self.round, 'Reel %s' % pcount, p)
+			pcount += 1
+
+
 		for sb, img in zip(self.slotButtons, imageList):
 			bmp = commongui.makeBitmap(img, (50, 50))
 			sb.SetBitmapLabel(bmp)
 
+
+
 		if payline in self.settings.symbols.combos:
+			self.subject.inputData(self.round, 'outcome', 'WIN')
 			return self.settings.symbols.combos.index(payline)
 
+		self.subject.inputData(self.round, 'outcome', 'LOSS')
 		return 0
 
 
@@ -208,32 +220,46 @@ class GamePlayGUI(wx.Frame):
 		win = self.spin()
 		wager = int(self.wagertext.GetValue())
 
+
 		payout = self.settings.payouts[win]
+
+		self.subject.inputData(self.round, 'oldbalance', self.balance)
+		self.subject.inputData(self.round, 'wager', wager)
+		self.subject.inputData(self.round, 'payout', payout)
 
 		if win:
 			self.balance += wager*payout
+			self.subject.inputData(self.round, 'delta', wager*payout)
 			# Update the balance text box with the current balance
 			self.wintext.SetValue(str(wager*payout))
 		else:
 			self.balance -= wager
 			self.wintext.SetValue(str(-wager))
+			self.subject.inputData(self.round, 'delta', -wager)
 
-		if self.balance <= 0:
-			self.gameOver()
+		self.subject.inputData(self.round, 'newbalance', self.balance)
 
 		self.balancetext.SetValue(str(self.balance))
 
 		
 		# Reset the wager to zero
 		self.wagertext.SetValue(str(self.settings.bets.betsizes[0]))
+
+		if self.balance <= 0:
+			self.gameOver()
+
 		
+		self.round += 1
+
 		# Check to see if the maximum number of rounds has been reached 
 		self.numrounds -= 1
 		if self.numrounds is 0:
 			self.gameOver()	
 
 	def gameOver(self):
+		self.subject.printData()
 		wx.MessageBox("Game over!")
+		self.subject.preserve()
 	
 	def OnPaint(self, event):
 		#dc = wx.BufferedPaintDC(self, self.background)
