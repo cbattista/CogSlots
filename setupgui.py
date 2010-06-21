@@ -27,6 +27,7 @@ class SetupGUI(wx.Frame):
 		betspage, betssizer = self.create_page('Bets')
 		self.betspage = betspage
 		symbolspage, symbolssizer = self.create_page('Symbols')
+		self.symbolspage = symbolspage
 		oddspage, oddssizer = self.create_page('Odds')
 		infopage, infosizer = self.create_page('Info')
 
@@ -34,11 +35,13 @@ class SetupGUI(wx.Frame):
 		hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
 		hfont.SetWeight(wx.FONTWEIGHT_BOLD)
 		hfont.SetPointSize(hfont.GetPointSize()*1.3)
+		self.hfont = hfont
 
 		# and the same border flag/label flag
 		self.bflag = wx.SizerFlags().Border(wx.ALL, 5)
 		self.eflag = self.bflag.Expand()
 		hflag = wx.SizerFlags().Border(wx.LEFT, 10)
+		self.hflag = hflag
 
 		#*******************************************
 		# 				The bets page
@@ -46,12 +49,7 @@ class SetupGUI(wx.Frame):
 		# Number of rounds
 		self.roundsentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
 		self.seedentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
-
-
 		self.debtallowed = wx.Choice(betspage, wx.ID_ANY, choices=["Allowed", "Not Allowed"])
-
-#		self.Bind(wx.EVT_TEXT, self.OnEditText, self.roundsentry)
-#		self.Bind(wx.EVT_TEXT, self.OnEditText, self.seedentry)
 
 		# Wagers
 		self.wagernum = wx.Choice(betspage, wx.ID_ANY, choices=["New"])
@@ -104,9 +102,7 @@ class SetupGUI(wx.Frame):
 		#*******************************************
 		# 				The Symbols page
 		#*******************************************
-		self.autocombos = wx.CheckBox(symbolspage, wx.ID_ANY, "Autoselect")
-
-		# Visible types of symbols
+		# Visible types of symbols - DO WE REALLY NEED THIS?
 		symbolslabel = wx.StaticText(symbolspage, wx.ID_ANY, "Visible Types of Symbols")
 		symbolslabel.SetFont(hfont)
 		symbolssizer.AddF(symbolslabel, hflag)
@@ -116,21 +112,18 @@ class SetupGUI(wx.Frame):
 		symbolssizer.AddF(symbolsbox, self.bflag)
 		symbolssizer.AddF(wx.StaticLine(symbolspage), self.bflag)
 
-		# Winning Combinations
-		comboslabel = wx.StaticText(symbolspage, wx.ID_ANY, "Winning Combinations")
-		comboslabel.SetFont(hfont)
-		symbolssizer.AddF(comboslabel, hflag)
-		wingrid = wx.FlexGridSizer(8,5,2,2)
-		wingrid.Add(self.autocombos)
-		for i in range(0,3):
-			wingrid.AddStretchSpacer()
-		wingrid.Add(wx.StaticText(symbolspage, wx.ID_ANY, "Payout (x wager)"))
-		i = 0
-		for c in self.settings.symbols.combos: 
-			self.create_winning_combo(symbolspage, wingrid, i+1, c, self.settings.symbols.payoffs[i])
-			i = i + 1
-		symbolssizer.AddF(wingrid, self.eflag)
+		comboslabel = wx.StaticText(self.symbolspage, wx.ID_ANY, "Winning Combinations")
+		comboslabel.SetFont(self.hfont)
+
+		symbolssizer.AddF(comboslabel, self.hflag)		# Winning Combinations
+		self.wingrid = wx.FlexGridSizer(8,5,2,2)
+
+		self.SetSymbols(self.wingrid)
+
+		symbolssizer.AddF(self.wingrid, self.eflag)
 		symbolssizer.AddF(wx.StaticLine(symbolspage), self.eflag)
+
+		
 		
 		#*******************************************
 		# 				The Odds page
@@ -350,10 +343,16 @@ class SetupGUI(wx.Frame):
 	def OnUpdate(self, event):
 		if self.ActivePage() == 'Bets':
 			self.SetBetSettings()
+		if self.ActivePage() == 'Symbols':
+			self.SetSymbolSettings()
 
 	def OnReset(self, event):
 		if self.ActivePage() == 'Bets':	
 			self.SetBets()
+		if self.ActivePage() == 'Symbols':
+			self.wingrid.Clear(True)
+			self.SetSymbols(self.wingrid)
+			self.wingrid.Layout()
 
 	def SetBets(self):
 		#set the values of the items in the bet tab
@@ -380,10 +379,46 @@ class SetupGUI(wx.Frame):
 
 		self.settings.setBets(betsizes, debt, currency)	
 
+	def SetSymbols(self, wingrid):
+		self.autocombos = wx.CheckBox(self.symbolspage, wx.ID_ANY, "Autoselect")
+		wingrid.Add(self.autocombos)
+		for i in range(0,3):
+			wingrid.AddStretchSpacer()
+		wingrid.Add(wx.StaticText(self.symbolspage, wx.ID_ANY, "Payout (x wager)"))
+
+		i = 0
+		self.comboboxes = []
+		self.symbolPayouts = []
+		for c in self.settings.symbols.combos: 
+			self.create_winning_combo(self.symbolspage, wingrid, i+1, c, self.settings.symbols.payoffs[i])
+			i = i + 1
 
 
 
+	def SetSymbolSettings(self):
+		#sets the values of the symbol object based on the gui contents
 
+		#set the combos
+		combos = []
+		
+		combo = []
+		for c in self.comboboxes:
+			symbol = c.GetValue()
+			if len(combo) < 3:
+				combo.append(symbol)
+			else:
+				combos.append(combo)
+				combo = [symbol]
+
+		self.settings.symbols.combos = combos
+
+		#set the payoffs
+		payoffs = []
+		for p in self.symbolPayouts:
+			payoffs.append(p.GetValue())
+
+		self.settings.payoffs = payoffs
+		
 
 	#*******************************************
 	# 				Helper Functions
@@ -418,7 +453,6 @@ class SetupGUI(wx.Frame):
 
 	def create_winning_combo(self, parent, grid, index, combos, value):
 		grid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), self.bflag)
-		comboboxes = []
 		# This seems like a terrible way to get the default size, but it works...
 		unused = wx.combo.BitmapComboBox(parent)
 		h = unused.GetSize().y
@@ -426,14 +460,18 @@ class SetupGUI(wx.Frame):
 		for c in combos:
 			combo = wx.combo.BitmapComboBox(parent, style=wx.CB_READONLY, size=(h*2, h))
 			for i in range (0, len(cfg.symbols)):
-				combo.Append(cfg.symbolnames[i], self.makeBitmap(cfg.symbols[i]))
+				combo.Append(cfg.symbols[i], self.makeBitmap(cfg.symbols[i]))
 
 			
-			combo.SetStringSelection(cfg.symbolnames[cfg.symbols.index(c)])
-			comboboxes.append(combo)
+			combo.SetStringSelection(c)
+			self.comboboxes.append(combo)
 			grid.Add(combo)
 
-		grid.AddF(wx.TextCtrl(parent, value=str(value)), self.bflag)
+		tc = wx.TextCtrl(parent, value=str(value))
+
+		self.symbolPayouts.append(tc) 
+
+		grid.AddF(tc, self.bflag)
 	
 	def enable_sizer_items(self, sizer, enable):
 		for item in sizer.GetChildren():
