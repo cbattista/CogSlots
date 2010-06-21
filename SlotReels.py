@@ -79,6 +79,9 @@ class Reel:
 
 	def getSymbolOdds(self, symbol):
 		#returns the odds f a given symbol coming up, if i not provided returns the odds of each
+		if symbol == cfg.IM_EMPTY:
+			return 1
+
 		i = self.symbols.index(symbol)
 		howmany = self.stops.count(i)
 		odds = float(howmany) / float(len(self.stops))
