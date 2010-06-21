@@ -14,7 +14,7 @@ class SetupGUI(wx.Frame):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
-		self.FRAME_SIZE = (800, 600)
+		self.FRAME_SIZE = (800, 700)
 
 		self.settings = Settings()
 
@@ -25,6 +25,7 @@ class SetupGUI(wx.Frame):
 
 
 		betspage, betssizer = self.create_page('Bets')
+		self.betspage = betspage
 		symbolspage, symbolssizer = self.create_page('Symbols')
 		oddspage, oddssizer = self.create_page('Odds')
 		infopage, infosizer = self.create_page('Info')
@@ -43,13 +44,14 @@ class SetupGUI(wx.Frame):
 		# 				The bets page
 		#*******************************************
 		# Number of rounds
-		self.roundsentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT, value=str(self.settings.bets.rounds))
-		self.seedentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT, value=str(self.settings.bets.seed))
+		self.roundsentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
+		self.seedentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
+
 
 		self.debtallowed = wx.Choice(betspage, wx.ID_ANY, choices=["Allowed", "Not Allowed"])
 
-		self.Bind(wx.EVT_TEXT, self.OnEditText, self.roundsentry)
-		self.Bind(wx.EVT_TEXT, self.OnEditText, self.seedentry)
+#		self.Bind(wx.EVT_TEXT, self.OnEditText, self.roundsentry)
+#		self.Bind(wx.EVT_TEXT, self.OnEditText, self.seedentry)
 
 		# Wagers
 		self.wagernum = wx.Choice(betspage, wx.ID_ANY, choices=["New"])
@@ -92,12 +94,12 @@ class SetupGUI(wx.Frame):
 		wagerbox.AddF(self.addbtn, self.bflag)
 		betssizer.AddF(wagerbox, self.bflag)
 		betssizer.AddF(self.wagertable, self.eflag)
-		
-		# Bindings, woot
 
-		# Currency
+		# Bindings, woot
 		self.Bind(wx.EVT_BUTTON, self.OnAddWager, self.addbtn)
 		self.Bind(wx.EVT_CHOICE, self.OnChooseWager, self.wagernum)
+
+		self.SetBets()
 
 		#*******************************************
 		# 				The Symbols page
@@ -292,10 +294,14 @@ class SetupGUI(wx.Frame):
 
 		# Buttons
 		buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
+		updatebtn = wx.Button(self, wx.ID_ANY, 'Update')
+		resetbtn = wx.Button(self, wx.ID_ANY, 'Reset')
 		loadbtn = wx.Button(self, wx.ID_OPEN)
 		savebtn = wx.Button(self, wx.ID_SAVE)
 		cancelbtn = wx.Button(self, wx.ID_CANCEL)
 		okaybtn = wx.Button(self, wx.ID_OK)
+		buttonsizer.AddF(updatebtn, self.bflag)
+		buttonsizer.AddF(resetbtn, self.bflag)
 		buttonsizer.AddF(loadbtn, self.bflag)
 		buttonsizer.AddF(savebtn, self.bflag)
 		buttonsizer.AddF(cancelbtn, self.bflag)
@@ -303,6 +309,9 @@ class SetupGUI(wx.Frame):
 		
 		# button bindings
 		self.Bind(wx.EVT_BUTTON, self.OnOkay, okaybtn)
+		self.Bind(wx.EVT_BUTTON, self.OnUpdate, updatebtn)
+		self.Bind(wx.EVT_BUTTON, self.OnReset, resetbtn)
+
 
 		# the outer sizer to pack everything into
 		bottomflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand()
@@ -324,17 +333,42 @@ class SetupGUI(wx.Frame):
 		self.SetSizerAndFit(outersizer)
 		self.SetSize(self.FRAME_SIZE)
 		self.Show(True)
-		#initially populate the wagers
+
+
+#	def OnEditText(self, event):
+		#self.setBets()
+
+	#******************************************
+	#				Settings Tab Getters and Setters
+	#******************************************
+
+	def ActivePage(self):
+		currentPage = self.book.GetSelection()
+		pageName = self.book.GetPageText(currentPage)
+		return pageName
+
+	def OnUpdate(self, event):
+		if self.ActivePage() == 'Bets':
+			self.SetBetSettings()
+
+	def OnReset(self, event):
+		if self.ActivePage() == 'Bets':	
+			self.SetBets()
+
+	def SetBets(self):
+		#set the values of the items in the bet tab
+		self.debtallowed.SetSelection(self.settings.bets.debt)
+		self.roundsentry.SetValue(str(self.settings.rounds))
+		self.seedentry.SetValue(str(self.settings.seed))
+		while self.wagers:
+			self.RemoveWager(self.wagers[0])
+			
 		for w in self.settings.bets.betsizes:
 			w = str(w)
-			self.AddWager(w, betspage)
+			self.AddWager(w, self.betspage)
 
-
-	def OnEditText(self, event):
-		self.setBets()
-
-
-	def setBets(self):
+	def SetBetSettings(self):
+		#sets the values of the bet object based on the gui contents
 		debt = self.debtallowed.GetCurrentSelection()
 		currency = self.currencytype.GetCurrentSelection()
 		self.settings.seed = self.seedentry.GetValue()
@@ -345,7 +379,9 @@ class SetupGUI(wx.Frame):
 			betsizes.append(float(wagertext.GetLabel().split(' ')[0]))
 
 		self.settings.setBets(betsizes, debt, currency)	
-		print self.settings
+
+
+
 
 
 
@@ -408,7 +444,6 @@ class SetupGUI(wx.Frame):
 	def update_wagers(self):
 		parent = self.amountentry.GetParent()
 		parent.Fit()
-			
 	#*******************************************
 	# 				Wager Callbacks
 	#*******************************************
@@ -448,26 +483,34 @@ class SetupGUI(wx.Frame):
 		index = -1
 		for wager in self.wagers:
 			if wager.GetItem(2).GetWindow() is event.GetEventObject():
-				index = self.wagers.index(wager)
-				
+				break
+
+		self.RemoveWager(wager)
+		
+	
+	def OnEditWager(self, event, index):
+		wagertext = self.wagers[index].GetItem(1).GetWindow()
+		wagertext.SetLabel(self.amountentry.GetValue() + " " + self.currencytype.GetStringSelection())
+		self.update_wagers()
+
+	def RemoveWager(self, wager):
+		index = self.wagers.index(wager)
 		self.wagertable.Hide(self.wagers[index])
 		self.wagers[index].DeleteWindows()
 		del self.wagers[index]
-		self.wagernum.Delete(index+1)
+		#self.wagernum.Delete(index+1)
 
 		# fix the wager numbering
 		i = 1
 		for wager in self.wagers:
 			number = wager.GetItem(0).GetWindow()
 			number.SetLabel("Wager " + str(i) + ":")
+
 			self.wagernum.SetString(i, str(i))
+
 			i += 1
 		self.update_wagers()
-	
-	def OnEditWager(self, event, index):
-		wagertext = self.wagers[index].GetItem(1).GetWindow()
-		wagertext.SetLabel(self.amountentry.GetValue() + " " + self.currencytype.GetStringSelection())
-		self.update_wagers()
+
 		
 	#*******************************************
 	# 				Symbols Callbacks
