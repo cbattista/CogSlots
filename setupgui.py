@@ -303,13 +303,20 @@ class SetupGUI(wx.Frame):
 		#*******************************************
 		# Payout table
 		payoutframe = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
-		self.payouttable = commongui.create_payout_table(self, self.settings.bets.currency, self.settings.bets.betsizes)
+		self.ptIndex =[]
+		maxbets = 2
+
+		self.payouttable = commongui.create_payout_table(self, self.settings.bets.currency, self.settings.bets.betsizes, maxbets)
+		self.ptcount = 4 + maxbets
+
 
 		for i in range(len(self.settings.symbols.combos)):
 			payoff = self.settings.symbols.getPayoff(i)
 			values = self.settings.payoffs.getPayoffRow(i)
 
 			commongui.create_payout_row(self, self.payouttable, i, payoff[0:3], values)
+			self.ptcount+=1
+			self.ptIndex.append(self.ptcount)
 
 		payoutframe.AddF(self.payouttable, wx.SizerFlags().Expand())
 		payoutlabel = wx.StaticText(self, wx.ID_ANY, "Payout Table:")
@@ -331,6 +338,8 @@ class SetupGUI(wx.Frame):
 		buttonsizer.AddF(okaybtn, self.bflag)
 		
 		# button bindings
+		self.Bind(wx.EVT_BUTTON, self.OnLoad, loadbtn)
+		self.Bind(wx.EVT_BUTTON, self.OnSave, savebtn)
 		self.Bind(wx.EVT_BUTTON, self.OnOkay, okaybtn)
 		self.Bind(wx.EVT_BUTTON, self.OnUpdate, updatebtn)
 		self.Bind(wx.EVT_BUTTON, self.OnReset, resetbtn)
@@ -364,6 +373,11 @@ class SetupGUI(wx.Frame):
 	#******************************************
 	#				Settings Tab Getters and Setters
 	#******************************************
+
+	def UpdateFromSettings(self):
+		self.SetBets()
+		self.SetSymbols(self.wingrid)
+		self.SetOdds()
 
 	def ActivePage(self):
 		currentPage = self.book.GetSelection()
@@ -613,6 +627,23 @@ class SetupGUI(wx.Frame):
 
 			i += 1
 		self.update_wagers()
+
+	def OnSave(self, event):
+		saveDia = wx.FileDialog(self, 'Save your settings', 'settings', self.settings.name, "*.set", wx.FD_SAVE)
+		outcome = saveDia.ShowModal()
+		if outcome == wx.ID_OK:
+			self.settings.name = saveDia.GetPath()
+			self.settings.preserve()
+
+	def OnLoad(self, event):
+		openDia = wx.FileDialog(self, 'Choose your settings', 'settings', self.settings.name, "*.set", wx.FD_OPEN)
+		outcome = openDia.ShowModal()
+		if outcome == wx.ID_OK:
+			f = open(openDia.GetPath())
+			settings = pickle.load(f)
+			f.close()
+			self.settings = settings
+			self.UpdateFromSettings()
 
 		
 	#*******************************************
