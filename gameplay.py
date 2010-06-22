@@ -10,12 +10,12 @@ from CogSub import Subject
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
-	def __init__(self, parent, *args, **kwargs):
+	def __init__(self, parent, settings, *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
 		#initialize the game settings
-		self.settings = Settings()
+		self.settings = settings
 		self.subject= Subject()
 		#create a Slots object
 		self.slots = SlotReels.Slots(self.settings.symbols.symbols)
@@ -123,7 +123,6 @@ class GamePlayGUI(wx.Frame):
 		self.balance = self.settings.seed - self.settings.bets.betsizes[0]
 		self.debtallowed = self.settings.bets.debt
 		self.currency = self.settings.bets.currency
-		self.wagerstep = 10
 		self.numrounds = self.settings.rounds
 		self.betsizes = self.settings.bets.betsizes	
 
@@ -275,3 +274,4 @@ if __name__ == "__main__":
 	app = wx.App(False)
 	mainframe = GamePlayGUI(None)
 	app.MainLoop()
+

@@ -7,6 +7,7 @@ import commongui
 import gameplay
 import subjectinfo
 from ExpSettings import *
+import gameplay
 
 class SetupGUI(wx.Frame):
 	""" The interface for the tester to set up parameters """
@@ -420,8 +421,8 @@ class SetupGUI(wx.Frame):
 		#sets the values of the bet object based on the gui contents
 		debt = self.debtallowed.GetCurrentSelection()
 		currency = self.currencytype.GetCurrentSelection()
-		self.settings.seed = self.seedentry.GetValue()
-		self.settings.rounds = self.roundsentry.GetValue()
+		self.settings.seed = int(self.seedentry.GetValue())
+		self.settings.rounds = int(self.roundsentry.GetValue())
 		betsizes = []
 		for w in self.wagers:
 			wagertext = w.GetItem(1).GetWindow()
@@ -462,7 +463,7 @@ class SetupGUI(wx.Frame):
 		for p in self.symbolPayouts:
 			payoffs.append(p.GetValue())
 
-		self.settings.payoffs = payoffs
+		self.settings.payoffs.payouts = payoffs
 		
 	def SetOddsSettings(self):
 		#sets value of odds object from gui
@@ -695,10 +696,16 @@ class SetupGUI(wx.Frame):
 			infodialog.enable_control("Handedness", self.collecthandedness.IsChecked())
 			
 			ans2 = infodialog.ShowModal()
-			if ans2 == wx.ID_SAVE:
-				infodialog.save_info()
+			if ans2 == wx.ID_OK:
+				#infodialog.save_info()
+				self.Hide()
+				game = gameplay.GamePlayGUI(None, self.settings)
+				game.Show()
+				self.Destroy()
+
 
 if __name__ == '__main__':
-    app = wx.App(False)
-    mainframe = SetupGUI(None)
-    app.MainLoop()
+	app = wx.App(False)
+	mainframe = SetupGUI(None)
+	#gameplay = gameplay.GamePlayGUI(None)
+	app.MainLoop()
