@@ -43,7 +43,8 @@ class GamePlayGUI(wx.Frame):
 			payoff = self.settings.symbols.getPayoff(i)
 			values = self.settings.payoffs.getPayoffRow(i)
 
-			commongui.create_payout_row(payoutpanel, payoutgrid, i, payoff[0:3], values)
+			if values:
+				commongui.create_payout_row(payoutpanel, payoutgrid, i, payoff[0:3], values)
 
 		payoutpanel.SetSizerAndFit(payoutgrid)
 		

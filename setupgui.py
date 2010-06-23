@@ -107,8 +107,12 @@ class SetupGUI(wx.Frame):
 		symbolslabel.SetFont(hfont)
 		symbolssizer.AddF(symbolslabel, hflag)
 		symbolsbox = wx.BoxSizer(wx.HORIZONTAL)
+
+		self.symbolCheckBoxes = []
+
 		for i in cfg.symbols:
-			symbolsbox.AddF(self.create_symbols_checkbox(symbolspage, i), self.bflag)
+			mySym = self.create_symbols_checkbox(symbolspage, i)
+			symbolsbox.AddF(mySym, self.bflag)
 		symbolssizer.AddF(symbolsbox, self.bflag)
 		symbolssizer.AddF(wx.StaticLine(symbolspage), self.bflag)
 
@@ -449,6 +453,14 @@ class SetupGUI(wx.Frame):
 		#sets the values of the symbol object based on the gui contents
 		combos = []
 		combo = []
+
+		#now get the symbols to be used from the checkboxy thang
+		self.settings.symbols_imgs = []		
+		
+		for scb in self.symbolCheckBoxes:
+			if scb.GetValue():
+				self.settings.symbol_imgs.append(scb.cbname)
+
 		for c in self.comboboxes:
 			symbol = c.GetValue()
 			if len(combo) < 3:
@@ -464,6 +476,10 @@ class SetupGUI(wx.Frame):
 			payoffs.append(p.GetValue())
 
 		self.settings.payoffs.payouts = payoffs
+
+
+
+		self.settings.setSymbols()
 		
 	def SetOddsSettings(self):
 		#sets value of odds object from gui
@@ -513,8 +529,11 @@ class SetupGUI(wx.Frame):
 
 		bmp = wx.StaticBitmap(parent, wx.ID_ANY, bitmap)
 		checkbox = wx.CheckBox(parent, wx.ID_ANY, "")
+		checkbox.SetValue(True)
+		checkbox.cbname = index
 		sizer.AddF(bmp, self.bflag) 
 		sizer.AddF(checkbox, self.bflag)
+		self.symbolCheckBoxes.append(checkbox)
 		return sizer
 
 	def makeBitmap(self, filename):

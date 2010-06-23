@@ -16,9 +16,13 @@ class Payouts:
 
 	def getPayoffRow(self, i):
 		#returns the payoff row for a given payout size
-		payouts = []
-		for b in self.betsizes:
-			payouts.append(self.payouts[i] * b)
+		if i < len(self.payouts):
+			payouts = []
+			for b in self.betsizes:
+				payouts.append(self.payouts[i] * b)
+		else:
+			return 0
+
 		return payouts
 
 	def getWinnings(self, i, j):
@@ -64,11 +68,15 @@ class Symbols:
 	def __init__(self, payoffs = [20., 12., 10., 5., 3., 2., 1.], symbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL]):
 		self.payoffs = payoffs
 		self.symbols = symbols
+		print "CREATING SYMBOL OBJ"
+		print payoffs
+		print symbols
 		self.createCombos()
 
 	def createCombos(self):
 		#create combos from available symbols
 		combos = []
+
 		for s in self.symbols:
 			combos.append([s, s, s])
 
@@ -178,7 +186,7 @@ class Settings:
 
 	def setSymbols(self):
 		if self.symbol_imgs:
-			self.symbols = Symbols(payoffs = self.payoffs.payouts, symbols=self.symbols_imgs)
+			self.symbols = Symbols(payoffs = self.payoffs.payouts, symbols=self.symbol_imgs)
 		else:
 			self.symbols = Symbols(payoffs = self.payoffs.payouts)
 
@@ -191,12 +199,4 @@ class Settings:
 		output = "%s\n%s\n%s\n%s" % (self.bets, self.payoffs, self.symbols, self.odds)
 		return output
 
-s = Settings()
-print s
-s.setBets([0, 1, 5, 10], 50, 2) 
-s.setPayouts([10, 8, 5, 2, 1, 1])
 
-print s
-s.preserve()
-
-	
