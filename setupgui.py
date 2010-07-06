@@ -477,10 +477,6 @@ class SetupGUI(wx.Frame):
 
 		self.settings.payouts = payoffs
 
-
-
-		self.settings.setSymbols()
-		
 	def SetOddsSettings(self):
 		#sets value of odds object from gui
 		self.settings.odds = int(self.autowinningodds.GetValue())
