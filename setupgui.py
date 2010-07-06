@@ -6,7 +6,7 @@ import cfg
 import commongui
 import gameplay
 import subjectinfo
-from ExpSettings import *
+from Settings import Settings
 import gameplay
 
 class SetupGUI(wx.Frame):
@@ -139,8 +139,8 @@ class SetupGUI(wx.Frame):
 		i = 0
 		self.comboboxes = []
 		self.symbolPayouts = []
-		for c in self.settings.symbols.combos: 
-			self.create_winning_combo(self.symbolspage, wingrid, i+1, c, self.settings.symbols.payoffs[i])
+		for c in self.settings.combos: 
+			self.create_winning_combo(self.symbolspage, wingrid, i+1, c, self.settings.payouts[i])
 			i = i + 1
 	
 		self.SetSymbols(wingrid)
@@ -165,7 +165,7 @@ class SetupGUI(wx.Frame):
 		self.manualodds.SetFont(hfont)
 		self.payoutodds = []
 		
-		for o in self.settings.odds.payoutOdds:
+		for o in self.settings.payoutOdds:
 			tc = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
 			tc.SetValue(str(o))
 			self.payoutodds.append(tc)
@@ -196,8 +196,8 @@ class SetupGUI(wx.Frame):
 		# pack up the manual stuff
 		self.manwinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
 		self.manlosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
-		self.manwinningodds.SetValue(str(self.settings.winOdds))
-		self.manlosingodds.SetValue(str(100 - self.settings.winOdds))		
+		self.manwinningodds.SetValue(str(self.settings.odds))
+		self.manlosingodds.SetValue(str(100 - self.settings.odds))		
 		
 		oddssizer.AddF(self.manualodds, hflag)
 		self.manualgrid = wx.FlexGridSizer(7, 6)
@@ -311,13 +311,13 @@ class SetupGUI(wx.Frame):
 		self.ptIndex =[]
 		maxbets = 2
 
-		self.payouttable = commongui.create_payout_table(self, self.settings.bets.currency, self.settings.bets.betsizes, maxbets)
+		self.payouttable = commongui.create_payout_table(self, self.settings.currency, self.settings.betsizes, maxbets)
 		self.ptcount = 4 + maxbets
 
 
-		for i in range(len(self.settings.symbols.combos)):
-			payoff = self.settings.symbols.getPayoff(i)
-			values = self.settings.payoffs.getPayoffRow(i)
+		for i in range(len(self.settings.combos)):
+			payoff = self.settings.getPayoff(i)
+			values = self.settings.getPayoffRow(i)
 
 			commongui.create_payout_row(self, self.payouttable, i, payoff[0:3], values)
 			self.ptcount+=1
@@ -411,13 +411,13 @@ class SetupGUI(wx.Frame):
 
 	def SetBets(self):
 		#set the values of the items in the bet tab
-		self.debtallowed.SetSelection(self.settings.bets.debt)
+		self.debtallowed.SetSelection(self.settings.debt)
 		self.roundsentry.SetValue(str(self.settings.rounds))
 		self.seedentry.SetValue(str(self.settings.seed))
 		while self.wagers:
 			self.RemoveWager(self.wagers[0])
 			
-		for w in self.settings.bets.betsizes:
+		for w in self.settings.betsizes:
 			w = str(w)
 			self.AddWager(w, self.betspage)
 
@@ -435,17 +435,17 @@ class SetupGUI(wx.Frame):
 		self.settings.setBets(betsizes, debt, currency)	
 
 	def SetSymbols(self, wingrid):
-		self.settings.symbols.combos
+		self.settings.combos
 
 		count = 0
-		for combo in self.settings.symbols.combos:
+		for combo in self.settings.combos:
 			for sym in combo:
 				wingrid.GetItem(self.comboIndexes[count]).GetWindow().SetStringSelection(sym)
 				count+=1
 		
 		count = 0		
 
-		for p in self.settings.symbols.payoffs:
+		for p in self.settings.payouts:
 			wingrid.GetItem(self.payoutIndexes[count]).GetWindow().SetValue(str(p))
 			count+=1
 
@@ -455,7 +455,7 @@ class SetupGUI(wx.Frame):
 		combo = []
 
 		#now get the symbols to be used from the checkboxy thang
-		self.settings.symbols_imgs = []		
+		self.settings.symbol_imgs = []		
 		
 		for scb in self.symbolCheckBoxes:
 			if scb.GetValue():
@@ -469,13 +469,13 @@ class SetupGUI(wx.Frame):
 				combos.append(combo)
 				combo = [symbol]
 
-		self.settings.symbols.combos = combos
+		self.settings.combos = combos
 		#set the payoffs
 		payoffs = []
 		for p in self.symbolPayouts:
 			payoffs.append(p.GetValue())
 
-		self.settings.payoffs.payouts = payoffs
+		self.settings.payouts = payoffs
 
 
 
@@ -483,8 +483,8 @@ class SetupGUI(wx.Frame):
 		
 	def SetOddsSettings(self):
 		#sets value of odds object from gui
-		self.settings.winOdds = int(self.autowinningodds.GetValue())
-		self.settings.odds.kind = self.autopayout.GetStringSelection()
+		self.settings.odds = int(self.autowinningodds.GetValue())
+		self.settings.oddskind = self.autopayout.GetStringSelection()
 
 		manualOdds = []
 
@@ -492,16 +492,16 @@ class SetupGUI(wx.Frame):
 			item = self.manualgrid.GetItem(i)
 			manualOdds.append(item.GetWindow().GetValue())
 
-		self.settings.odds.payoutOdds = manualOdds
+		self.settings.payoutOdds = manualOdds
 
 	def SetOdds(self):
 		#sets value of odds gui from odds object
-		self.autowinningodds.SetValue(str(self.settings.winOdds))
-		self.autolosingodds.SetValue(str(100 - self.settings.winOdds))
-		self.autopayout.SetStringSelection(self.settings.odds.kind)
+		self.autowinningodds.SetValue(str(self.settings.odds))
+		self.autolosingodds.SetValue(str(100 - self.settings.odds))
+		self.autopayout.SetStringSelection(self.settings.oddskind)
 
 		#check and see if we have the same number of payouts still
-		payoutOdds = self.settings.odds.payoutOdds
+		payoutOdds = self.settings.payoutOdds
 
 		if len(self.mgIndeces) != len(payoutOdds):
 			pass

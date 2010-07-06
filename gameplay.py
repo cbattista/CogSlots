@@ -18,7 +18,7 @@ class GamePlayGUI(wx.Frame):
 		self.settings = settings
 		self.subject= Subject()
 		#create a Slots object
-		self.slots = SlotReels.Slots(self.settings.symbols.symbols)
+		self.slots = SlotReels.Slots(self.settings.symbols)
 		self.round = 1
 
 		# the pretty background - not working properly yet
@@ -37,11 +37,11 @@ class GamePlayGUI(wx.Frame):
 		# populate the payout sizer with values from the database
 		payoutpanel = wx.Panel(self)
 		payoutpanel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-		payoutgrid = commongui.create_payout_table(payoutpanel, self.currency, self.settings.bets.betsizes)
+		payoutgrid = commongui.create_payout_table(payoutpanel, self.currency, self.settings.betsizes)
 
-		for i in range(len(self.settings.symbols.combos)):
-			payoff = self.settings.symbols.getPayoff(i)
-			values = self.settings.payoffs.getPayoffRow(i)
+		for i in range(len(self.settings.combos)):
+			payoff = self.settings.getPayoff(i)
+			values = self.settings.getPayoffRow(i)
 
 			if values:
 				commongui.create_payout_row(payoutpanel, payoutgrid, i, payoff[0:3], values)
@@ -58,7 +58,7 @@ class GamePlayGUI(wx.Frame):
 			
 		# create the text boxes
 		wagersizer, self.wagertext = self.create_labeled_num_box("Wager")
-		self.wagertext.SetValue(str(self.settings.bets.betsizes[0]))
+		self.wagertext.SetValue(str(self.settings.betsizes[0]))
 		winsizer, self.wintext = self.create_labeled_num_box("Win")
 		balancesizer, self.balancetext = self.create_labeled_num_box("Balance", str(self.balance))
 		
@@ -121,11 +121,11 @@ class GamePlayGUI(wx.Frame):
 	
 	def get_user_params(self):
 		#NOTE: this is stuff that should be retrieved from the database
-		self.balance = self.settings.seed - self.settings.bets.betsizes[0]
-		self.debtallowed = self.settings.bets.debt
-		self.currency = self.settings.bets.currency
+		self.balance = self.settings.seed - self.settings.betsizes[0]
+		self.debtallowed = self.settings.debt
+		self.currency = self.settings.currency
 		self.numrounds = self.settings.rounds
-		self.betsizes = self.settings.bets.betsizes	
+		self.betsizes = self.settings.betsizes	
 
 	def num_val(self, text):
 		if text is '':
@@ -174,9 +174,9 @@ class GamePlayGUI(wx.Frame):
 
 
 
-		if payline in self.settings.symbols.combos:
+		if payline in self.settings.combos:
 			self.subject.inputData(self.round, 'outcome', 'WIN')
-			return self.settings.symbols.combos.index(payline)
+			return self.settings.combos.index(payline)
 
 		self.subject.inputData(self.round, 'outcome', 'LOSS')
 		return 0
@@ -244,7 +244,7 @@ class GamePlayGUI(wx.Frame):
 
 		
 		# Reset the wager to zero
-		self.wagertext.SetValue(str(self.settings.bets.betsizes[0]))
+		self.wagertext.SetValue(str(self.settings.betsizes[0]))
 
 		if self.balance <= 0:
 			self.gameOver()
