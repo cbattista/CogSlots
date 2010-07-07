@@ -4,7 +4,7 @@ import sys
 import wx
 import cfg
 import commongui
-from ExpSettings import *
+from Settings import Settings
 import SlotReels
 from CogSub import Subject
 
@@ -18,7 +18,7 @@ class GamePlayGUI(wx.Frame):
 		self.settings = settings
 		self.subject= Subject()
 		#create a Slots object
-		self.slots = SlotReels.Slots(self.settings.symbols)
+		self.slots = self.settings.GetReels()
 		self.round = 1
 
 		# the pretty background - not working properly yet
@@ -223,6 +223,7 @@ class GamePlayGUI(wx.Frame):
 
 
 		payout = self.settings.payouts[win]
+		payout = float(payout)
 
 		self.subject.inputData(self.round, 'oldbalance', self.balance)
 		self.subject.inputData(self.round, 'wager', wager)

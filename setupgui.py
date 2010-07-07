@@ -7,7 +7,7 @@ import commongui
 import gameplay
 import subjectinfo
 from Settings import Settings
-import gameplay
+import pickle
 
 class SetupGUI(wx.Frame):
 	""" The interface for the tester to set up parameters """
@@ -435,7 +435,11 @@ class SetupGUI(wx.Frame):
 		self.settings.setBets(betsizes, debt, currency)	
 
 	def SetSymbols(self, wingrid):
-		self.settings.combos
+		for scb in self.symbolCheckBoxes:
+			if scb.cbname in self.settings.symbols:
+				scb.SetValue(1)
+			else:
+				scb.SetValue(0)
 
 		count = 0
 		for combo in self.settings.combos:
@@ -455,11 +459,11 @@ class SetupGUI(wx.Frame):
 		combo = []
 
 		#now get the symbols to be used from the checkboxy thang
-		self.settings.symbol_imgs = []		
+		self.settings.symbols = []		
 		
 		for scb in self.symbolCheckBoxes:
 			if scb.GetValue():
-				self.settings.symbol_imgs.append(scb.cbname)
+				self.settings.symbols.append(scb.cbname)
 
 		for c in self.comboboxes:
 			symbol = c.GetValue()

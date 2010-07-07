@@ -121,8 +121,9 @@ class Settings:
 	def setCustomOdds(self):
 		pass
 
-	def createReels(self):
-		self.slots = SlotReels.Slots(self.symbols)
+	def GetReels(self):
+		print self.symbols
+		return SlotReels.Slots(self.symbols)
 
 	def preserve(self):
 		f = open("%s.set" % self.name, "w")
