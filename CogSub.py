@@ -3,13 +3,13 @@ import pickle
 
 class Subject:
 	def __init__(self, s_id=777, age=0, sex="unknown", hand="unknown"):		
-		self.s_id = number
+		self.s_id = s_id
 		self.age = age
 		self.sex = sex
 		self.hand = hand
 		self.date = time.localtime()
 		#create dictionary to hold trial results
-		self.fname = "%s %s.csv" % (number, self.date)
+		self.fname = "%s %s.csv" % (s_id, self.date)
 		self.results = {}
 
 	def inputData(self, trial, condition, value):
@@ -40,7 +40,7 @@ class Subject:
 			trial = self.results[t]
 			trialKeys = trial.keys()
 			trialKeys.sort()
-			header = ""
+			header = "trial"
 			for tk in trialKeys:
 				header = "%s,%s" % (header, tk)
 				line = "%s,%s" % (line, trial[tk])
@@ -52,7 +52,7 @@ class Subject:
 		f.close()
 
 	def preserve(self):
-		f = open("%s.cogsub" % self.number, "w")
+		f = open("%s.cogsub" % self.s_id, "w")
 		pickle.dump(self, f)
 		f.close()
 

@@ -2,7 +2,6 @@
 
 import wx, wx.html
 import cfg
-import random # just for now
 
 class InfoDialog(wx.Dialog):
 	""" A simple dialogue to display an html file """
@@ -33,7 +32,7 @@ class InfoDialog(wx.Dialog):
 		self.html.LoadFile(htmlfile)
 
 # Some functions
-def create_payout_row(parent, payoutgrid, index, icons, value): # and payouts/symbols etc
+def create_payout_row(parent, payoutgrid, index, icons, value, maxpayouts = 2): # and payouts/symbols etc
 	
 	flag = wx.SizerFlags(1).Align(wx.ALIGN_RIGHT)
 	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), flag)
@@ -47,19 +46,30 @@ def create_payout_row(parent, payoutgrid, index, icons, value): # and payouts/sy
 		icon = wx.StaticBitmap(parent, wx.ID_ANY, bitmap)
 		payoutgrid.Add(icon)
 
-	for v in value:
+	for v in value[0:maxpayouts]:
 		payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "%s" % v), flag)
 
-def create_payout_table(parent, currency, bets):
+def create_payout_table(parent, currency, bets, maxpayouts = 2):
 	# create the payout table frame and sizer
-	payoutgrid = wx.FlexGridSizer(1, len(bets) + 4, 10, 10)
+	payoutgrid = wx.FlexGridSizer(1, maxpayouts + 4, 10, 10)
 	
 	# the top row just has headers
 	# but the first four columns don"t have headers
 	for i in range(0,4):
 		payoutgrid.AddStretchSpacer()
 
-	for b in bets:	
+	for b in bets[0:2]:	
 		payoutgrid.Add(wx.StaticText(parent, wx.ID_ANY, "%s %s" % (b, currency.title())), wx.ALIGN_CENTRE)
 
 	return payoutgrid
+
+def makeBitmap(filename, scale=()):
+	#make wx.Bitmap of an image from a file, and optionally scale it
+	img = wx.Image(filename)
+	if scale:
+		img = img.Scale(scale[0], scale[1], 1)
+	bitmap = wx.BitmapFromImage(img)
+	if scale:
+		bitmap.SetHeight(scale[0])
+		bitmap.SetWidth(scale[1])
+	return bitmap
