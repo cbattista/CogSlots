@@ -538,10 +538,10 @@ class SetupGUI(wx.Frame):
 
 	def makeBitmap(self, filename):
 		img = wx.Image(filename)
-        try:
-    		img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
-        except:
-            pass
+		try:
+			img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+		except:
+			pass
 		bitmap = wx.BitmapFromImage(img)
 		bitmap.SetHeight(cfg.SLOT_SIZE[0])
 		bitmap.SetWidth(cfg.SLOT_SIZE[1])
