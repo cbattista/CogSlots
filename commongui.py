@@ -39,7 +39,10 @@ def create_payout_row(parent, payoutgrid, index, icons, value, maxpayouts = 2): 
 
 	for icon in icons:
 		img = wx.Image(icon)
-		img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+		try:
+			img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+		except:
+			pass
 		bitmap = wx.BitmapFromImage(img)
 		bitmap.SetHeight(cfg.SLOT_SIZE[0])
 		bitmap.SetWidth(cfg.SLOT_SIZE[1])
@@ -51,15 +54,15 @@ def create_payout_row(parent, payoutgrid, index, icons, value, maxpayouts = 2): 
 
 def create_payout_table(parent, currency, bets, maxpayouts = 2):
 	# create the payout table frame and sizer
-	payoutgrid = wx.FlexGridSizer(1, maxpayouts + 4, 10, 10)
+	payoutgrid = wx.FlexGridSizer(1, maxpayouts + 4, 2, 2)
 	
 	# the top row just has headers
 	# but the first four columns don"t have headers
 	for i in range(0,4):
 		payoutgrid.AddStretchSpacer()
 
-	for b in bets[0:2]:	
-		payoutgrid.Add(wx.StaticText(parent, wx.ID_ANY, "%s %s" % (b, currency.title())), wx.ALIGN_CENTRE)
+	for b in bets[0:maxpayouts]:	
+		payoutgrid.Add(wx.StaticText(parent, wx.ID_ANY, "%s %s" % (b, currency)), wx.ALIGN_CENTRE)
 
 	return payoutgrid
 
@@ -67,7 +70,10 @@ def makeBitmap(filename, scale=()):
 	#make wx.Bitmap of an image from a file, and optionally scale it
 	img = wx.Image(filename)
 	if scale:
-		img = img.Scale(scale[0], scale[1], 1)
+		try:
+			img = img.Scale(scale[0], scale[1], 1)
+		except:
+			pass
 	bitmap = wx.BitmapFromImage(img)
 	if scale:
 		bitmap.SetHeight(scale[0])
