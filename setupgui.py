@@ -524,7 +524,10 @@ class SetupGUI(wx.Frame):
 	def create_symbols_checkbox(self, parent, index):
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		img = wx.Image(index)
-		img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+		try:
+			img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+		except:
+			pass
 		bitmap = wx.BitmapFromImage(img)
 
 		bmp = wx.StaticBitmap(parent, wx.ID_ANY, bitmap)
