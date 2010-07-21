@@ -35,18 +35,7 @@ class GamePlayGUI(wx.Frame):
 			self.sizer.AddGrowableCol(i)
 		
 		# populate the payout sizer with values from the database
-		payoutpanel = wx.Panel(self)
-		payoutpanel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-		payoutgrid = commongui.create_payout_table(payoutpanel, self.currency, self.settings.betsizes)
-
-		for i in range(len(self.settings.combos)):
-			payoff = self.settings.getPayoff(i)
-			values = self.settings.getPayoffRow(i)
-
-			if values:
-				commongui.create_payout_row(payoutpanel, payoutgrid, i, payoff[0:3], values)
-
-		payoutpanel.SetSizerAndFit(payoutgrid)
+		payoutpanel = commongui.PayoutTable(self, self.settings)
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)

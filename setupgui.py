@@ -32,16 +32,14 @@ class SetupGUI(wx.Frame):
 		oddspage, oddssizer = self.create_page('Odds')
 
 		# same font for all the headers
-		hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
-		hfont.SetWeight(wx.FONTWEIGHT_BOLD)
-		hfont.SetPointSize(hfont.GetPointSize()*1.3)
-		self.hfont = hfont
+		self.hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
+		self.hfont.SetWeight(wx.FONTWEIGHT_BOLD)
+		self.hfont.SetPointSize(self.hfont.GetPointSize()*1.3)
 
 		# and the same border flag/label flag
 		self.bflag = wx.SizerFlags().Border(wx.ALL, 5)
 		self.eflag = self.bflag.Expand()
-		hflag = wx.SizerFlags().Border(wx.LEFT, 10)
-		self.hflag = hflag
+		self.hflag = wx.SizerFlags().Border(wx.LEFT, 10)
 
 		#*******************************************
 		# 				The bets page
@@ -60,8 +58,8 @@ class SetupGUI(wx.Frame):
 
 		# number of rounds stuff
 		roundslabel = wx.StaticText(betspage, wx.ID_ANY, "Number of Rounds:")
-		roundslabel.SetFont(hfont)
-		betssizer.AddF(roundslabel, hflag)
+		roundslabel.SetFont(self.hfont)
+		betssizer.AddF(roundslabel, self.hflag)
 		numroundsbox = wx.BoxSizer(wx.HORIZONTAL)
 		numroundsbox.AddF(self.roundsentry, self.bflag)
 		numroundsbox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Subject Debt:"), self.bflag)
@@ -71,8 +69,8 @@ class SetupGUI(wx.Frame):
 
 		# the currency stuff
 		currencylabel = wx.StaticText(betspage, wx.ID_ANY, "Currency:")
-		currencylabel.SetFont(hfont)
-		betssizer.AddF(currencylabel, hflag)
+		currencylabel.SetFont(self.hfont)
+		betssizer.AddF(currencylabel, self.hflag)
 		self.currencytype = wx.Choice(betspage, wx.ID_ANY, choices=["Credits", "Dollars"])
 		currencybox = wx.BoxSizer(wx.HORIZONTAL)
 		currencybox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Seed Amount:"), self.bflag)
@@ -83,8 +81,8 @@ class SetupGUI(wx.Frame):
 
 		# the wager stuff
 		wagerlabel = wx.StaticText(betspage, wx.ID_ANY, "Wagers:")
-		wagerlabel.SetFont(hfont)
-		betssizer.AddF(wagerlabel, hflag)
+		wagerlabel.SetFont(self.hfont)
+		betssizer.AddF(wagerlabel, self.hflag)
 		wagerbox = wx.BoxSizer(wx.HORIZONTAL)
 		wagerbox.AddF(self.wagernum, self.bflag)
 		wagerbox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Amount:"), self.bflag)
@@ -104,8 +102,8 @@ class SetupGUI(wx.Frame):
 		#*******************************************
 		# Visible types of symbols
 		symbolslabel = wx.StaticText(symbolspage, wx.ID_ANY, "Visible Types of Symbols")
-		symbolslabel.SetFont(hfont)
-		symbolssizer.AddF(symbolslabel, hflag)
+		symbolslabel.SetFont(self.hfont)
+		symbolssizer.AddF(symbolslabel, self.hflag)
 		symbolsbox = wx.BoxSizer(wx.HORIZONTAL)
 
 		self.symbolCheckBoxes = []
@@ -155,14 +153,14 @@ class SetupGUI(wx.Frame):
 		#*******************************************
 		# Auto
 		self.autoodds = wx.CheckBox(oddspage, wx.ID_ANY, "Auto Odds")
-		self.autoodds.SetFont(hfont)
+		self.autoodds.SetFont(self.hfont)
 		self.autowinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
 		self.autolosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
 		self.autopayout = wx.Choice(oddspage, wx.ID_ANY, choices=["equal", "casino", "linear"])
 
 		# Manual
 		self.manualodds = wx.CheckBox(oddspage, wx.ID_ANY, "Manual Odds")
-		self.manualodds.SetFont(hfont)
+		self.manualodds.SetFont(self.hfont)
 		self.payoutodds = []
 		
 		for o in self.settings.payoutOdds:
@@ -180,7 +178,7 @@ class SetupGUI(wx.Frame):
 		rflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT).Border(wx.ALL, 5)
 		
 		# Pack together the auto stuff
-		oddssizer.AddF(self.autoodds, hflag)
+		oddssizer.AddF(self.autoodds, self.hflag)
 		self.autogrid = wx.FlexGridSizer(3, 3)
 		self.autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Winning:"), self.bflag)
 		self.autogrid.AddF(self.autowinningodds, self.bflag)
@@ -199,7 +197,7 @@ class SetupGUI(wx.Frame):
 		self.manwinningodds.SetValue(str(self.settings.odds))
 		self.manlosingodds.SetValue(str(100 - self.settings.odds))		
 		
-		oddssizer.AddF(self.manualodds, hflag)
+		oddssizer.AddF(self.manualodds, self.hflag)
 		self.manualgrid = wx.FlexGridSizer(7, 6)
 		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Payout 1:"), self.bflag)
 		self.manualgrid.AddF(self.payoutodds[0], self.bflag)
@@ -262,7 +260,7 @@ class SetupGUI(wx.Frame):
 		
 		# subjective probability estimate
 		self.getprobestimate = wx.CheckBox(self, wx.ID_ANY, "Obtain Subject Probability Estimate")
-		self.getprobestimate.SetFont(hfont)
+		self.getprobestimate.SetFont(self.hfont)
 		self.estimatetiming = wx.Choice(self, wx.ID_ANY, choices=["At Beginning", "At End"])
 		self.estimateinterval = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_RIGHT)
 		
@@ -272,8 +270,8 @@ class SetupGUI(wx.Frame):
 		
 		# info collection package
 		infolabel = wx.StaticText(self, wx.ID_ANY, "Collect Subject Information")
-		infolabel.SetFont(hfont)
-		infosizer.AddF(infolabel, hflag)
+		infolabel.SetFont(self.hfont)
+		infosizer.AddF(infolabel, self.hflag)
 		infosizer.AddF(self.collectname, self.bflag)
 		infosizer.AddF(self.collectage, self.bflag)
 		infosizer.AddF(self.collectsex, self.bflag)
@@ -281,7 +279,7 @@ class SetupGUI(wx.Frame):
 		infosizer.AddF(wx.StaticLine(self), self.eflag)
 		
 		# probability estimate stuff
-		infosizer.AddF(self.getprobestimate, hflag)
+		infosizer.AddF(self.getprobestimate, self.hflag)
 		self.probrow = wx.BoxSizer(wx.HORIZONTAL)
 		self.probrow.AddF(self.estimatetiming, self.bflag)
 		self.probrow.AddF(wx.StaticText(self, wx.ID_ANY, "of every"), self.bflag)
@@ -292,8 +290,8 @@ class SetupGUI(wx.Frame):
 		
 		# Save as
 		saveaslabel = wx.StaticText(self, wx.ID_ANY, "Save As:")
-		saveaslabel.SetFont(hfont)
-		infosizer.AddF(saveaslabel, hflag)
+		saveaslabel.SetFont(self.hfont)
+		infosizer.AddF(saveaslabel, self.hflag)
 		savegrid = wx.FlexGridSizer(2,2)
 		savegrid.AddF(wx.StaticText(self, wx.ID_ANY, "Filename:"), self.bflag)
 		savegrid.AddF(self.filenamebox, self.eflag)
@@ -306,27 +304,10 @@ class SetupGUI(wx.Frame):
 		#*******************************************
 		# 				Common Elements
 		#*******************************************
+		
 		# Payout table
-		payoutframe = wx.StaticBoxSizer(wx.StaticBox(self), wx.VERTICAL)
-		self.ptIndex =[]
-		maxbets = 2
-
-		self.payouttable = commongui.create_payout_table(self, self.settings.currency, self.settings.betsizes, maxbets)
-		self.ptcount = 4 + maxbets
-
-
-		for i in range(len(self.settings.combos)):
-			payoff = self.settings.getPayoff(i)
-			values = self.settings.getPayoffRow(i)
-
-			commongui.create_payout_row(self, self.payouttable, i, payoff[0:3], values)
-			self.ptcount+=1
-			self.ptIndex.append(self.ptcount)
-
-		payoutframe.AddF(self.payouttable, wx.SizerFlags().Expand())
-		payoutlabel = wx.StaticText(self, wx.ID_ANY, "Payout Table:")
-		payoutlabel.SetFont(hfont)
-
+		self.payoutframe = commongui.PayoutTable(self, self.settings)
+		
 		# Buttons
 		buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
 		updatebtn = wx.Button(self, wx.ID_ANY, 'Update')
@@ -355,8 +336,7 @@ class SetupGUI(wx.Frame):
 		outersizer = wx.FlexGridSizer(3, 1)
 		middleSizer = wx.BoxSizer(wx.HORIZONTAL)
 		payoutSizer = wx.BoxSizer(wx.VERTICAL)
-		payoutSizer.AddF(payoutlabel, hflag.Border(wx.LEFT, 15))
-		payoutSizer.AddF(payoutframe, bottomflag)
+		payoutSizer.AddF(self.payoutframe, bottomflag)
 		payoutSizer.AddF(infosizer, bottomflag)
 
 		middleSizer.AddF(self.book, wx.SizerFlags(1).Expand())
@@ -398,6 +378,8 @@ class SetupGUI(wx.Frame):
 
 		elif self.ActivePage() == 'Odds':
 			self.SetOddsSettings()
+		
+		self.payoutframe.update(self.settings)
 
 	def OnReset(self, event):
 		if self.ActivePage() == 'Bets':	
@@ -424,7 +406,12 @@ class SetupGUI(wx.Frame):
 	def SetBetSettings(self):
 		#sets the values of the bet object based on the gui contents
 		debt = self.debtallowed.GetCurrentSelection()
-		currency = self.currencytype.GetCurrentSelection()
+		cindex = self.currencytype.GetCurrentSelection()
+		if cindex is 0:
+			currency = "c"
+		elif cindex is 1:
+			currency = "$"
+		
 		self.settings.seed = int(self.seedentry.GetValue())
 		self.settings.rounds = int(self.roundsentry.GetValue())
 		betsizes = []
@@ -721,7 +708,7 @@ class SetupGUI(wx.Frame):
 			infodialog.enable_control("Handedness", self.collecthandedness.IsChecked())
 			
 			ans2 = infodialog.ShowModal()
-			if ans2 == wx.ID_OK:
+			if ans2 == wx.ID_SAVE:
 				#infodialog.save_info()
 				self.Hide()
 				game = gameplay.GamePlayGUI(None, self.settings)
