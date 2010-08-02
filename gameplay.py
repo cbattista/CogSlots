@@ -10,12 +10,15 @@ from CogSub import Subject
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
-	def __init__(self, parent, settings, *args, **kwargs):
+	def __init__(self, parent, settings="", *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
 		#initialize the game settings
-		self.settings = settings
+		if settings:
+			self.settings = settings
+		else:
+			self.settings = Settings()
 		self.subject= Subject()
 		#create a Slots object
 		self.slots = self.settings.GetReels()
