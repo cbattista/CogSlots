@@ -258,6 +258,8 @@ class SetupGUI(wx.Frame):
 		self.collectsex = wx.CheckBox(self, wx.ID_ANY, "Sex")
 		self.collecthandedness = wx.CheckBox(self, wx.ID_ANY, "Handedness")
 		
+		self.showpayouts = wx.CheckBox(self, wx.ID_ANY, "Show Payouts Table During Gameplay?")
+		
 		# subjective probability estimate
 		self.getprobestimate = wx.CheckBox(self, wx.ID_ANY, "Obtain Subject Probability Estimate")
 		self.getprobestimate.SetFont(self.hfont)
@@ -277,6 +279,8 @@ class SetupGUI(wx.Frame):
 		infosizer.AddF(self.collectage, self.bflag)
 		infosizer.AddF(self.collectsex, self.bflag)
 		infosizer.AddF(self.collecthandedness, self.bflag)
+		infosizer.AddF(wx.StaticLine(self), self.eflag)
+		infosizer.AddF(self.showpayouts, self.eflag)
 		infosizer.AddF(wx.StaticLine(self), self.eflag)
 		
 		# probability estimate stuff
@@ -418,6 +422,7 @@ class SetupGUI(wx.Frame):
 			print probDict['when']
 			self.estimatetiming.SetStringSelection(probDict['when'])
 
+		self.showpayouts.SetValue(self.settings.showPayouts)
 		
 	def SetInfoSettings(self):
 		self.settings.probDict['when'] = self.estimatetiming.GetStringSelection()
@@ -425,6 +430,7 @@ class SetupGUI(wx.Frame):
 		if self.estimateinterval.GetValue():
 			self.settings.probDict['interval'] = int(self.estimateinterval.GetValue())
 			
+		self.settings.showPayouts = self.showpayouts.GetValue()
 			
 	def SetBets(self):
 		#set the values of the items in the bet tab
