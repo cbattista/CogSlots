@@ -423,6 +423,8 @@ class SetupGUI(wx.Frame):
 			self.estimatetiming.SetStringSelection(probDict['when'])
 
 		self.showpayouts.SetValue(self.settings.showPayouts)
+		self.filenamebox.SetValue(self.settings.saveAs)
+		self.sessionnumbox.SetValue(str(self.settings.session))
 		
 	def SetInfoSettings(self):
 		self.settings.probDict['when'] = self.estimatetiming.GetStringSelection()
@@ -431,6 +433,8 @@ class SetupGUI(wx.Frame):
 			self.settings.probDict['interval'] = int(self.estimateinterval.GetValue())
 			
 		self.settings.showPayouts = self.showpayouts.GetValue()
+		self.settings.session = self.sessionnumbox.GetValue()
+		self.settings.saveAs = self.filenamebox.GetValue()
 			
 	def SetBets(self):
 		#set the values of the items in the bet tab
