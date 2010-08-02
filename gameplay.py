@@ -36,14 +36,21 @@ class GamePlayGUI(wx.Frame):
 		for i in range(0,3):
 			self.sizer.AddGrowableRow(i)
 			self.sizer.AddGrowableCol(i)
-		
+
+			
 		# populate the payout sizer with values from the database
-		payoutpanel = commongui.PayoutTable(self, self.settings)
+		if self.settings.showPayouts:
+			payoutpanel = commongui.PayoutTable(self, self.settings)
+		else:
+			payoutpanel = wx.Panel(self, wx.ID_ANY)
+		
+		payoutpanel.SetBackgroundColour(cfg.FELT_GREEN)
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
 			cfg.IM_ORNAMENT_LEFT, size=(40,80))), centeredflag)
+		
 		self.sizer.AddF(payoutpanel, wx.SizerFlags(1).Expand().Border(wx.ALL, 10))
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
 			cfg.IM_ORNAMENT_RIGHT, size=(40,80))), centeredflag)
