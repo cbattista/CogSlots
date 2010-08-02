@@ -261,8 +261,9 @@ class SetupGUI(wx.Frame):
 		# subjective probability estimate
 		self.getprobestimate = wx.CheckBox(self, wx.ID_ANY, "Obtain Subject Probability Estimate")
 		self.getprobestimate.SetFont(self.hfont)
-		self.estimatetiming = wx.Choice(self, wx.ID_ANY, choices=["At Beginning", "At End"])
+		self.estimatetiming = wx.Choice(self, wx.ID_ANY, choices=["beginning", "end"])
 		self.estimateinterval = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_RIGHT)
+		
 		
 		# save as
 		self.filenamebox = wx.TextCtrl(self, wx.ID_ANY)
@@ -289,7 +290,7 @@ class SetupGUI(wx.Frame):
 		self.pBox.AddF(self.probrow, self.bflag)
 		self.mrow = wx.BoxSizer(wx.HORIZONTAL)
 		self.mrow.AddF(wx.StaticText(self, wx.ID_ANY, "Message:"), self.bflag)
-		self.probText = wx.TextCtrl(self, wx.ID_ANY, "What do you think the odds of winning were?")
+		self.probText = wx.TextCtrl(self, wx.ID_ANY, "")
 		self.mrow.AddF(self.probText, self.bflag)
 		self.pBox.AddF(self.mrow, self.bflag)
 		infosizer.AddF(self.pBox, self.eflag)
@@ -305,6 +306,8 @@ class SetupGUI(wx.Frame):
 		savegrid.AddF(wx.StaticText(self, wx.ID_ANY, "Session Number:"), self.bflag)
 		savegrid.AddF(self.sessionnumbox, self.eflag)
 		infosizer.AddF(savegrid, self.eflag)
+		
+		self.SetInfo()
 		
 		# Bind some stuff
 		self.Bind(wx.EVT_CHECKBOX, self.OnGetProbEstimate, self.getprobestimate)
@@ -367,6 +370,7 @@ class SetupGUI(wx.Frame):
 	#******************************************
 
 	def UpdateFromSettings(self):
+		self.SetInfo()
 		self.SetBets()
 		self.SetSymbols(self.wingrid)
 		self.SetOdds()
@@ -377,6 +381,8 @@ class SetupGUI(wx.Frame):
 		return pageName
 
 	def OnUpdate(self, event):
+		self.SetInfoSettings()
+
 		if self.ActivePage() == 'Bets':
 			self.SetBetSettings()
 
@@ -397,7 +403,29 @@ class SetupGUI(wx.Frame):
 
 		elif self.ActivePage() == 'Odds':
 			self.SetOdds()
+			
+		self.SetInfo()
 
+	
+	def SetInfo(self):
+		#set the values of the info items (prob est, sub info, etc...)
+		probDict = self.settings.probDict
+		
+		self.probText.SetValue(probDict['msg'])
+		self.estimateinterval.SetValue(str(probDict['interval']))
+		
+		if probDict['when']:
+			print probDict['when']
+			self.estimatetiming.SetStringSelection(probDict['when'])
+
+		
+	def SetInfoSettings(self):
+		self.settings.probDict['when'] = self.estimatetiming.GetStringSelection()
+		self.settings.probDict['msg'] = self.probText.GetValue()
+		if self.estimateinterval.GetValue():
+			self.settings.probDict['interval'] = int(self.estimateinterval.GetValue())
+			
+			
 	def SetBets(self):
 		#set the values of the items in the bet tab
 		self.debtallowed.SetSelection(self.settings.debt)
@@ -413,11 +441,12 @@ class SetupGUI(wx.Frame):
 	def SetBetSettings(self):
 		#sets the values of the bet object based on the gui contents
 		debt = self.debtallowed.GetCurrentSelection()
-		cindex = self.currencytype.GetCurrentSelection()
-		if cindex is 0:
-			currency = "c"
-		elif cindex is 1:
-			currency = "$"
+		currency = self.currencytype.GetStringSelection()
+		#if cindex is 0:
+		#	currency = "c"
+		#elif cindex is 1:
+		#	currency = "$"
+			
 		
 		self.settings.seed = int(self.seedentry.GetValue())
 		self.settings.rounds = int(self.roundsentry.GetValue())

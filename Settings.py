@@ -3,7 +3,7 @@ import cfg
 import SlotReels
 
 class Settings:
-	def __init__(self, name="unnamed", betsizes=[1, 2, 5, 10, 50], payouts=[20., 12., 10., 5., 3., 2., 1.], rounds=100, odds=85, autoodds=True, oddskind="equal", seed=20, debt=False, currency="$", symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL]):
+	def __init__(self, name="unnamed", betsizes=[1, 2, 5, 10, 50], payouts=[20., 12., 10., 5., 3., 2., 1.], rounds=100, odds=85, autoodds=True, oddskind="equal", seed=20, debt=False, currency="$", probDict = {'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL]):
 		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
 		self.name = name
 		self.betsizes = betsizes
@@ -16,6 +16,7 @@ class Settings:
 		self.rounds = rounds
 		self.debt = debt
 		self.currency = currency
+		self.probDict = probDict
 		self.createCombos()
 
 		if autoodds:
