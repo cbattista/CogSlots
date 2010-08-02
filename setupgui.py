@@ -280,12 +280,19 @@ class SetupGUI(wx.Frame):
 		
 		# probability estimate stuff
 		infosizer.AddF(self.getprobestimate, self.hflag)
+		self.pBox = wx.BoxSizer(wx.VERTICAL)
 		self.probrow = wx.BoxSizer(wx.HORIZONTAL)
 		self.probrow.AddF(self.estimatetiming, self.bflag)
 		self.probrow.AddF(wx.StaticText(self, wx.ID_ANY, "of every"), self.bflag)
 		self.probrow.AddF(self.estimateinterval, self.bflag)
 		self.probrow.AddF(wx.StaticText(self, wx.ID_ANY, "rounds"), self.bflag)
-		infosizer.AddF(self.probrow, self.eflag)
+		self.pBox.AddF(self.probrow, self.bflag)
+		self.mrow = wx.BoxSizer(wx.HORIZONTAL)
+		self.mrow.AddF(wx.StaticText(self, wx.ID_ANY, "Message:"), self.bflag)
+		self.probText = wx.TextCtrl(self, wx.ID_ANY, "What do you think the odds of winning were?")
+		self.mrow.AddF(self.probText, self.bflag)
+		self.pBox.AddF(self.mrow, self.bflag)
+		infosizer.AddF(self.pBox, self.eflag)
 		infosizer.AddF(wx.StaticLine(self), self.eflag)
 		
 		# Save as
