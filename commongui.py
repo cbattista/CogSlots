@@ -31,43 +31,86 @@ class InfoDialog(wx.Dialog):
 	def set_html_file(self, htmlfile):
 		self.html.LoadFile(htmlfile)
 
-# Some functions
-def create_payout_row(parent, payoutgrid, index, icons, value, maxpayouts = 2): # and payouts/symbols etc
+
+# The payout table class
+
+class PayoutTable(wx.Panel):
+	""" A class to display the payout information """
+	def __init__(self, parent, settings, maxbets=2):
+		wx.Panel.__init__(self, parent)
+		
+		# copy the values over to class variables
+		self.settings = settings
+		self.maxbets = maxbets
+		
+		# make a pretty static box to enclose everything
+		boxsizer = wx.StaticBoxSizer(wx.StaticBox(self, label="Payout Table"), wx.VERTICAL)
+		
+		# create the payout table frame and sizer
+		self.payoutgrid = wx.FlexGridSizer(1, self.maxbets + 4, 2, 2)
+		
+		# populate the table with the initial settings
+		self.update()
+		
+		boxsizer.AddF(self.payoutgrid, wx.SizerFlags().Expand().Border(wx.ALL,10))
+		self.SetSizerAndFit(boxsizer)
+
+	def update(self, settings=None):
 	
-	flag = wx.SizerFlags(1).Align(wx.ALIGN_RIGHT)
-	payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "Payout " + str(index) + ":"), flag)
-
-	for icon in icons:
-		img = wx.Image(icon)
-		img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
-		bitmap = wx.BitmapFromImage(img)
-		bitmap.SetHeight(cfg.SLOT_SIZE[0])
-		bitmap.SetWidth(cfg.SLOT_SIZE[1])
-		icon = wx.StaticBitmap(parent, wx.ID_ANY, bitmap)
-		payoutgrid.Add(icon)
-
-	for v in value[0:maxpayouts]:
-		payoutgrid.AddF(wx.StaticText(parent, wx.ID_ANY, "%s" % v), flag)
-
-def create_payout_table(parent, currency, bets, maxpayouts = 2):
-	# create the payout table frame and sizer
-	payoutgrid = wx.FlexGridSizer(1, maxpayouts + 4, 10, 10)
+		if (settings):
+			self.settings = settings
 	
-	# the top row just has headers
-	# but the first four columns don"t have headers
-	for i in range(0,4):
-		payoutgrid.AddStretchSpacer()
+		# clear the old grid and recreate it.  Inefficient, but it works.
+		self.payoutgrid.Clear(True)
+	
+		# the top row just has headers
+		# but the first four columns don"t have headers
+		for i in range(0,4):
+			self.payoutgrid.AddStretchSpacer()
 
-	for b in bets[0:2]:	
-		payoutgrid.Add(wx.StaticText(parent, wx.ID_ANY, "%s %s" % (b, currency.title())), wx.ALIGN_CENTRE)
+		# bolden the header labels
+		hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
+		hfont.SetWeight(wx.FONTWEIGHT_BOLD)
+		
+		flag = wx.SizerFlags(1).Align(wx.ALIGN_CENTRE).Border(wx.LEFT|wx.RIGHT, 5)
+		
+		for b in self.settings.betsizes[0:self.maxbets]:
+			label = wx.StaticText(self, wx.ID_ANY, "%s %s" % (b, self.settings.currency))
+			label.SetFont(hfont)
+			self.payoutgrid.AddF(label, flag)
+		
+		for i in range(len(self.settings.combos)):
+			values = self.settings.getPayoffRow(i)
+			icons = self.settings.getPayoff(i)[0:3]
+	
+			self.payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "Payout " + str(i+1) + ":"), flag)
 
-	return payoutgrid
+			for icon in icons:
+				img = wx.Image(icon)
+				try:
+					img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
+				except:
+					pass
+				bitmap = wx.BitmapFromImage(img)
+				bitmap.SetHeight(cfg.SLOT_SIZE[0])
+				bitmap.SetWidth(cfg.SLOT_SIZE[1])
+				icon = wx.StaticBitmap(self, wx.ID_ANY, bitmap)
+				self.payoutgrid.AddF(icon, flag)
+	
+			for v in values[0:self.maxbets]:
+				self.payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%s" % v), flag)
+		
+		self.Fit()
+
 
 def makeBitmap(filename, scale=()):
 	#make wx.Bitmap of an image from a file, and optionally scale it
 	img = wx.Image(filename)
 	if scale:
-		img = img.Scale(scale[0], scale[1], 1)
+		try:
+			img = img.Scale(scale[0], scale[1], 1)
+		except:
+			pass
 	bitmap = wx.BitmapFromImage(img)
 	if scale:
 		bitmap.SetHeight(scale[0])

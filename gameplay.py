@@ -10,12 +10,15 @@ from CogSub import Subject
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
-	def __init__(self, parent, settings, *args, **kwargs):
+	def __init__(self, parent, settings="", *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
 		#initialize the game settings
-		self.settings = settings
+		if settings:
+			self.settings = settings
+		else:
+			self.settings = Settings()
 		self.subject= Subject()
 		#create a Slots object
 		self.slots = self.settings.GetReels()
@@ -33,25 +36,21 @@ class GamePlayGUI(wx.Frame):
 		for i in range(0,3):
 			self.sizer.AddGrowableRow(i)
 			self.sizer.AddGrowableCol(i)
-		
+
+			
 		# populate the payout sizer with values from the database
-		payoutpanel = wx.Panel(self)
-		payoutpanel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-		payoutgrid = commongui.create_payout_table(payoutpanel, self.currency, self.settings.betsizes)
-
-		for i in range(len(self.settings.combos)):
-			payoff = self.settings.getPayoff(i)
-			values = self.settings.getPayoffRow(i)
-
-			if values:
-				commongui.create_payout_row(payoutpanel, payoutgrid, i, payoff[0:3], values)
-
-		payoutpanel.SetSizerAndFit(payoutgrid)
+		if self.settings.showPayouts:
+			payoutpanel = commongui.PayoutTable(self, self.settings)
+		else:
+			payoutpanel = wx.Panel(self, wx.ID_ANY)
+		
+		payoutpanel.SetBackgroundColour(cfg.FELT_GREEN)
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
 			cfg.IM_ORNAMENT_LEFT, size=(40,80))), centeredflag)
+		
 		self.sizer.AddF(payoutpanel, wx.SizerFlags(1).Expand().Border(wx.ALL, 10))
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
 			cfg.IM_ORNAMENT_RIGHT, size=(40,80))), centeredflag)

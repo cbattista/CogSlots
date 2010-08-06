@@ -1,7 +1,7 @@
 import wx
 
 # slot machine images
-SLOT_SIZE = (32,32)
+SLOT_SIZE = (24,24)
 IM_BAR = "images/bar.png"
 IM_BELL = "images/bell.png"
 IM_CHERRIES = "images/cherries.png"
