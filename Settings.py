@@ -1,9 +1,8 @@
 import pickle
 import cfg
-import SlotReels
 
 class Settings:
-	def __init__(self, name="unnamed", betsizes=[1, 2, 5, 10, 50], payouts=[20., 12., 10., 5., 3., 2.], rounds=100, odds=.03, autoodds=True, oddskind="equal", seed=20, debt=False, currency="$", probDict = {'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_CLOVER], showPayouts = True, saveAs = "Subject", session=1):
+	def __init__(self, name="unnamed", betsizes=[1, 2, 5, 10, 50], numPayouts=5, numReels=3, payouts=[20., 12., 10., 5., 3., 2., 1.], rounds=100, odds=85, autoodds=True, oddskind="equal", seed=20, debt=False, currency="$", probDict = {'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], visibleSymbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], showPayouts = True, saveAs = "Subject", session=1):
 		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
 		self.name = name
 		self.betsizes = betsizes
@@ -11,7 +10,10 @@ class Settings:
 		self.autoodds = autoodds
 		self.oddskind = oddskind
 		self.symbols = symbols
-		self.payouts = payouts
+		self.visibleSymbols = visibleSymbols
+		self.numPayouts = numPayouts
+		self.numReels = numReels
+		self.payouts = payouts[0:numPayouts]
 		self.seed = seed
 		self.rounds = rounds
 		self.debt = debt
@@ -37,7 +39,7 @@ class Settings:
 		if i < len(self.payouts):
 			payouts = []
 			for b in self.betsizes:
-				payouts.append(self.payouts[i] * int(b))
+				payouts.append(self.payouts[i] * b)
 		else:
 			return 0
 
@@ -71,11 +73,13 @@ class Settings:
 		#create combos from available symbols
 		combos = []
 
-		for s, p in zip(self.symbols, self.payouts):
+		for s in self.symbols:
 			combos.append([s, s, s])
 
+		combos.append([s, s, cfg.IM_EMPTY])
+		combos.append([s, cfg.IM_EMPTY, cfg.IM_EMPTY])
 		self.combos = combos
-	
+
 	def setPayoff(self, i, value, combo):
 		#set the value of a particular payoff given an index, value, and combination of symbols [str]
 		self.combos[i] = combo
@@ -122,10 +126,6 @@ class Settings:
 
 	def setCustomOdds(self):
 		pass
-
-	def GetReels(self):
-		print self.symbols
-		return SlotReels.Slots(self.symbols)
 
 	def preserve(self):
 		f = open("%s.set" % self.name, "w")
