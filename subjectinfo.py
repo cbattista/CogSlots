@@ -32,6 +32,7 @@ class SubjectInfoDialog(wx.Dialog):
 		buttonflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT).Border(wx.ALL, 10)
 		buttonsizer.AddF(wx.Button(self, wx.ID_CANCEL), buttonflag)
 		buttonsizer.AddF(wx.Button(self, wx.ID_SAVE), buttonflag)
+		self.SetAffirmativeId(wx.ID_SAVE)
 
 		# put it all together		
 		sizer.AddF(grid, wx.SizerFlags(0).Expand().Border(wx.ALL, 10) )
