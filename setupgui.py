@@ -4,10 +4,12 @@ import sys
 import wx, wx.combo, wx.lib.scrolledpanel
 import cfg
 import commongui
+from commongui import makeBitmap
 import gameplay
 import subjectinfo
 from Settings import Settings
 import pickle
+from SlotReels import Slots
 
 class SetupGUI(wx.Frame):
 	""" The interface for the tester to set up parameters """
@@ -27,9 +29,8 @@ class SetupGUI(wx.Frame):
 
 		betspage, betssizer = self.create_page('Bets')
 		self.betspage = betspage
-		symbolspage, symbolssizer = self.create_page('Symbols')
-		self.symbolspage = symbolspage
-		oddspage, oddssizer = self.create_page('Odds')
+		symbolpage, symbolsizer = self.create_page('Symbols')
+		self.oddpage, self.oddsizer = self.create_page('Odds')
 
 		# same font for all the headers
 		self.hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
@@ -101,151 +102,43 @@ class SetupGUI(wx.Frame):
 		# 				The Symbols page
 		#*******************************************
 		# Visible types of symbols
-		symbolslabel = wx.StaticText(symbolspage, wx.ID_ANY, "Visible Types of Symbols")
-		symbolslabel.SetFont(self.hfont)
-		symbolssizer.AddF(symbolslabel, self.hflag)
-		symbolsbox = wx.BoxSizer(wx.HORIZONTAL)
-
-		self.symbolCheckBoxes = []
-
-		for i in cfg.symbols:
-			mySym = self.create_symbols_checkbox(symbolspage, i)
-			symbolsbox.AddF(mySym, self.bflag)
-		symbolssizer.AddF(symbolsbox, self.bflag)
-		symbolssizer.AddF(wx.StaticLine(symbolspage), self.bflag)
-
-		comboslabel = wx.StaticText(self.symbolspage, wx.ID_ANY, "Winning Combinations")
-		comboslabel.SetFont(self.hfont)
-
-		symbolssizer.AddF(comboslabel, self.hflag)		# Winning Combinations
-		wingrid = wx.FlexGridSizer(8,5,2,2)
-		self.wingrid = wingrid
-
-		self.autocombos = wx.CheckBox(self.symbolspage, wx.ID_ANY, "Autoselect")
-		wingrid.Add(self.autocombos)
-		self.wcount = 0
-		self.comboIndexes = []
-		self.payoutIndexes = []
-	
-		for i in range(0,3):
-			wingrid.AddStretchSpacer()
-			self.wcount += 1
-
-		wingrid.Add(wx.StaticText(self.symbolspage, wx.ID_ANY, "Payout (x wager)"))
-		self.wcount += 1
-
-		i = 0
-		self.comboboxes = []
-		self.symbolPayouts = []
-		for c in self.settings.combos: 
-			self.create_winning_combo(self.symbolspage, wingrid, i+1, c, self.settings.payouts[i])
-			i = i + 1
-	
-		self.SetSymbols(wingrid)
-
-		symbolssizer.AddF(wingrid, self.eflag)
-		symbolssizer.AddF(wx.StaticLine(symbolspage), self.eflag)
-
 		
+		symbolsizer.Add(wx.StaticText(symbolpage, -1, "Enter Number of Winning Combinations"), 1)
+		
+		self.pCtrl = wx.TextCtrl(symbolpage, -1, "")
+		
+		symbolsizer.Add(self.pCtrl, 1)
+		
+		symbolsizer.Add(wx.StaticText(symbolpage, -1, "Enter Number of Reels"), 1)
+		
+		self.rCtrl = wx.TextCtrl(symbolpage, -1, "")
+		
+		symbolsizer.Add(self.rCtrl, 1)
+		
+		symbolsizer.Add(wx.StaticText(symbolpage, -1, "Select Symbols"), 1)
+		
+		symsizer = wx.BoxSizer(wx.VERTICAL)
+
+		self.symboxes = []
+		
+		for s in self.settings.symbols:
+			checkbox = wx.CheckBox(symbolpage, wx.ID_ANY, "")
+			#checkbox.SetValue(True)
+			checkbox.cbname = s
+			self.symboxes.append(checkbox)
+			checkSizer = wx.BoxSizer(wx.HORIZONTAL)
+			checkSizer.Add(wx.StaticBitmap(symbolpage, -1, makeBitmap(s, [16, 16])), 1)
+			checkSizer.Add(checkbox, 1)
+			symbolsizer.Add(checkSizer, 1)
+		
+		self.SetSymbols()
+		symbolpage.SetSizerAndFit(symbolsizer)
 		
 		#*******************************************
 		# 				The Odds page
-		#*******************************************
-		# Auto
-		self.autoodds = wx.CheckBox(oddspage, wx.ID_ANY, "Auto Odds")
-		self.autoodds.SetFont(self.hfont)
-		self.autowinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
-		self.autolosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
-		self.autopayout = wx.Choice(oddspage, wx.ID_ANY, choices=["equal", "casino", "linear"])
-
-		# Manual
-		self.manualodds = wx.CheckBox(oddspage, wx.ID_ANY, "Manual Odds")
-		self.manualodds.SetFont(self.hfont)
-		self.payoutodds = []
+		#*******************************************		
 		
-		for o in self.settings.payoutOdds:
-			tc = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
-			tc.SetValue(str(o))
-			self.payoutodds.append(tc)
-			
-			
-		# Near Misses
-		self.nearmisses = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
-		self.chance = wx.CheckBox(oddspage, wx.ID_ANY, "Chance")
-		
-		# Some useful stuff
-		percentsign = lambda: wx.StaticText(oddspage, wx.ID_ANY, "%")
-		rflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT).Border(wx.ALL, 5)
-		
-		# Pack together the auto stuff
-		oddssizer.AddF(self.autoodds, self.hflag)
-		self.autogrid = wx.FlexGridSizer(3, 3)
-		self.autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Winning:"), self.bflag)
-		self.autogrid.AddF(self.autowinningodds, self.bflag)
-		self.autogrid.AddF(percentsign(), self.bflag)
-		self.autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Losing:"), self.bflag)
-		self.autogrid.AddF(self.autolosingodds, rflag)
-		self.autogrid.AddF(percentsign(), self.bflag)
-		self.autogrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Auto Odds Payouts 1-7:"), self.bflag)
-		self.autogrid.AddF(self.autopayout, self.bflag)
-		oddssizer.AddF(self.autogrid, self.eflag)
-		oddssizer.AddF(wx.StaticLine(oddspage), self.eflag)
-		
-		# pack up the manual stuff
-		self.manwinningodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT)
-		self.manlosingodds = wx.TextCtrl(oddspage, wx.ID_ANY, style=wx.TE_RIGHT|wx.TE_READONLY)
-		self.manwinningodds.SetValue(str(self.settings.odds))
-		self.manlosingodds.SetValue(str(100 - self.settings.odds))		
-		
-		oddssizer.AddF(self.manualodds, self.hflag)
-		self.manualgrid = wx.FlexGridSizer(7, 6)
-		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Payout 1:"), self.bflag)
-		self.manualgrid.AddF(self.payoutodds[0], self.bflag)
-		self.manualgrid.AddF(percentsign(), self.bflag)
-		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Winning:"), rflag)
-		self.manualgrid.AddF(self.manwinningodds, rflag)
-		self.manualgrid.AddF(percentsign(), rflag)
-		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Payout 2:"), self.bflag)
-		self.manualgrid.AddF(self.payoutodds[1], self.bflag)
-		self.manualgrid.AddF(percentsign(), self.bflag)
-		self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Overall Odds of Losing:"), rflag)
-		self.manualgrid.AddF(self.manlosingodds, rflag)
-		self.manualgrid.AddF(percentsign(), rflag)
-		
-		#need to keep a list of the the IDs of the payouts so we can change them
-		gcount = 12
-		self.mgIndeces = []
-		# the rest don't have anything in the last three columns
-		for i in range(2,len(self.payoutodds)):
-			self.manualgrid.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Payout " + str(i+1) + ":"), self.bflag)
-			gcount += 1
-			self.mgIndeces.append(gcount)
-			self.manualgrid.AddF(self.payoutodds[i], self.bflag)
-			gcount += 1
-			self.manualgrid.AddF(percentsign(), self.bflag)
-			gcount += 1
-			for x in range(0,3):
-				self.manualgrid.AddStretchSpacer()
-				gcount += 1
-
-		
-		oddssizer.AddF(self.manualgrid, self.eflag)
-		oddssizer.AddF(wx.StaticLine(oddspage), self.eflag)
-		
-		# Near misses... made more sense to have its own section, as it's used in both manual and auto
-		nearmissrow = wx.BoxSizer(wx.HORIZONTAL)
-		nearmissrow.AddF(wx.StaticText(oddspage, wx.ID_ANY, "Near Misses:"), self.bflag)
-		nearmissrow.AddF(self.nearmisses, self.bflag)
-		nearmissrow.AddF(percentsign(), self.bflag)
-		nearmissrow.AddF(self.chance, self.bflag)
-		oddssizer.AddF(nearmissrow, self.eflag)
-		
-		self.SetOdds()
-
-		# Odds page bindings
-		self.Bind(wx.EVT_CHECKBOX, self.OnOddsTypeChecked, self.autoodds)
-		self.Bind(wx.EVT_CHECKBOX, self.OnOddsTypeChecked, self.manualodds)
-		self.Bind(wx.EVT_CHECKBOX, self.OnChanceChecked, self.chance)
+		self.makeOddsTab()
 		
 		#*******************************************
 		# 				The Info page
@@ -373,10 +266,82 @@ class SetupGUI(wx.Frame):
 	#				Settings Tab Getters and Setters
 	#******************************************
 
+	def makeOddsTab(self):
+		oddpage = self.oddpage
+		oddsizer = self.oddsizer
+		
+		oddsizer.Clear(True)
+		
+		weightLabel = wx.StaticText(oddpage, -1, "Set Symbol Weights")
+		oddsLabel = wx.StaticText(oddpage, -1, "Create Combos")
+	
+		oddsizer.Add(weightLabel, 1)
+	
+		#create top half
+		self.weights = []
+		
+		for s in self.settings.visibleSymbols:
+			w = []
+			weightLine = wx.BoxSizer(wx.HORIZONTAL)
+			#draw symbol
+			weightLine.Add(wx.StaticBitmap(oddpage, -1, makeBitmap(s, [16, 16])), 1)
+			for r in range(self.settings.numReels):
+				ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1)
+				w.append(ctrl)
+				weightLine.Add(ctrl, 1)
+				#make a symbol row
+			self.weights.append(w)
+			oddsizer.Add(weightLine, 1)
+		
+		#oddsizer.Add(wx.Button(oddpage, -1, "Update Reels"))
+		
+		self.Bind(wx.EVT_SPINCTRL, self.onSpin)
+		
+		oddsizer.Add(oddsLabel, 1)
+		
+		#create bottom half
+		self.odds = []
+		self.allCombos = []
+		self.payoffs = []
+		
+		unused = wx.combo.BitmapComboBox(oddpage)
+		h = unused.GetSize().y
+		unused.Destroy()
+
+		for p in range(self.settings.numPayouts):
+			o = []
+			oddsLine = wx.BoxSizer(wx.HORIZONTAL)
+			pctrl = wx.TextCtrl(oddpage, -1)
+			self.payoffs.append(pctrl)
+			oddsLine.Add(pctrl, 1)
+			#make symbol combo boxes
+			combos = []
+			for c in range(self.settings.numReels):
+				combo = wx.combo.BitmapComboBox(oddpage, size=(h*2, h))
+				symbols = self.settings.visibleSymbols
+				for i in range (0, len(symbols)):
+					combo.Append(symbols[i], makeBitmap(symbols[i], scale=[16, 16]))
+				combo.SetSelection(i)
+				combos.append(combo)
+				oddsLine.Add(combo, 1)
+				
+			self.allCombos.append(combos)
+			oddsText = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY)
+			oddsLine.Add(oddsText, 1)
+			self.odds.append(oddsText)
+			oddsizer.Add(oddsLine, 1)
+		
+		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
+		oddpage.SetSizerAndFit(oddsizer)
+		self.SetOdds()
+		self.makeReels()
+		self.updateOdds()
+
+	
 	def UpdateFromSettings(self):
 		self.SetInfo()
 		self.SetBets()
-		self.SetSymbols(self.wingrid)
+		self.SetSymbols()
 		self.SetOdds()
 
 	def ActivePage(self):
@@ -392,6 +357,7 @@ class SetupGUI(wx.Frame):
 
 		elif self.ActivePage() == 'Symbols':
 			self.SetSymbolSettings()
+			self.makeOddsTab()
 
 		elif self.ActivePage() == 'Odds':
 			self.SetOddsSettings()
@@ -403,7 +369,7 @@ class SetupGUI(wx.Frame):
 			self.SetBets()
 
 		elif self.ActivePage() == 'Symbols':
-			self.SetSymbols(self.wingrid)
+			self.SetSymbols()
 
 		elif self.ActivePage() == 'Odds':
 			self.SetOdds()
@@ -467,82 +433,85 @@ class SetupGUI(wx.Frame):
 
 		self.settings.setBets(betsizes, debt, currency)	
 
-	def SetSymbols(self, wingrid):
-		for scb in self.symbolCheckBoxes:
-			if scb.cbname in self.settings.symbols:
+	def SetSymbols(self):
+		for scb in self.symboxes:
+			if scb.cbname in self.settings.visibleSymbols:
 				scb.SetValue(1)
 			else:
 				scb.SetValue(0)
 
-		count = 0
-		for combo in self.settings.combos:
-			for sym in combo:
-				wingrid.GetItem(self.comboIndexes[count]).GetWindow().SetStringSelection(sym)
-				count+=1
+		self.pCtrl.SetValue(str(self.settings.numPayouts))
+		self.rCtrl.SetValue(str(self.settings.numReels))
 		
-		count = 0		
-
-		for p in self.settings.payouts:
-			wingrid.GetItem(self.payoutIndexes[count]).GetWindow().SetValue(str(p))
-			count+=1
 
 	def SetSymbolSettings(self):
-		#sets the values of the symbol object based on the gui contents
-		combos = []
-		combo = []
-
 		#now get the symbols to be used from the checkboxy thang
-		self.settings.symbols = []		
+		self.settings.visibleSymbols = []		
 		
-		for scb in self.symbolCheckBoxes:
+		for scb in self.symboxes:
 			if scb.GetValue():
-				self.settings.symbols.append(scb.cbname)
+				self.settings.visibleSymbols.append(scb.cbname)
 
-		for c in self.comboboxes:
-			symbol = c.GetValue()
-			if len(combo) < 3:
-				combo.append(symbol)
-			else:
-				combos.append(combo)
-				combo = [symbol]
+		self.settings.numPayouts = int(self.pCtrl.GetValue())
+		self.settings.numReels = int(self.rCtrl.GetValue())
 
-		self.settings.combos = combos
-		#set the payoffs
-		payoffs = []
-		for p in self.symbolPayouts:
-			payoffs.append(p.GetValue())
-
-		self.settings.payouts = payoffs
 
 	def SetOddsSettings(self):
 		#sets value of odds object from gui
-		self.settings.odds = int(self.autowinningodds.GetValue())
-		self.settings.oddskind = self.autopayout.GetStringSelection()
+		self.settings.payouts = []
 
-		manualOdds = []
+		for p in self.payoffs:
+			self.settings.payouts.append(float(p.GetValue()))
 
-		for i in self.mgIndeces:
-			item = self.manualgrid.GetItem(i)
-			manualOdds.append(item.GetWindow().GetValue())
-
-		self.settings.payoutOdds = manualOdds
+		self.settings.combos = []
+			
+		for combo in self.allCombos:
+			c = []
+			for com in combo:
+				c.append(com.GetStringSelection())
+			self.settings.combos.append(c)
+		
 
 	def SetOdds(self):
-		#sets value of odds gui from odds object
-		self.autowinningodds.SetValue(str(self.settings.odds))
-		self.autolosingodds.SetValue(str(100 - self.settings.odds))
-		self.autopayout.SetStringSelection(self.settings.oddskind)
+		for p, sp in zip(self.payoffs, self.settings.payouts):
+			p.SetValue(str(sp))
+			
+		for c, sc in zip(self.allCombos, self.settings.combos):
+			for cc, ssc in zip(c, sc):
+				print ssc
+				cc.SetStringSelection(ssc)
 
-		#check and see if we have the same number of payouts still
-		payoutOdds = self.settings.payoutOdds
+		self.makeReels()
 
-		if len(self.mgIndeces) != len(payoutOdds):
-			pass
-
-		for i, j in zip(self.mgIndeces, payoutOdds):
-			tc = self.manualgrid.GetItem(i).GetWindow()
-			tc.SetValue(str(j))
+	def makeReels(self):
+		reels = {}
+		for s in self.settings.visibleSymbols:
+			weights = self.weights[self.settings.visibleSymbols.index(s)]
+			for w in weights:
+				k = str(weights.index(w))
+				if reels.has_key(k):
+					reels[k][s] = w.GetValue()
+				else:
+					reels[k] = {s : w.GetValue()}
 		
+		self.settings.slots = Slots(reels)				
+		self.updateOdds()		
+
+	def updateOdds(self):
+		for combo in self.allCombos:
+			c = []
+			for com in combo:
+				c.append(com.GetStringSelection())
+			odds = self.settings.slots.getComboOdds(c)
+			i = self.allCombos.index(combo)
+			self.odds[i].SetValue(str(odds))
+		
+	def onSpin(self, event):
+		self.makeReels()
+		
+	def onComboSelect(self, event):
+		self.updateOdds()
+			
 	#*******************************************
 	# 				Helper Functions
 	#*******************************************
@@ -597,7 +566,7 @@ class SetupGUI(wx.Frame):
 
 			combo.SetStringSelection(c)
 			self.comboboxes.append(combo)
-			grid.Add(combo)
+			grid.Add(combo, 0)
 			self.wcount += 1
 			self.comboIndexes.append(self.wcount)
 		

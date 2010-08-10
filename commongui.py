@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import wx, wx.html
+import wx, wx.html, wx.combo
 import cfg
 
 class InfoDialog(wx.Dialog):
@@ -96,12 +96,12 @@ class PayoutTable(wx.Panel):
 				bitmap.SetWidth(cfg.SLOT_SIZE[1])
 				icon = wx.StaticBitmap(self, wx.ID_ANY, bitmap)
 				self.payoutgrid.AddF(icon, flag)
-	
-			for v in values[0:self.maxbets]:
-				self.payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%s" % v), flag)
+			
+			if type(values) == "list":
+				for v in values[0:self.maxbets]:
+					self.payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "%s" % v), flag)
 		
-		self.Fit()
-
+		self.Fit()		
 
 def makeBitmap(filename, scale=()):
 	#make wx.Bitmap of an image from a file, and optionally scale it
