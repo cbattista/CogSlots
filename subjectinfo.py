@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import wx
+import CogSub
 
 class SubjectInfoDialog(wx.Dialog):
 	""" A dialogue to collect subject information prior to gameplay """
@@ -46,6 +47,15 @@ class SubjectInfoDialog(wx.Dialog):
 		control[1].Enable(enable)
 	
 	def save_info(self):
-		for key, control in self.infodict:
+		self.cogsub = CogSub.Subject()
+		for key in self.infodict.keys():
+			control = self.infodict[key]
 			if control[0].IsEnabled():
-				print "Saving " + key + " = " + control[0].GetValue()
+				if key == "Name":
+					self.cogsub.s_id = control[0].GetValue()
+				elif key == "Handedness":
+					self.cogsub.hand = control[0].GetStringSelection()
+				elif key == "Age":
+					self.cogsub.age = control[0].GetValue()
+				elif key == "Sex":
+					self.cogsub.sex = control[0].GetValue()
