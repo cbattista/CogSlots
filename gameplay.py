@@ -205,7 +205,7 @@ class GamePlayGUI(wx.Frame):
 
 			if self.balance < self.wagerstep and not self.debtallowed:
 				return 
-			self.balance -= self.wagerstep - int(wager)
+			#self.balance -= self.wagerstep - int(wager)
 			wager = self.wagerstep
 		
 		elif 'decrease' in name:
@@ -248,11 +248,9 @@ class GamePlayGUI(wx.Frame):
 		self.subject.inputData(self.round, 'newbalance', self.balance)
 
 		self.balancetext.SetValue(str(self.balance))
-
 		
 		# Reset the wager to zero
 		self.wagertext.SetValue(str(self.settings.betsizes[0]))
-
 
 		if self.settings.probDict['obtain'] == True:
 			msg = self.settings.probDict['msg']
