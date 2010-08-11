@@ -219,7 +219,7 @@ class GamePlayGUI(wx.Frame):
 	
 	def OnSpin(self, event):
 		win = self.spin()
-		wager = int(self.wagertext.GetValue())
+		wager = float(self.wagertext.GetValue())
 
 
 		payout = self.settings.payouts[win]
@@ -247,24 +247,39 @@ class GamePlayGUI(wx.Frame):
 		# Reset the wager to zero
 		self.wagertext.SetValue(str(self.settings.betsizes[0]))
 
-		if self.balance <= 0:
-			self.gameOver()
 
-		
 		self.round += 1
 
-		# Check to see if the maximum number of rounds has been reached 
-		self.numrounds -= 1
-		if self.numrounds is 0:
-			self.gameOver()
-			
 		self.Refresh()
 		self.Update()
 			
+		if self.settings.probDict['obtain'] == True:
+			msg = self.settings.probDict['msg']
+			pround = self.settings.probDict['interval']
+			if (self.round-1) % pround == 0:
+				dia = commongui.ProbDialog(self, "Probability Estimate", msg)
+				outcome = dia.ShowModal()
+				if outcome == wx.ID_OK:
+					est = dia.est.GetValue()
+					print est
+
+		self.Refresh()
+		self.Update()
+
+
+		if self.balance <= 0 and self.settings.debt == False:
+			self.gameOver()
+
+		# Check to see if the maximum number of rounds has been reached 
+		if self.round >= self.settings.rounds:
+			self.gameOver()
+		
+				
 	def gameOver(self):
 		self.subject.printData()
-		wx.MessageBox("Game over!")
+		#wx.MessageBox("Game over!")
 		self.subject.preserve()
+		self.Destroy()
 	
 	"""
 	def OnPaint(self, event):

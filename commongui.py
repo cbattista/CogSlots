@@ -3,6 +3,18 @@
 import wx, wx.html, wx.combo
 import cfg
 
+class ProbDialog(wx.Dialog):
+	"""Simple dialog to obtain probability estimate"""
+	def __init__(self, parent, title, msg):
+		wx.Dialog.__init__(self, parent, -1, title)
+		
+		sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer.Add(wx.StaticText(self, -1, msg), 1)
+		self.est = wx.SpinCtrl(self, -1, "0")
+		sizer.Add(self.est, 1)
+		sizer.Add(wx.Button(self, wx.ID_OK, "OK"), 1)
+		self.SetSizerAndFit(sizer)
+
 class InfoDialog(wx.Dialog):
 	""" A simple dialogue to display an html file """
 	def __init__(self, parent, title, htmlfile, okaytext="Start Game"):
