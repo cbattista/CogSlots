@@ -124,13 +124,14 @@ class SetupGUI(wx.Frame):
 		
 		for s in self.settings.symbols:
 			checkbox = wx.CheckBox(symbolpage, wx.ID_ANY, "")
-			#checkbox.SetValue(True)
-			checkbox.cbname = s
-			self.symboxes.append(checkbox)
-			checkSizer = wx.BoxSizer(wx.HORIZONTAL)
-			checkSizer.Add(wx.StaticBitmap(symbolpage, -1, makeBitmap(s, [16, 16])), 1)
-			checkSizer.Add(checkbox, 1)
-			symbolsizer.Add(checkSizer, 1)
+			if s != cfg.IM_EMPTY:
+				#checkbox.SetValue(True)
+				checkbox.cbname = s
+				self.symboxes.append(checkbox)
+				checkSizer = wx.BoxSizer(wx.HORIZONTAL)
+				checkSizer.Add(wx.StaticBitmap(symbolpage, -1, makeBitmap(s, [16, 16])), 1)
+				checkSizer.Add(checkbox, 1)
+				symbolsizer.Add(checkSizer, 1)
 		
 		self.SetSymbols()
 		symbolpage.SetSizerAndFit(symbolsizer)
