@@ -283,15 +283,16 @@ class SetupGUI(wx.Frame):
 		for s in self.settings.visibleSymbols:
 			w = []
 			weightLine = wx.BoxSizer(wx.HORIZONTAL)
-			#draw symbol
-			weightLine.Add(wx.StaticBitmap(oddpage, -1, makeBitmap(s, [16, 16])), 1)
-			for r in range(self.settings.numReels):
-				ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1)
-				w.append(ctrl)
-				weightLine.Add(ctrl, 1)
-				#make a symbol row
-			self.weights.append(w)
-			oddsizer.Add(weightLine, 1)
+			#draw symbol, but don't draw the 'any' symbol, for obvious r
+			if s != cfg.IM_EMPTY:
+				weightLine.Add(wx.StaticBitmap(oddpage, -1, makeBitmap(s, [16, 16])), 1)
+				for r in range(self.settings.numReels):
+					ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1)
+					w.append(ctrl)
+					weightLine.Add(ctrl, 1)
+					#make a symbol row
+				self.weights.append(w)
+				oddsizer.Add(weightLine, 1)
 		
 		#oddsizer.Add(wx.Button(oddpage, -1, "Update Reels"))
 		
@@ -321,6 +322,7 @@ class SetupGUI(wx.Frame):
 				symbols = self.settings.visibleSymbols
 				for i in range (0, len(symbols)):
 					combo.Append(symbols[i], makeBitmap(symbols[i], scale=[16, 16]))
+				combo.Append(cfg.IM_EMPTY, makeBitmap(cfg.IM_EMPTY, scale=[16, 16]))
 				combo.SetSelection(i)
 				combos.append(combo)
 				oddsLine.Add(combo, 1)
@@ -723,9 +725,11 @@ class SetupGUI(wx.Frame):
 			infodialog.enable_control("Handedness", self.collecthandedness.IsChecked())
 			
 			ans2 = infodialog.ShowModal()
+			print ans2
 			if ans2 == wx.ID_SAVE:
 				#infodialog.save_info()
 				self.Hide()
+				
 				game = gameplay.GamePlayGUI(None, self.settings)
 				game.Show()
 				self.Destroy()
