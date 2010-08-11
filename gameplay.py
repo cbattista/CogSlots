@@ -95,7 +95,6 @@ class GamePlayGUI(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.OnSpin, self.spinbtn)
 	
 		# these bindings are for the not-quite-functional background
-		self.Bind(wx.EVT_PAINT, self.OnPaint)
 		self.Bind(wx.EVT_SIZE, self.OnSize)
 		
 		# create the initial instructions dialog
@@ -248,20 +247,21 @@ class GamePlayGUI(wx.Frame):
 		self.wagertext.SetValue(str(self.settings.betsizes[0]))
 
 
-		self.round += 1
-
-		self.Refresh()
-		self.Update()
-			
 		if self.settings.probDict['obtain'] == True:
 			msg = self.settings.probDict['msg']
 			pround = self.settings.probDict['interval']
-			if (self.round-1) % pround == 0:
+			if (self.round) % pround == 0:
 				dia = commongui.ProbDialog(self, "Probability Estimate", msg)
 				outcome = dia.ShowModal()
 				if outcome == wx.ID_OK:
 					est = dia.est.GetValue()
-					print est
+					self.subject.inputData(self.round, 'estimate', est)
+			else:
+				self.subject.inputData(self.round, 'estimate', "NA")
+		else:
+			self.subject.inputData(self.round, 'estimate', "NA")
+
+		self.round += 1
 
 		self.Refresh()
 		self.Update()
@@ -271,7 +271,7 @@ class GamePlayGUI(wx.Frame):
 			self.gameOver()
 
 		# Check to see if the maximum number of rounds has been reached 
-		if self.round >= self.settings.rounds:
+		if self.round > self.settings.rounds:
 			self.gameOver()
 		
 				
@@ -281,11 +281,6 @@ class GamePlayGUI(wx.Frame):
 		self.subject.preserve()
 		self.Destroy()
 	
-	"""
-	def OnPaint(self, event):
-		#dc = wx.BufferedPaintDC(self, self.background)
-		pass
-	"""
 		
 	def OnSize(self, event):
 		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND, size=self.GetSize())
