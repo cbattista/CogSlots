@@ -7,6 +7,7 @@ import commongui
 from Settings import Settings
 import SlotReels
 from CogSub import Subject
+import pickle
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
@@ -18,7 +19,9 @@ class GamePlayGUI(wx.Frame):
 		if settings:
 			self.settings = settings
 		else:
-			self.settings = Settings()
+			f = open("settings/default.set", "r")
+			self.settings = pickle.load(f)
+			f.close()
 		
 
 		if subject:
