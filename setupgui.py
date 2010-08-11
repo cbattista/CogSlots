@@ -383,11 +383,11 @@ class SetupGUI(wx.Frame):
 		#set the values of the info items (prob est, sub info, etc...)
 		probDict = self.settings.probDict
 		
+		self.getprobestimate.SetValue(probDict['obtain'])
 		self.probText.SetValue(probDict['msg'])
 		self.estimateinterval.SetValue(str(probDict['interval']))
 		
 		if probDict['when']:
-			print probDict['when']
 			self.estimatetiming.SetStringSelection(probDict['when'])
 
 		self.showpayouts.SetValue(self.settings.showPayouts)
@@ -395,6 +395,7 @@ class SetupGUI(wx.Frame):
 		self.sessionnumbox.SetValue(str(self.settings.session))
 		
 	def SetInfoSettings(self):
+		self.settings.probDict['obtain'] = self.getprobestimate.GetValue()
 		self.settings.probDict['when'] = self.estimatetiming.GetStringSelection()
 		self.settings.probDict['msg'] = self.probText.GetValue()
 		if self.estimateinterval.GetValue():
