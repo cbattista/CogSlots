@@ -8,6 +8,7 @@ class Slots:
 		self.reels = []
 		rkeys = reels.keys()
 		rkeys.sort()
+		self.numreels = len(reels)
 		for k in rkeys:
 			reel = Reel(reels[k])
 			self.reels.append(copy.deepcopy(reel))
