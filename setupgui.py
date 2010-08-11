@@ -29,6 +29,7 @@ class SetupGUI(wx.Frame):
 
 		betspage, betssizer = self.create_page('Bets')
 		self.betspage = betspage
+		self.betssizer = betssizer
 		symbolpage, symbolsizer = self.create_page('Symbols')
 		self.oddpage, self.oddsizer = self.create_page('Odds')
 
@@ -591,7 +592,8 @@ class SetupGUI(wx.Frame):
 
 	def update_wagers(self):
 		parent = self.amountentry.GetParent()
-		parent.Fit()
+		parent.FitInside()
+		#self.betspage.Fit()
 	#*******************************************
 	# 				Wager Callbacks
 	#*******************************************
@@ -607,7 +609,10 @@ class SetupGUI(wx.Frame):
 		row.AddF(deletebtn, self.bflag)
 		self.wagers.append(row)
 		self.wagertable.AddF(row, self.bflag)
+		parent.Refresh()
+		parent.Update()
 		self.update_wagers()
+		
 
 	def OnAddWager(self, event):
 		wager = self.amountentry.GetValue()
