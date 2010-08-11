@@ -593,7 +593,6 @@ class SetupGUI(wx.Frame):
 	def update_wagers(self):
 		parent = self.amountentry.GetParent()
 		parent.FitInside()
-		#self.betspage.Fit()
 	#*******************************************
 	# 				Wager Callbacks
 	#*******************************************
@@ -651,7 +650,7 @@ class SetupGUI(wx.Frame):
 		self.wagertable.Hide(self.wagers[index])
 		self.wagers[index].DeleteWindows()
 		del self.wagers[index]
-		#self.wagernum.Delete(index+1)
+		self.wagernum.Delete(index+1)
 
 		# fix the wager numbering
 		i = 1
