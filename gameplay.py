@@ -19,9 +19,10 @@ class GamePlayGUI(wx.Frame):
 			self.settings = settings
 		else:
 			self.settings = Settings()
+		
 		self.subject= Subject()
 		#create a Slots object
-		self.slots = self.settings.GetReels()
+		self.slots = self.settings.slots
 		self.round = 1
 
 		# the pretty background - not working properly yet
@@ -166,12 +167,9 @@ class GamePlayGUI(wx.Frame):
 			self.subject.inputData(self.round, 'Reel %s' % pcount, p)
 			pcount += 1
 
-
 		for sb, img in zip(self.slotButtons, imageList):
 			bmp = commongui.makeBitmap(img, (50, 50))
 			sb.SetBitmapLabel(bmp)
-
-
 
 		if payline in self.settings.combos:
 			self.subject.inputData(self.round, 'outcome', 'WIN')
@@ -255,16 +253,21 @@ class GamePlayGUI(wx.Frame):
 		# Check to see if the maximum number of rounds has been reached 
 		self.numrounds -= 1
 		if self.numrounds is 0:
-			self.gameOver()	
-
+			self.gameOver()
+			
+		self.Refresh()
+		self.Update()
+			
 	def gameOver(self):
 		self.subject.printData()
 		wx.MessageBox("Game over!")
 		self.subject.preserve()
 	
+	"""
 	def OnPaint(self, event):
 		#dc = wx.BufferedPaintDC(self, self.background)
 		pass
+	"""
 		
 	def OnSize(self, event):
 		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND, size=self.GetSize())
