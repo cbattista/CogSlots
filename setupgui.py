@@ -730,8 +730,8 @@ class SetupGUI(wx.Frame):
 			if ans2 == wx.ID_SAVE:
 				#infodialog.save_info()
 				self.Hide()
-				
-				game = gameplay.GamePlayGUI(None, self.settings)
+				infodialog.save_info()
+				game = gameplay.GamePlayGUI(None, self.settings, infodialog.cogsub)
 				game.Show()
 				self.Destroy()
 

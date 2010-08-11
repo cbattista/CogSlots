@@ -10,7 +10,7 @@ from CogSub import Subject
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
-	def __init__(self, parent, settings="", *args, **kwargs):
+	def __init__(self, parent, settings="", subject="", *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
@@ -20,7 +20,11 @@ class GamePlayGUI(wx.Frame):
 		else:
 			self.settings = Settings()
 		
-		self.subject= Subject()
+
+		if subject:
+			self.subject = subject
+		else:
+			self.subject= Subject()
 		#create a Slots object
 		self.slots = self.settings.slots
 		self.round = 1

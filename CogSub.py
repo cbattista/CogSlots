@@ -2,14 +2,13 @@ import time
 import pickle
 
 class Subject:
-	def __init__(self, s_id=777, age=0, sex="unknown", hand="unknown"):		
+	def __init__(self, s_id="000", age=0, sex="unknown", hand="unknown"):		
 		self.s_id = s_id
 		self.age = age
 		self.sex = sex
 		self.hand = hand
 		self.date = time.localtime()
 		#create dictionary to hold trial results
-		self.fname = "%s %s.csv" % (s_id, self.date)
 		self.results = {}
 
 	def inputData(self, trial, condition, value):
@@ -26,6 +25,7 @@ class Subject:
 
 
 	def printData(self):	
+		self.fname = "%s %s.csv" % (self.s_id, self.date)
 		trials = self.results.keys()
 		intTrials = []
 		for t in trials:

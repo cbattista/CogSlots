@@ -2,6 +2,7 @@
 
 import wx, wx.html, wx.combo
 import cfg
+import CogSub
 
 class ProbDialog(wx.Dialog):
 	"""Simple dialog to obtain probability estimate"""
