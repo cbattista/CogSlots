@@ -107,6 +107,9 @@ class GamePlayGUI(wx.Frame):
 		# show thyself
 		self.Centre()
 		self.Show(True)
+		self.Refresh()
+		self.Update()
+
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
 		panel = wx.Panel(self)
