@@ -1,7 +1,7 @@
 !define PRODUCT_NAME "CogSlots"
-!define PRODUCT_VERSION "0.1"
+!define PRODUCT_VERSION "0.7"
 !define PRODUCT_PUBLISHER "Jobe Microsystems"
-;!define PRODUCT_WEB_SITE ""
+!define PRODUCT_WEB_SITE "www.github.com/cbattista/cogslots"
 
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
