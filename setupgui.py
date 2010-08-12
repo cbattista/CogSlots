@@ -487,7 +487,6 @@ class SetupGUI(wx.Frame):
 		
 		for c, sc in zip(self.allCombos, self.settings.combos):
 			for cc, ssc in zip(c, sc):
-				print ssc
 				cc.SetStringSelection(ssc)
 
 		self.makeReels()
@@ -685,14 +684,6 @@ class SetupGUI(wx.Frame):
 			self.settings = settings
 			self.UpdateFromSettings()
 
-		
-	#*******************************************
-	# 				Symbols Callbacks
-	#*******************************************
-	def OnSymbolChecked(self, event, index):
-		# do something to show/hide the icons in the comboboxes
-		print "Not yet implemented"
-	
 	#*******************************************
 	# 				Odds Callbacks
 	#*******************************************

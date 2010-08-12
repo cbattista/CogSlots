@@ -146,7 +146,7 @@ class GamePlayGUI(wx.Frame):
 	
 	def create_spinning_wheel(self, sizer, before=2, after=1):
 		#NOTE: this will be the real spinning gui stuff
-		reelBox = wx.GridSizer(3, 3)
+		reelBox = wx.GridSizer(self.settings.numReels, 3)
 
 		self.slotButtons = []
 		span = range(-before,after+1)
@@ -191,10 +191,8 @@ class GamePlayGUI(wx.Frame):
 	# Callbacks!
 	def OnChangeWager(self, event, name):
 		wager = self.wagertext.GetValue()
-		print wager		
 
 		i = self.betsizes.index(int(wager))
-		print i
 
 		# if we can't increase beyond zero, stop doing anything
 		if 'increase' in name:
