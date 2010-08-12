@@ -428,6 +428,13 @@ class SetupGUI(wx.Frame):
 		self.filenamebox.SetValue(self.settings.saveAs)
 		self.sessionnumbox.SetValue(str(self.settings.session))
 		
+		d = self.settings.subInfo
+		
+		self.collectname.SetValue(d["Name"])
+		self.collectage.SetValue(d["Age"])
+		self.collecthandedness.SetValue(d["Handedness"])
+		self.collectsex.SetValue(d["Sex"])
+		
 	def SetInfoSettings(self):
 		self.settings.probDict['obtain'] = self.getprobestimate.GetValue()
 		self.settings.probDict['when'] = self.estimatetiming.GetStringSelection()
@@ -438,6 +445,14 @@ class SetupGUI(wx.Frame):
 		self.settings.showPayouts = self.showpayouts.GetValue()
 		self.settings.session = self.sessionnumbox.GetValue()
 		self.settings.saveAs = self.filenamebox.GetValue()
+		
+		d = {}
+		d["Name"] = self.collectname.GetValue()
+		d["Age"] = self.collectage.GetValue()
+		d["Sex"] = self.collectsex.GetValue()
+		d["Handedness"] = self.collecthandedness.GetValue()
+		self.settings.subInfo = d
+		
 			
 	def SetBets(self):
 		#set the values of the items in the bet tab
