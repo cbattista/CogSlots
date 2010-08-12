@@ -208,7 +208,7 @@ class GamePlayGUI(wx.Frame):
 
 		if payline in self.settings.combos:
 			self.subject.inputData(self.round, 'outcome', 'WIN')
-			return self.settings.combos.index(payline)
+			return self.settings.combos.index(payline) + 1
 
 		self.subject.inputData(self.round, 'outcome', 'LOSS')
 		return 0
@@ -253,8 +253,13 @@ class GamePlayGUI(wx.Frame):
 	def OnSpin(self, event):
 		win = self.spin()
 
+		print win
+		
 		wager = commongui.StringToType(self.wagertext.GetValue())
-		payout = self.settings.payouts[win]
+		if win:
+			payout = self.settings.payouts[win-1]
+		else:
+			payout = 0
 
 
 		self.subject.inputData(self.round, 'oldbalance', self.balance)
