@@ -293,9 +293,9 @@ class SetupGUI(wx.Frame):
 			weightLine = wx.BoxSizer(wx.HORIZONTAL)
 			#draw symbol, but don't draw the 'any' symbol, for obvious r
 			if s != cfg.IM_EMPTY:
-				weightLine.Add(wx.StaticBitmap(oddpage, -1, makeBitmap(s, [16, 16])), 1)
+				weightLine.Add(wx.StaticBitmap(oddpage, -1, makeBitmap(s, cfg.SLOT_SIZE)), 1)
 				for r in range(self.settings.numReels):
-					ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1)
+					ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1, size=cfg.CTRL_SIZE)
 					w.append(ctrl)
 					weightLine.Add(ctrl, 1)
 					#make a symbol row
@@ -320,7 +320,7 @@ class SetupGUI(wx.Frame):
 		for p in range(self.settings.numPayouts):
 			o = []
 			oddsLine = wx.BoxSizer(wx.HORIZONTAL)
-			pctrl = wx.TextCtrl(oddpage, -1)
+			pctrl = wx.TextCtrl(oddpage, -1, size=cfg.CTRL_SIZE)
 			self.payoffs.append(pctrl)
 			oddsLine.Add(pctrl, 1)
 			#make symbol combo boxes
@@ -329,8 +329,8 @@ class SetupGUI(wx.Frame):
 				combo = wx.combo.BitmapComboBox(oddpage, size=(h*2, h))
 				symbols = self.settings.visibleSymbols
 				for i in range (0, len(symbols)):
-					combo.Append(symbols[i], makeBitmap(symbols[i], scale=[16, 16]))
-				combo.Append(cfg.IM_EMPTY, makeBitmap(cfg.IM_EMPTY, scale=[16, 16]))
+					combo.Append(symbols[i], makeBitmap(symbols[i], scale=cfg.SLOT_SIZE))
+				combo.Append(cfg.IM_EMPTY, makeBitmap(cfg.IM_EMPTY, scale=cfg.SLOT_SIZE))
 				combo.SetSelection(i)
 				combos.append(combo)
 				oddsLine.Add(combo, 1)
