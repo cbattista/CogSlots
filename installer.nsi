@@ -1,6 +1,6 @@
 !define PRODUCT_NAME "CogSlots"
 !define PRODUCT_VERSION "0.1"
-!define PRODUCT_PUBLISHER "Jobe Software"
+!define PRODUCT_PUBLISHER "Jobe Microsystems"
 ;!define PRODUCT_WEB_SITE ""
 
 ; MUI 1.67 compatible ------
