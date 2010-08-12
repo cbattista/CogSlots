@@ -146,12 +146,13 @@ class GamePlayGUI(wx.Frame):
 	
 	def create_spinning_wheel(self, sizer, before=2, after=1):
 		#NOTE: this will be the real spinning gui stuff
-		reelBox = wx.GridSizer(self.settings.numReels, 3)
 
 		self.slotButtons = []
 		span = range(-before,after+1)
 
+		reelBox = wx.GridSizer(3, self.settings.numReels)
 
+		
 		for i in span:
 			for r in self.slots.reels:
 				#create reel image
