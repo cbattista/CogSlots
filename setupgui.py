@@ -117,7 +117,7 @@ class SetupGUI(wx.Frame):
 		self.rCtrl = wx.Choice(symbolpage, wx.ID_ANY, choices=choices)
 		rbox.AddF(self.rCtrl, self.bflag)
 		symbolsizer.AddF(rbox, self.bflag)
-		symbolsizer.AddF(wx.StaticLine(betspage), self.eflag)
+		symbolsizer.AddF(wx.StaticLine(symbolpage), self.eflag)
 		
 		symbolslabel = wx.StaticText(symbolpage, wx.ID_ANY, "Select Symbols:")
 		symbolslabel.SetFont(self.hfont)
