@@ -18,8 +18,8 @@ symbolnames = ["bar", "bell", "cherries", "clover", "gold bars", "treasure", "an
 
 # interface button images
 IM_BACKGROUND = wx.ART_MISSING_IMAGE
-IM_ORNAMENT_LEFT = wx.ART_MISSING_IMAGE
-IM_ORNAMENT_RIGHT = wx.ART_MISSING_IMAGE
+IM_ORNAMENT_LEFT = "images/money_photo.png"
+IM_ORNAMENT_RIGHT = "images/money_photo.png"
 IM_DECREASEWAGER = wx.ART_MISSING_IMAGE
 IM_DECREASEWAGER_DOWN = wx.ART_MISSING_IMAGE
 IM_SPIN = wx.ART_MISSING_IMAGE

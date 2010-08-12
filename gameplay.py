@@ -84,12 +84,11 @@ class GamePlayGUI(wx.Frame):
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
-		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
-			cfg.IM_ORNAMENT_LEFT, size=(40,80))), centeredflag)
+		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_ORNAMENT_LEFT, (100,100))), centeredflag)
 		
 		self.sizer.AddF(payoutpanel, wx.SizerFlags(1).Expand().Border(wx.ALL, 10))
-		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, wx.ArtProvider.GetBitmap(
-			cfg.IM_ORNAMENT_RIGHT, size=(40,80))), centeredflag)
+		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(
+			cfg.IM_ORNAMENT_RIGHT, (100,100))), centeredflag)
 			
 		# create the text boxes
 		wagersizer, self.wagertext = self.create_labeled_num_box("Wager")
