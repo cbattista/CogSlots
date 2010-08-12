@@ -22,11 +22,12 @@ class SetupGUI(wx.Frame):
 		self.settings = Settings()
 
 		# the notebook
-		nbH = self.FRAME_SIZE[0] * 0.8
-		nbW = self.FRAME_SIZE[1] * 0.4
+		nbW = self.FRAME_SIZE[0] * 0.6
+		nbH = self.FRAME_SIZE[1] * 0.8
+		self.nbH = nbH
 		self.nbW = nbW
 		self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-		self.book = wx.Notebook(self, wx.ID_ANY, size=(nbH, nbW))
+		self.book = wx.Notebook(self, wx.ID_ANY, size=(nbW, nbH))
 
 		betspage, betssizer = self.create_page('Bets')
 		self.betspage = betspage
@@ -289,7 +290,9 @@ class SetupGUI(wx.Frame):
 		oddsLabel.SetFont(self.hfont)
 	
 		oddGrid.Add(weightLabel)
-		oddGrid.Add(wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT, size=(575, 70)))
+		text = wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT)
+		text.Wrap(self.nbW * .95)
+		oddGrid.Add(text)
 	
 		#create top half
 		self.weights = []
@@ -316,9 +319,10 @@ class SetupGUI(wx.Frame):
 		#oddsizer.Add(wx.Button(oddpage, -1, "Update Reels"))
 		
 		self.Bind(wx.EVT_SPINCTRL, self.onSpin)
-				
 		oddGrid.Add(oddsLabel)
-		oddGrid.Add(wx.StaticText(oddpage, -1, cfg.COMBOS_TEXT, size=(575, 60)))
+		text = wx.StaticText(oddpage, -1, cfg.COMBOS_TEXT)
+		text.Wrap(self.nbW * .95)
+		oddGrid.Add(text)
 		#create bottom half
 		self.odds = []
 		self.allCombos = []
@@ -363,6 +367,7 @@ class SetupGUI(wx.Frame):
 		
 		oddsizer.Add(oddGrid)
 		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
+		oddsizer.Layout()
 		oddpage.SetSizerAndFit(oddsizer)
 		self.SetOdds()
 		self.makeReels()
