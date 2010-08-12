@@ -26,7 +26,6 @@ class SetupGUI(wx.Frame):
 		nbW = self.FRAME_SIZE[1] * 0.4
 		self.book = wx.Notebook(self, wx.ID_ANY, size=(nbH, nbW))
 
-
 		betspage, betssizer = self.create_page('Bets')
 		self.betspage = betspage
 		self.betssizer = betssizer
@@ -103,36 +102,43 @@ class SetupGUI(wx.Frame):
 		# 				The Symbols page
 		#*******************************************
 		# Visible types of symbols
+		choices = []
+		for i in range(1,11):
+			choices.append(str(i))
 		
-		symbolsizer.AddF(wx.StaticText(symbolpage, -1, "Enter Number of Winning Combinations"), self.bflag)
+		pbox = wx.BoxSizer(wx.HORIZONTAL)
+		pbox.AddF(wx.StaticText(symbolpage, wx.ID_ANY, "Number of Winning Combinations:"), self.bflag)
+		self.pCtrl = wx.Choice(symbolpage, wx.ID_ANY, choices=choices)
+		pbox.AddF(self.pCtrl, self.bflag)
+		symbolsizer.AddF(pbox, self.bflag)
 		
-		self.pCtrl = wx.TextCtrl(symbolpage, -1, "")
+		rbox = wx.BoxSizer(wx.HORIZONTAL)
+		rbox.AddF(wx.StaticText(symbolpage, wx.ID_ANY, "Number of Reels:"), self.bflag)
+		self.rCtrl = wx.Choice(symbolpage, wx.ID_ANY, choices=choices)
+		rbox.AddF(self.rCtrl, self.bflag)
+		symbolsizer.AddF(rbox, self.bflag)
+		symbolsizer.AddF(wx.StaticLine(betspage), self.eflag)
 		
-		symbolsizer.Add(self.pCtrl, 1)
+		symbolslabel = wx.StaticText(symbolpage, wx.ID_ANY, "Select Symbols:")
+		symbolslabel.SetFont(self.hfont)
+		symbolsizer.AddF(symbolslabel, self.hflag)
 		
-		symbolsizer.Add(wx.StaticText(symbolpage, -1, "Enter Number of Reels"), 1)
-		
-		self.rCtrl = wx.TextCtrl(symbolpage, -1, "")
-		
-		symbolsizer.Add(self.rCtrl, 1)
-		
-		symbolsizer.Add(wx.StaticText(symbolpage, -1, "Select Symbols"), 1)
-		
-		symsizer = wx.BoxSizer(wx.VERTICAL)
+		symsizer = wx.BoxSizer(wx.HORIZONTAL)
 
 		self.symboxes = []
 		
 		for s in self.settings.symbols:
-			checkbox = wx.CheckBox(symbolpage, wx.ID_ANY, "")
 			if s != cfg.IM_EMPTY:
+				checkbox = wx.CheckBox(symbolpage, wx.ID_ANY, "")
 				#checkbox.SetValue(True)
 				checkbox.cbname = s
 				self.symboxes.append(checkbox)
-				checkSizer = wx.BoxSizer(wx.HORIZONTAL)
+				checkSizer = wx.BoxSizer(wx.VERTICAL)
 				checkSizer.Add(wx.StaticBitmap(symbolpage, -1, makeBitmap(s, [16, 16])), 1)
 				checkSizer.Add(checkbox, 1)
-				symbolsizer.Add(checkSizer, 1)
+				symsizer.AddF(checkSizer, self.bflag)
 		
+		symbolsizer.AddF(symsizer, self.bflag)
 		self.SetSymbols()
 		symbolpage.SetSizerAndFit(symbolsizer)
 		
@@ -446,8 +452,8 @@ class SetupGUI(wx.Frame):
 			else:
 				scb.SetValue(0)
 
-		self.pCtrl.SetValue(str(self.settings.numPayouts))
-		self.rCtrl.SetValue(str(self.settings.numReels))
+		self.pCtrl.SetSelection(self.settings.numPayouts-1)
+		self.rCtrl.SetSelection(self.settings.numReels-1)
 		
 
 	def SetSymbolSettings(self):
@@ -458,8 +464,8 @@ class SetupGUI(wx.Frame):
 			if scb.GetValue():
 				self.settings.visibleSymbols.append(scb.cbname)
 
-		self.settings.numPayouts = int(self.pCtrl.GetValue())
-		self.settings.numReels = int(self.rCtrl.GetValue())
+		self.settings.numPayouts = self.pCtrl.GetSelection() + 1
+		self.settings.numReels = self.rCtrl.GetSelection() + 1
 
 
 	def SetOddsSettings(self):
