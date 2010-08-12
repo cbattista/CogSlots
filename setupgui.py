@@ -313,10 +313,6 @@ class SetupGUI(wx.Frame):
 		self.allCombos = []
 		self.payoffs = []
 		
-		unused = wx.combo.BitmapComboBox(oddpage)
-		h = unused.GetSize().y
-		unused.Destroy()
-
 		for p in range(self.settings.numPayouts):
 			o = []
 			oddsLine = wx.BoxSizer(wx.HORIZONTAL)
@@ -326,7 +322,7 @@ class SetupGUI(wx.Frame):
 			#make symbol combo boxes
 			combos = []
 			for c in range(self.settings.numReels):
-				combo = wx.combo.BitmapComboBox(oddpage, size=(h*2, h))
+				combo = wx.combo.BitmapComboBox(oddpage, size=(16, -1))
 				symbols = self.settings.visibleSymbols
 				for i in range (0, len(symbols)):
 					combo.Append(symbols[i], makeBitmap(symbols[i], scale=cfg.SLOT_SIZE))
@@ -336,7 +332,7 @@ class SetupGUI(wx.Frame):
 				oddsLine.Add(combo, 1)
 				
 			self.allCombos.append(combos)
-			oddsText = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY)
+			oddsText = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
 			oddsLine.Add(oddsText, 1)
 			self.odds.append(oddsText)
 			oddsizer.Add(oddsLine, 1)
