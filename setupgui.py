@@ -466,7 +466,7 @@ class SetupGUI(wx.Frame):
 		betsizes = []
 		for w in self.wagers:
 			wagertext = w.GetItem(1).GetWindow()
-			betsizes.append(float(wagertext.GetLabel().split(' ')[0]))
+			betsizes.append(commongui.StringToType(wagertext.GetLabel().split(' ')[0]))
 
 		self.settings.setBets(betsizes, debt, currency)	
 
