@@ -694,7 +694,14 @@ class SetupGUI(wx.Frame):
 		saveDia = wx.FileDialog(self, 'Save your settings', 'settings', self.settings.name, "*.set", wx.FD_SAVE)
 		outcome = saveDia.ShowModal()
 		if outcome == wx.ID_OK:
-			self.settings.name = saveDia.GetPath()
+			name = saveDia.GetPath()
+			#HACKY TIME
+			count = name.count(".set") 
+			if count > 1:
+				name = name.replace(".set", "", count - 1)
+				
+			self.settings.name = name
+			
 			self.settings.preserve()
 
 	def OnLoad(self, event):
@@ -753,7 +760,7 @@ class SetupGUI(wx.Frame):
 				#infodialog.save_info()
 				self.Hide()
 				infodialog.save_info()
-				infodialog.cogsub.expname = self.settings.name
+				infodialog.cogsub.expname = self.settings.saveAs
 				infodialog.cogsub.session = self.settings.session
 				
 				game = gameplay.GamePlayGUI(None, self.settings, infodialog.cogsub)
