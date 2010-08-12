@@ -733,27 +733,6 @@ class SetupGUI(wx.Frame):
 			self.UpdateFromSettings()
 
 	#*******************************************
-	# 				Odds Callbacks
-	#*******************************************
-	def OnChanceChecked(self, event):
-		self.nearmisses.Enable(not event.IsChecked())
-
-	def OnOddsTypeChecked(self, event):
-		checked = event.IsChecked()
-		if event.GetEventObject() is self.autoodds:
-			otherbox = self.manualodds
-			othergrid = self.manualgrid
-			self.enable_sizer_items(self.autogrid, checked)
-		elif event.GetEventObject() is self.manualodds:
-			otherbox = self.autoodds
-			othergrid = self.autogrid
-			self.enable_sizer_items(self.manualgrid, checked)
-		else:
-			return
-		otherbox.SetValue(not checked)
-		self.enable_sizer_items(othergrid, not checked)
-	
-	#*******************************************
 	# 				Info Callbacks
 	#*******************************************
 	def OnGetProbEstimate(self, event):

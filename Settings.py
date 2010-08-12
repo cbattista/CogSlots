@@ -2,13 +2,10 @@ import pickle
 import cfg
 
 class Settings:
-	def __init__(self, name="unnamed.set", betsizes=[1, 2, 5, 10, 50], numPayouts=5, numReels=3, payouts=[20, 12, 10, 5, 3, 2, 1], rounds=100, odds=85, autoodds=True, oddskind="equal", seed=20, debt=False, currency="Dollars", probDict = {'obtain' : True, 'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_CLOVER, cfg.IM_BLANK], visibleSymbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], showPayouts = True, saveAs = "Subject", session=1):
+	def __init__(self, name="unnamed.set", betsizes=[1, 2, 5, 10, 50], numPayouts=5, numReels=3, payouts=[20, 12, 10, 5, 3, 2, 1], rounds=100, seed=20, debt=False, currency="Dollars", probDict = {'obtain' : True, 'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_CLOVER, cfg.IM_BLANK], visibleSymbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], showPayouts = True, saveAs = "Subject", session=1):
 		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
 		self.name = name
 		self.betsizes = betsizes
-		self.odds = odds
-		self.autoodds = autoodds
-		self.oddskind = oddskind
 		self.symbols = symbols
 		self.visibleSymbols = visibleSymbols
 		self.numPayouts = numPayouts
@@ -24,11 +21,6 @@ class Settings:
 		self.saveAs = saveAs
 		self.session = session
 		
-		if autoodds:
-			self.setAutoOdds()
-		else:
-			self.setCustomOdds()
-
 	def getWinnings(self, i, j):
 		#returns the winnings given indeces of the payout size and bet size  
 		op =  self.odds / float(len(self.payouts))
@@ -77,19 +69,6 @@ class Settings:
 				dupes = True
 
 		return dupes
-
-	def setAutoOdds(self):
-		self.payoutOdds = []
-
-		#num = len(self.payouts)
-#		if self.oddskind=="equal":
-		for c in self.combos:	
-			self.payoutOdds.append(self.odds / len(self.combos))
-		"""
-		elif self.oddskind=="linear":
-			for p in self.payouts:
-				self.payoutOdds.append((1./float(p)/max(self.payouts)) * self.odds)
-		"""
 
 	def setBets(self, betsizes, debt, currency):
 		self.betsizes = betsizes
