@@ -793,6 +793,6 @@ class SetupGUI(wx.Frame):
 
 if __name__ == '__main__':
 	app = wx.App(False)
-	mainframe = SetupGUI(None)
+	mainframe = SetupGUI(None, title="CogSlots", pos =wx.Point(0,0))
 	#gameplay = gameplay.GamePlayGUI(None)
 	app.MainLoop()
