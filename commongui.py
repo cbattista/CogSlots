@@ -96,7 +96,7 @@ class PayoutTable(wx.Panel):
 			# create the array of values = the bets times the payout for this combo
 			values = []
 			for b in self.settings.betsizes:
-				values.append(self.settings.payouts[i]*b)
+				values.append(int(self.settings.payouts[i]*b))
 			icons = self.settings.combos[i]
 			
 			# if there's a mismatch between the number of symbols and the combos

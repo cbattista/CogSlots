@@ -57,7 +57,7 @@ class SetupGUI(wx.Frame):
 		self.amountentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
 		self.addbtn = wx.Button(betspage, wx.ID_ANY, "Add")
 		self.wagertable = wx.StaticBoxSizer(wx.StaticBox(betspage), wx.VERTICAL)
-		self.wagers = []
+		self.wagerrows = []
 
 		# number of rounds stuff
 		roundslabel = wx.StaticText(betspage, wx.ID_ANY, "Number of Rounds:")
@@ -444,8 +444,8 @@ class SetupGUI(wx.Frame):
 		self.debtallowed.SetSelection(self.settings.debt)
 		self.roundsentry.SetValue(str(self.settings.rounds))
 		self.seedentry.SetValue(str(self.settings.seed))
-		while self.wagers:
-			self.RemoveWager(self.wagers[0])
+		while self.wagerrows:
+			self.RemoveWager(self.wagerrows[0])
 			
 		for w in self.settings.betsizes:
 			w = str(w)
@@ -464,9 +464,9 @@ class SetupGUI(wx.Frame):
 		self.settings.seed = int(self.seedentry.GetValue())
 		self.settings.rounds = int(self.roundsentry.GetValue())
 		betsizes = []
-		for w in self.wagers:
+		for w in self.wagerrows:
 			wagertext = w.GetItem(1).GetWindow()
-			betsizes.append(float(wagertext.GetLabel().split(' ')[0]))
+			betsizes.append(int(wagertext.GetLabel().split(' ')[0]))
 
 		self.settings.setBets(betsizes, debt, currency)	
 
@@ -642,7 +642,7 @@ class SetupGUI(wx.Frame):
 	# 				Wager Callbacks
 	#*******************************************
 	def AddWager(self, wager, parent):
-		index = len(self.wagers)
+		index = len(self.wagerrows)
 		deletebtn = wx.Button(parent, wx.ID_ANY, "Delete")
 		self.Bind(wx.EVT_BUTTON, self.OnDeleteWager, deletebtn)
 		self.wagernum.Append(str(index+1))
@@ -651,7 +651,7 @@ class SetupGUI(wx.Frame):
 		row.AddF(wx.StaticText(parent, wx.ID_ANY, "Wager " + str(index+1) + ":"), self.bflag)
 		row.AddF(wx.StaticText(parent, wx.ID_ANY, wager + " " + self.currencytype.GetStringSelection()), self.bflag)
 		row.AddF(deletebtn, self.bflag)
-		self.wagers.append(row)
+		self.wagerrows.append(row)
 		self.wagertable.AddF(row, self.bflag)
 		parent.Refresh()
 		parent.Update()
@@ -678,7 +678,7 @@ class SetupGUI(wx.Frame):
 
 	def OnDeleteWager(self, event):
 		index = -1
-		for wager in self.wagers:
+		for wager in self.wagerrows:
 			if wager.GetItem(2).GetWindow() is event.GetEventObject():
 				break
 
@@ -686,20 +686,20 @@ class SetupGUI(wx.Frame):
 		
 	
 	def OnEditWager(self, event, index):
-		wagertext = self.wagers[index].GetItem(1).GetWindow()
+		wagertext = self.wagerrows[index].GetItem(1).GetWindow()
 		wagertext.SetLabel(self.amountentry.GetValue() + " " + self.currencytype.GetStringSelection())
 		self.update_wagers()
 
 	def RemoveWager(self, wager):
-		index = self.wagers.index(wager)
-		self.wagertable.Hide(self.wagers[index])
-		self.wagers[index].DeleteWindows()
-		del self.wagers[index]
+		index = self.wagerrows.index(wager)
+		self.wagertable.Hide(self.wagerrows[index])
+		self.wagerrows[index].DeleteWindows()
+		del self.wagerrows[index]
 		self.wagernum.Delete(index+1)
 
 		# fix the wager numbering
 		i = 1
-		for wager in self.wagers:
+		for wager in self.wagerrows:
 			number = wager.GetItem(0).GetWindow()
 			number.SetLabel("Wager " + str(i) + ":")
 
@@ -767,23 +767,25 @@ class SetupGUI(wx.Frame):
 			style=wx.YES_NO|wx.ICON_QUESTION)
 		ans = message.ShowModal()
 		if ans == wx.ID_YES:
-			infodialog = subjectinfo.SubjectInfoDialog(self, "Subject Info")
-			infodialog.enable_control("Name", self.collectname.IsChecked())
-			infodialog.enable_control("Age", self.collectage.IsChecked())
-			infodialog.enable_control("Sex", self.collectsex.IsChecked())
-			infodialog.enable_control("Handedness", self.collecthandedness.IsChecked())
+			self.Hide()
+			if self.collectname.IsChecked() or self.collectage.IsChecked() or self.collectsex.IsChecked() or self.collecthandedness.IsChecked():
+				infodialog = subjectinfo.SubjectInfoDialog(self, "Subject Info")
+				infodialog.enable_control("Name", self.collectname.IsChecked())
+				infodialog.enable_control("Age", self.collectage.IsChecked())
+				infodialog.enable_control("Sex", self.collectsex.IsChecked())
+				infodialog.enable_control("Handedness", self.collecthandedness.IsChecked())
+				ans2 = infodialog.ShowModal()
+				if ans2 == wx.ID_SAVE:
+					#infodialog.save_info()
+					infodialog.save_info()
+					infodialog.cogsub.expname = self.settings.saveAs
+					infodialog.cogsub.session = self.settings.session
+					game = gameplay.GamePlayGUI(None, self.settings, infodialog.cogsub)
+			else:
+				game = gameplay.GamePlayGUI(None, self.settings, None)
 			
-			ans2 = infodialog.ShowModal()
-			if ans2 == wx.ID_SAVE:
-				#infodialog.save_info()
-				self.Hide()
-				infodialog.save_info()
-				infodialog.cogsub.expname = self.settings.saveAs
-				infodialog.cogsub.session = self.settings.session
-				
-				game = gameplay.GamePlayGUI(None, self.settings, infodialog.cogsub)
-				game.Show()
-				self.Destroy()
+			game.Show()
+			self.Destroy()
 
 
 if __name__ == '__main__':

@@ -140,7 +140,7 @@ class GamePlayGUI(wx.Frame):
 		if text is '':
 			return self.num_val('0')
 		if self.currency is 'dollars':
-			return float(text)
+			return int(text)
 		elif self.currency is 'credits':
 			return int(text)
 	
@@ -224,11 +224,11 @@ class GamePlayGUI(wx.Frame):
 	
 	def OnSpin(self, event):
 		win = self.spin()
-		wager = float(self.wagertext.GetValue())
+		wager = int(self.wagertext.GetValue())
 
 
 		payout = self.settings.payouts[win]
-		payout = float(payout)
+		payout = int(payout)
 
 		self.subject.inputData(self.round, 'oldbalance', self.balance)
 		self.subject.inputData(self.round, 'wager', wager)
