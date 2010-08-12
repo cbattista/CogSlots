@@ -2,7 +2,7 @@ import pickle
 import cfg
 
 class Settings:
-	def __init__(self, name="unnamed.set", betsizes=[1, 2, 5, 10, 50], numPayouts=5, numReels=3, payouts=[20., 12., 10., 5., 3., 2., 1.], rounds=100, odds=85, autoodds=True, oddskind="equal", seed=20, debt=False, currency="Dollars", probDict = {'obtain' : True, 'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_CLOVER, cfg.IM_BLANK], visibleSymbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], showPayouts = True, saveAs = "Subject", session=1):
+	def __init__(self, name="unnamed.set", betsizes=[1, 2, 5, 10, 50], numPayouts=5, numReels=3, payouts=[20, 12, 10, 5, 3, 2, 1], rounds=100, odds=85, autoodds=True, oddskind="equal", seed=20, debt=False, currency="Dollars", probDict = {'obtain' : True, 'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_CLOVER, cfg.IM_BLANK], visibleSymbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], showPayouts = True, saveAs = "Subject", session=1):
 		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
 		self.name = name
 		self.betsizes = betsizes
@@ -28,17 +28,6 @@ class Settings:
 			self.setAutoOdds()
 		else:
 			self.setCustomOdds()
-
-	def getPayoffRow(self, i):
-		#returns the payoff row for a given payout size
-		if i < len(self.payouts):
-			payouts = []
-			for b in self.betsizes:
-				payouts.append(self.payouts[i] * b)
-		else:
-			return 0
-
-		return payouts
 
 	def getWinnings(self, i, j):
 		#returns the winnings given indeces of the payout size and bet size  

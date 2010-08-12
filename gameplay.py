@@ -139,10 +139,7 @@ class GamePlayGUI(wx.Frame):
 	def num_val(self, text):
 		if text is '':
 			return self.num_val('0')
-		if self.currency is 'dollars':
-			return int(text)
-		elif self.currency is 'credits':
-			return int(text)
+		return commongui.StringToType(text)
 	
 	def create_spinning_wheel(self, sizer, before=2, after=1):
 		#NOTE: this will be the real spinning gui stuff
@@ -219,7 +216,7 @@ class GamePlayGUI(wx.Frame):
 			# we can't automatically win money!
 			if wager < self.wagerstep:
 				return
-			self.balance += int(wager) - self.wagerstep
+			self.balance += wager - self.wagerstep
 			wager = self.wagerstep
 		
 		self.wagertext.SetValue(str(wager))
@@ -227,15 +224,11 @@ class GamePlayGUI(wx.Frame):
 	
 	def OnSpin(self, event):
 		win = self.spin()
-		wager = int(self.wagertext.GetValue())
-
-
-		payout = self.settings.payouts[win]
-		payout = int(payout)
+		wager = commongui.StringToType(self.wagertext.GetValue())
 
 		self.subject.inputData(self.round, 'oldbalance', self.balance)
 		self.subject.inputData(self.round, 'wager', wager)
-		self.subject.inputData(self.round, 'payout', payout)
+		self.subject.inputData(self.round, 'payout', self.settings.payouts[win])
 
 		if win:
 			self.balance += wager*payout
