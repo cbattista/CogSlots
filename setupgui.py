@@ -464,6 +464,7 @@ class SetupGUI(wx.Frame):
 		self.debtallowed.SetSelection(self.settings.debt)
 		self.roundsentry.SetValue(str(self.settings.rounds))
 		self.seedentry.SetValue(str(self.settings.seed))
+		self.currencytype.SetStringSelection(self.settings.currency)
 		while self.wagerrows:
 			self.RemoveWager(self.wagerrows[0])
 			
