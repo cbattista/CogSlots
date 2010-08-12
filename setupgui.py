@@ -330,7 +330,7 @@ class SetupGUI(wx.Frame):
 		for r in range(self.settings.numReels):
 			text = "Reel %s" % (r+1)
 			comboSizer.Add(wx.StaticText(oddpage, -1, text))
-		comboSizer.Add(wx.StaticText(oddpage, -1, "Odds"))
+		comboSizer.Add(wx.StaticText(oddpage, -1, "Odds (%)"))
 		
 		for p in range(self.settings.numPayouts):
 			o = []
