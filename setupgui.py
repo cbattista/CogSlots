@@ -29,6 +29,7 @@ class SetupGUI(wx.Frame):
 
 		betspage, betssizer = self.create_page('Bets')
 		self.betspage = betspage
+		self.betssizer = betssizer
 		symbolpage, symbolsizer = self.create_page('Symbols')
 		self.oddpage, self.oddsizer = self.create_page('Odds')
 
@@ -123,13 +124,14 @@ class SetupGUI(wx.Frame):
 		
 		for s in self.settings.symbols:
 			checkbox = wx.CheckBox(symbolpage, wx.ID_ANY, "")
-			#checkbox.SetValue(True)
-			checkbox.cbname = s
-			self.symboxes.append(checkbox)
-			checkSizer = wx.BoxSizer(wx.HORIZONTAL)
-			checkSizer.Add(wx.StaticBitmap(symbolpage, -1, makeBitmap(s, [16, 16])), 1)
-			checkSizer.Add(checkbox, 1)
-			symbolsizer.Add(checkSizer, 1)
+			if s != cfg.IM_EMPTY:
+				#checkbox.SetValue(True)
+				checkbox.cbname = s
+				self.symboxes.append(checkbox)
+				checkSizer = wx.BoxSizer(wx.HORIZONTAL)
+				checkSizer.Add(wx.StaticBitmap(symbolpage, -1, makeBitmap(s, [16, 16])), 1)
+				checkSizer.Add(checkbox, 1)
+				symbolsizer.Add(checkSizer, 1)
 		
 		self.SetSymbols()
 		symbolpage.SetSizerAndFit(symbolsizer)
@@ -595,7 +597,7 @@ class SetupGUI(wx.Frame):
 
 	def update_wagers(self):
 		parent = self.amountentry.GetParent()
-		parent.Fit()
+		parent.FitInside()
 	#*******************************************
 	# 				Wager Callbacks
 	#*******************************************
@@ -611,7 +613,10 @@ class SetupGUI(wx.Frame):
 		row.AddF(deletebtn, self.bflag)
 		self.wagers.append(row)
 		self.wagertable.AddF(row, self.bflag)
+		parent.Refresh()
+		parent.Update()
 		self.update_wagers()
+		
 
 	def OnAddWager(self, event):
 		wager = self.amountentry.GetValue()
@@ -650,7 +655,7 @@ class SetupGUI(wx.Frame):
 		self.wagertable.Hide(self.wagers[index])
 		self.wagers[index].DeleteWindows()
 		del self.wagers[index]
-		#self.wagernum.Delete(index+1)
+		self.wagernum.Delete(index+1)
 
 		# fix the wager numbering
 		i = 1
