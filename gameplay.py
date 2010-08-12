@@ -253,8 +253,6 @@ class GamePlayGUI(wx.Frame):
 	def OnSpin(self, event):
 		win = self.spin()
 
-		print win
-		
 		wager = commongui.StringToType(self.wagertext.GetValue())
 		if win:
 			payout = self.settings.payouts[win-1]
