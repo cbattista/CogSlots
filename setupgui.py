@@ -476,7 +476,7 @@ class SetupGUI(wx.Frame):
 		#	currency = "$"
 			
 		
-		self.settings.seed = int(self.seedentry.GetValue())
+		self.settings.seed = commongui.StringToType(self.seedentry.GetValue())
 		self.settings.rounds = int(self.roundsentry.GetValue())
 		betsizes = []
 		for w in self.wagerrows:

@@ -59,7 +59,7 @@ class GamePlayGUI(wx.Frame):
 		#create a Slots object
 		self.slots = self.settings.slots
 		self.round = 1
-
+		self.balance = self.settings.seed
 		# the pretty background - not working properly yet
 		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
 		self.SetOwnBackgroundColour(cfg.FELT_GREEN)
@@ -158,7 +158,8 @@ class GamePlayGUI(wx.Frame):
 	
 	def get_user_params(self):
 		#NOTE: this is stuff that should be retrieved from the database
-		self.balance = self.settings.seed - self.settings.betsizes[0]
+		self.settings.betsizes.sort()
+		self.balance = self.settings.seed# - self.settings.betsizes[0]
 		self.debtallowed = self.settings.debt
 		self.currency = self.settings.currency
 		self.numrounds = self.settings.rounds
@@ -252,11 +253,14 @@ class GamePlayGUI(wx.Frame):
 	
 	def OnSpin(self, event):
 		win = self.spin()
+
 		wager = commongui.StringToType(self.wagertext.GetValue())
+		payout = self.settings.payouts[win]
+
 
 		self.subject.inputData(self.round, 'oldbalance', self.balance)
 		self.subject.inputData(self.round, 'wager', wager)
-		self.subject.inputData(self.round, 'payout', self.settings.payouts[win])
+		self.subject.inputData(self.round, 'payout', payout)
 
 		if win:
 			self.balance += wager*payout
