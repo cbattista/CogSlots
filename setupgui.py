@@ -281,7 +281,7 @@ class SetupGUI(wx.Frame):
 		oddsizer = self.oddsizer
 		oddsizer.Clear(True)
 
-		oddGrid = wx.FlexGridSizer(cols=1, vgap=10)
+		oddGrid = wx.FlexGridSizer(cols=1, vgap=5)
 		
 		weightLabel = wx.StaticText(oddpage, -1, "Symbol Weights")
 		weightLabel.SetFont(self.hfont)
@@ -289,7 +289,7 @@ class SetupGUI(wx.Frame):
 		oddsLabel.SetFont(self.hfont)
 	
 		oddGrid.Add(weightLabel)
-		oddGrid.Add(wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT, size=(575, 80)))
+		oddGrid.Add(wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT, size=(575, 70)))
 	
 		#create top half
 		self.weights = []
@@ -318,7 +318,7 @@ class SetupGUI(wx.Frame):
 		self.Bind(wx.EVT_SPINCTRL, self.onSpin)
 				
 		oddGrid.Add(oddsLabel)
-		oddGrid.Add(wx.StaticText(oddpage, -1, cfg.COMBOS_TEXT, size=(575, 80)))
+		oddGrid.Add(wx.StaticText(oddpage, -1, cfg.COMBOS_TEXT, size=(575, 60)))
 		#create bottom half
 		self.odds = []
 		self.allCombos = []
@@ -354,7 +354,13 @@ class SetupGUI(wx.Frame):
 			comboSizer.Add(oddsText)
 			self.odds.append(oddsText)
 		
+		totalOddsText = wx.StaticText(oddpage, -1, "Total Odds of a Win (%):")
+		self.totalOdds = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
+		
 		oddGrid.Add(comboSizer)
+		oddGrid.Add(totalOddsText)
+		oddGrid.Add(self.totalOdds)
+		
 		oddsizer.Add(oddGrid)
 		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
 		oddpage.SetSizerAndFit(oddsizer)
@@ -509,7 +515,7 @@ class SetupGUI(wx.Frame):
 		for c, sc in zip(self.allCombos, self.settings.combos):
 			for cc, ssc in zip(c, sc):
 				cc.SetStringSelection(ssc)
-
+				
 		self.makeReels()
 
 	def makeReels(self):
@@ -527,6 +533,7 @@ class SetupGUI(wx.Frame):
 		self.updateOdds()		
 
 	def updateOdds(self):
+		total=0
 		for combo in self.allCombos:
 			c = []
 			for com in combo:
@@ -534,8 +541,15 @@ class SetupGUI(wx.Frame):
 			odds = self.settings.slots.getComboOdds(c)
 			i = self.allCombos.index(combo)
 			odds = odds * 100.0
+			total+=odds
 			odds = str(round(odds, 2))
 			self.odds[i].SetValue(odds)
+		
+		if total > 100:
+			total = 100.
+		total = str(round(total, 2))
+		self.totalOdds.SetValue(total)
+
 		
 	def onSpin(self, event):
 		self.makeReels()
