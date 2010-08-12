@@ -4,6 +4,20 @@ import wx, wx.html, wx.combo
 import cfg
 import CogSub
 
+def StringToType(value):
+	if value.isdigit():
+		val = int(value)
+
+	elif value.count('.') == 1:
+		val = value.split('.')
+		if val[0].isdigit() and val[1].isdigit():
+			val = float(value)
+
+	else:
+		val = value
+
+	return val
+
 class ProbDialog(wx.Dialog):
 	"""Simple dialog to obtain probability estimate"""
 	def __init__(self, parent, title, msg):

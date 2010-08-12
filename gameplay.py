@@ -192,8 +192,11 @@ class GamePlayGUI(wx.Frame):
 	# Callbacks!
 	def OnChangeWager(self, event, name):
 		wager = self.wagertext.GetValue()
+		wager = commongui.StringToType(wager)
 
-		i = self.betsizes.index(int(wager))
+		
+
+		i = self.betsizes.index(wager)
 
 		# if we can't increase beyond zero, stop doing anything
 		if 'increase' in name:
