@@ -730,6 +730,9 @@ class SetupGUI(wx.Frame):
 				#infodialog.save_info()
 				self.Hide()
 				infodialog.save_info()
+				infodialog.cogsub.expname = self.settings.name
+				infodialog.cogsub.session = self.settings.session
+				
 				game = gameplay.GamePlayGUI(None, self.settings, infodialog.cogsub)
 				game.Show()
 				self.Destroy()
