@@ -17,13 +17,14 @@ class SetupGUI(wx.Frame):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
-		self.FRAME_SIZE = (700, 500)
+		self.FRAME_SIZE = (750, 500)
 
 		self.settings = Settings()
 
 		# the notebook
 		nbH = self.FRAME_SIZE[0] * 0.8
 		nbW = self.FRAME_SIZE[1] * 0.4
+		self.nbW = nbW
 		self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self.book = wx.Notebook(self, wx.ID_ANY, size=(nbH, nbW))
 
@@ -278,66 +279,83 @@ class SetupGUI(wx.Frame):
 	def makeOddsTab(self):
 		oddpage = self.oddpage
 		oddsizer = self.oddsizer
-		
 		oddsizer.Clear(True)
+
+		oddGrid = wx.FlexGridSizer(cols=1, vgap=10)
 		
-		weightLabel = wx.StaticText(oddpage, -1, "Set Symbol Weights")
-		oddsLabel = wx.StaticText(oddpage, -1, "Create Combos")
+		weightLabel = wx.StaticText(oddpage, -1, "Symbol Weights")
+		weightLabel.SetFont(self.hfont)
+		oddsLabel = wx.StaticText(oddpage, -1, "Winning Combos")
+		oddsLabel.SetFont(self.hfont)
 	
-		oddsizer.Add(weightLabel, 1)
+		oddGrid.Add(weightLabel)
+		oddGrid.Add(wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT, size=(575, 80)))
 	
 		#create top half
 		self.weights = []
+				
+		weightSizer = wx.GridSizer(cols=self.settings.numReels+1, rows=len(self.settings.visibleSymbols))
+		weightSizer.Add(wx.StaticText(oddpage, -1, "Symbol"))
+		for r in range(self.settings.numReels):
+			text = "Reel %s" % (r + 1)
+			weightSizer.Add(wx.StaticText(oddpage, -1, text))
 		
 		for s in self.settings.visibleSymbols:
 			w = []
-			weightLine = wx.BoxSizer(wx.HORIZONTAL)
-			#draw symbol, but don't draw the 'any' symbol, for obvious r
-			if s != cfg.IM_EMPTY:
-				weightLine.Add(wx.StaticBitmap(oddpage, -1, makeBitmap(s, cfg.SLOT_SIZE)), 1)
-				for r in range(self.settings.numReels):
-					ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1, size=cfg.CTRL_SIZE)
-					w.append(ctrl)
-					weightLine.Add(ctrl, 1)
-					#make a symbol row
-				self.weights.append(w)
-				oddsizer.Add(weightLine, 1)
-		
+			
+			weightSizer.Add(wx.StaticBitmap(oddpage, -1, makeBitmap(s, cfg.SLOT_SIZE)))
+			for r in range(self.settings.numReels):
+				ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1, size=cfg.CTRL_SIZE)
+				w.append(ctrl)
+				weightSizer.Add(ctrl)
+				#make a symbol row
+			self.weights.append(w)
+
+		oddGrid.Add(weightSizer)
+			
 		#oddsizer.Add(wx.Button(oddpage, -1, "Update Reels"))
 		
 		self.Bind(wx.EVT_SPINCTRL, self.onSpin)
-		
-		oddsizer.Add(oddsLabel, 1)
-		
+				
+		oddGrid.Add(oddsLabel)
+		oddGrid.Add(wx.StaticText(oddpage, -1, cfg.COMBOS_TEXT, size=(575, 80)))
 		#create bottom half
 		self.odds = []
 		self.allCombos = []
 		self.payoffs = []
 		
+		comboSizer = wx.GridSizer(rows=len(self.settings.payouts) + 1, cols=self.settings.numReels+2)
+		
+		comboSizer.Add(wx.StaticText(oddpage, -1, "Payout"))
+		for r in range(self.settings.numReels):
+			text = "Reel %s" % (r+1)
+			comboSizer.Add(wx.StaticText(oddpage, -1, text))
+		comboSizer.Add(wx.StaticText(oddpage, -1, "Odds"))
+		
 		for p in range(self.settings.numPayouts):
 			o = []
-			oddsLine = wx.BoxSizer(wx.HORIZONTAL)
 			pctrl = wx.TextCtrl(oddpage, -1, size=cfg.CTRL_SIZE)
 			self.payoffs.append(pctrl)
-			oddsLine.Add(pctrl, 1)
+			comboSizer.Add(pctrl)
 			#make symbol combo boxes
 			combos = []
 			for c in range(self.settings.numReels):
-				combo = wx.combo.BitmapComboBox(oddpage, size=(16, -1))
+				combo = wx.combo.BitmapComboBox(oddpage, size=(45, -1))
 				symbols = self.settings.visibleSymbols
 				for i in range (0, len(symbols)):
 					combo.Append(symbols[i], makeBitmap(symbols[i], scale=cfg.SLOT_SIZE))
 				combo.Append(cfg.IM_EMPTY, makeBitmap(cfg.IM_EMPTY, scale=cfg.SLOT_SIZE))
 				combo.SetSelection(i)
 				combos.append(combo)
-				oddsLine.Add(combo, 1)
+				comboSizer.Add(combo)
 				
 			self.allCombos.append(combos)
 			oddsText = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
-			oddsLine.Add(oddsText, 1)
+			comboSizer.Add(oddsText)
 			self.odds.append(oddsText)
-			oddsizer.Add(oddsLine, 1)
 		
+		oddGrid.Add(comboSizer)
+		oddsizer.Add(oddGrid)
 		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
 		oddpage.SetSizerAndFit(oddsizer)
 		self.SetOdds()
@@ -515,7 +533,9 @@ class SetupGUI(wx.Frame):
 				c.append(com.GetStringSelection())
 			odds = self.settings.slots.getComboOdds(c)
 			i = self.allCombos.index(combo)
-			self.odds[i].SetValue(str(odds))
+			odds = odds * 100.0
+			odds = str(round(odds, 2))
+			self.odds[i].SetValue(odds)
 		
 	def onSpin(self, event):
 		self.makeReels()
