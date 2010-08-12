@@ -17,7 +17,7 @@ class SetupGUI(wx.Frame):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
-		self.FRAME_SIZE = (800, 700)
+		self.FRAME_SIZE = (700, 500)
 
 		self.settings = Settings()
 
