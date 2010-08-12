@@ -24,6 +24,7 @@ class SetupGUI(wx.Frame):
 		# the notebook
 		nbH = self.FRAME_SIZE[0] * 0.8
 		nbW = self.FRAME_SIZE[1] * 0.4
+		self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 		self.book = wx.Notebook(self, wx.ID_ANY, size=(nbH, nbW))
 
 		betspage, betssizer = self.create_page('Bets')
