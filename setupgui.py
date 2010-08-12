@@ -381,6 +381,8 @@ class SetupGUI(wx.Frame):
 		return pageName
 
 	def OnUpdate(self, event):
+		self.SetCursor(wx.StockCursor(wx.CURSOR_WAIT))
+
 		self.SetInfoSettings()
 
 		if self.ActivePage() == 'Bets':
@@ -395,6 +397,8 @@ class SetupGUI(wx.Frame):
 			self.SetOddsSettings()
 		
 		self.payoutframe.update(self.settings)
+		
+		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 
 	def OnReset(self, event):
 		if self.ActivePage() == 'Bets':	
