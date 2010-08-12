@@ -7,7 +7,7 @@ class Subject:
 		self.age = age
 		self.sex = sex
 		self.hand = hand
-		self.date = time.localtime()
+		self.date = time.strftime("%d_%b_%y_%I_%M%p")
 		self.session = session
 		self.expname = expname
 		#create dictionary to hold trial results
