@@ -9,6 +9,7 @@ from Settings import Settings
 import SlotReels
 from CogSub import Subject
 import pickle
+import subjectinfo
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
@@ -32,7 +33,29 @@ class GamePlayGUI(wx.Frame):
 		if subject:
 			self.subject = subject
 		else:
-			self.subject= Subject()
+			d = self.settings.subInfo
+			getinfo = False
+			for k in d.keys():
+				if d[k] == True:
+					getinfo = True
+					
+			if getinfo:
+				infodialog = subjectinfo.SubjectInfoDialog(self, "Subject Info")
+				infodialog.enable_control("Name", d["Name"])
+				infodialog.enable_control("Age", d["Age"])
+				infodialog.enable_control("Sex", d["Sex"])
+				infodialog.enable_control("Handedness", d["Handedness"])
+				ans2 = infodialog.ShowModal()
+				if ans2 == wx.ID_SAVE:
+					#infodialog.save_info()
+					infodialog.save_info()
+					infodialog.cogsub.expname = self.settings.saveAs
+					infodialog.cogsub.session = self.settings.session
+					self.subject = infodialog.cogsub
+			else:
+				self.subject= Subject()
+
+
 		#create a Slots object
 		self.slots = self.settings.slots
 		self.round = 1
