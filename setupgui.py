@@ -760,6 +760,9 @@ class SetupGUI(wx.Frame):
 					infodialog.cogsub.expname = self.settings.saveAs
 					infodialog.cogsub.session = self.settings.session
 					game = gameplay.GamePlayGUI(None, self.settings, infodialog.cogsub)
+				else:
+					self.Show()
+					return
 			else:
 				game = gameplay.GamePlayGUI(None, self.settings, None)
 			
