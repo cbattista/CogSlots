@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import os
 import wx
 import cfg
 import commongui
@@ -19,10 +20,14 @@ class GamePlayGUI(wx.Frame):
 		if settings:
 			self.settings = settings
 		else:
-			f = open("settings/default.set", "r")
-			self.settings = pickle.load(f)
-			f.close()
-		
+
+			dlg = wx.FileDialog(self, "Choose a settings file", os.path.join(os.getcwd(), "settings"), "", "*.set", wx.OPEN)
+			if dlg.ShowModal() == wx.ID_OK:
+				path = dlg.GetPath()
+				f = open(path, "r")
+				self.settings = pickle.load(f)
+				f.close()
+			dlg.Destroy()
 
 		if subject:
 			self.subject = subject
