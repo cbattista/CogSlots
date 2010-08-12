@@ -103,7 +103,7 @@ class SetupGUI(wx.Frame):
 		#*******************************************
 		# Visible types of symbols
 		
-		symbolsizer.Add(wx.StaticText(symbolpage, -1, "Enter Number of Winning Combinations"), 1)
+		symbolsizer.AddF(wx.StaticText(symbolpage, -1, "Enter Number of Winning Combinations"), self.bflag)
 		
 		self.pCtrl = wx.TextCtrl(symbolpage, -1, "")
 		
@@ -360,6 +360,7 @@ class SetupGUI(wx.Frame):
 		elif self.ActivePage() == 'Symbols':
 			self.SetSymbolSettings()
 			self.makeOddsTab()
+			self.SetOddsSettings()
 
 		elif self.ActivePage() == 'Odds':
 			self.SetOddsSettings()
@@ -464,7 +465,10 @@ class SetupGUI(wx.Frame):
 		self.settings.payouts = []
 
 		for p in self.payoffs:
-			self.settings.payouts.append(float(p.GetValue()))
+			value = 0.0
+			if not p.IsEmpty():
+				value = float(p.GetValue())
+			self.settings.payouts.append(value)
 
 		self.settings.combos = []
 			
@@ -478,7 +482,7 @@ class SetupGUI(wx.Frame):
 	def SetOdds(self):
 		for p, sp in zip(self.payoffs, self.settings.payouts):
 			p.SetValue(str(sp))
-			
+		
 		for c, sc in zip(self.allCombos, self.settings.combos):
 			for cc, ssc in zip(c, sc):
 				print ssc
@@ -726,7 +730,6 @@ class SetupGUI(wx.Frame):
 			infodialog.enable_control("Handedness", self.collecthandedness.IsChecked())
 			
 			ans2 = infodialog.ShowModal()
-			print ans2
 			if ans2 == wx.ID_SAVE:
 				#infodialog.save_info()
 				self.Hide()

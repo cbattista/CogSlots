@@ -19,7 +19,7 @@ class Settings:
 		self.debt = debt
 		self.currency = currency
 		self.probDict = probDict
-		self.createCombos()
+		self.createInitCombos()
 		self.showPayouts = showPayouts
 		self.saveAs = saveAs
 		self.session = session
@@ -28,11 +28,6 @@ class Settings:
 			self.setAutoOdds()
 		else:
 			self.setCustomOdds()
-
-	def getPayoff(self, i, j):
-		#returns the payoff given indeces of the payout size and bet size  
-		payout = self.payouts[i] * self.betsizes[j]
-		return payout
 
 	def getPayoffRow(self, i):
 		#returns the payoff row for a given payout size
@@ -69,29 +64,21 @@ class Settings:
 		minpay = minpay - subtractor
 		return minpay
 
-	def createCombos(self):
+	def createInitCombos(self):
 		#create combos from available symbols
 		combos = []
 
 		for s in self.symbols:
-			combos.append([s, s, s])
+			combos.append([s]*self.numReels)
 
-		combos.append([s, s, cfg.IM_EMPTY])
-		combos.append([s, cfg.IM_EMPTY, cfg.IM_EMPTY])
+		combos.append([s, s, cfg.IM_EMPTY*(self.numReels-2)])
+		combos.append([s, cfg.IM_EMPTY*(self.numReels-2)])
 		self.combos = combos
 
 	def setPayoff(self, i, value, combo):
 		#set the value of a particular payoff given an index, value, and combination of symbols [str]
 		self.combos[i] = combo
 		self.payoffs[i] = value
-
-	def getPayoff(self, i):
-		#get a list of 3 imgs and payoff value given an index
-		if len(self.payouts) > i:
-			row = [self.combos[i][0], self.combos[i][1], self.combos[i][2], self.payouts[i]]
-		else:
-			row = ""
-		return row
 
 	def hasDuplicates(self):
 		#returns whether there are duplicate entries in the combo list (a bad thing)
@@ -109,15 +96,11 @@ class Settings:
 #		if self.oddskind=="equal":
 		for c in self.combos:	
 			self.payoutOdds.append(self.odds / len(self.combos))
-
-
 		"""
 		elif self.oddskind=="linear":
 			for p in self.payouts:
 				self.payoutOdds.append((1./float(p)/max(self.payouts)) * self.odds)
 		"""
-
-
 
 	def setBets(self, betsizes, debt, currency):
 		self.betsizes = betsizes
@@ -147,7 +130,3 @@ class Settings:
 			output="%s\n%s, %s" % (output, i, j)
 
 		return output
-
-
-
-
