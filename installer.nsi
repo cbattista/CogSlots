@@ -50,10 +50,21 @@ Section "Main" SEC01
 	File "setupgui.py"
 	File "subjectinfo.py"
 	File "brain_icon.ico"
-	
 	File /r "images"
-	File /r "settings"
+	
 	File /r "pkgs"
+	
+	FileOpen $9 docpath.txt w ;Opens a Empty File an fills it
+	Call "GetMyDocs"
+	FileWrite $9 $0
+	FileClose $9 ;Closes the filled file
+  
+	CreateDirectory "$0\CogSlots"
+	CreateDirectory "$0\CogSlots\data"
+	SetOutPath "$0\CogSlots\"
+	File /r "settings"
+	File /r "images"
+	File "introtext.html"
 	
 	# create the uninstaller
     writeUninstaller "$INSTDIR\uninstall.exe"
@@ -90,20 +101,19 @@ Section "Finalize" SEC06
 	CreateShortcut "$SMPROGRAMS\CogSlots\SetupExperiment.lnk" "$INSTDIR\setupgui.py"
 	CreateShortcut "$SMPROGRAMS\CogSlots\README.lnk" "notepad" "$INSTDIR\README"
 	CreateShortcut "$SMPROGRAMS\CogSlots\uninstall.lnk" "$INSTDIR\uninstall.exe"	
-	
-	FileOpen $9 docpath.txt w ;Opens a Empty File an fills it
-	Call "GetMyDocs"
-	FileWrite $9 $0
-	FileClose $9 ;Closes the filled file
-  
-	CreateDirectory "$0\CogSlots"
-	CreateDirectory "$0\CogSlots\settings"
-	CreateDirectory "$0\CogSlots\data"
+		
 SectionEnd
 
 Section "Uninstall" SEC07
 	RMDir /r $INSTDIR
+	Delete $SMPROGRAMS\CogSlots\Game.lnk
+	Delete $SMPROGRAMS\CogSlots\SetupExperiment.lnk
+	Delete $SMPROGRAMS\CogSlots\README.lnk
+	Delete $SMPROGRAMS\CogSlots\uninstall.lnk
 	RMDir /r "$SMPROGRAMS\CogSlots"
+	Delete $SMPROGRAMS\CogSlots
+
+	
 SectionEnd
 
 
