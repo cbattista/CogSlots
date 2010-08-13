@@ -26,7 +26,7 @@ class Subject:
 
 
 	def printData(self):	
-		self.fname = "%s_%s_%s %s.csv" % (self.expname, self.s_id, self.session, self.date)
+		self.fname = "data/%s_%s_%s %s.csv" % (self.expname, self.s_id, self.session, self.date)
 		trials = self.results.keys()
 		intTrials = []
 		for t in trials:
@@ -53,7 +53,7 @@ class Subject:
 		f.close()
 
 	def preserve(self):
-		f = open("%s.cogsub" % self.s_id, "w")
+		f = open("data/%s.cogsub" % self.s_id, "w")
 		pickle.dump(self, f)
 		f.close()
 
