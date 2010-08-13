@@ -15,7 +15,7 @@
 !insertmacro MUI_LANGUAGE "English"
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "setup.exe"
+OutFile "installCogSlots0.7.exe"
 InstallDir "$PROGRAMFILES\CogSlots"
 
 ;Disallow concurrent installers
