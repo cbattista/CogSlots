@@ -51,7 +51,7 @@ class SetupGUI(wx.Frame):
 		# Number of rounds
 		self.roundsentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
 		self.seedentry = wx.TextCtrl(betspage, wx.ID_ANY, style=wx.TE_RIGHT)
-		self.debtallowed = wx.Choice(betspage, wx.ID_ANY, choices=["Allowed", "Not Allowed"])
+		self.debtallowed = wx.CheckBox(betspage, wx.ID_ANY, "Allow subject debt")
 
 		# Wagers
 		self.wagernum = wx.Choice(betspage, wx.ID_ANY, choices=["New"])
@@ -66,16 +66,20 @@ class SetupGUI(wx.Frame):
 		betssizer.AddF(roundslabel, self.hflag)
 		numroundsbox = wx.BoxSizer(wx.HORIZONTAL)
 		numroundsbox.AddF(self.roundsentry, self.bflag)
-		numroundsbox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Subject Debt:"), self.bflag)
-		numroundsbox.AddF(self.debtallowed, self.bflag)
+		debtlabel = wx.StaticText(betspage, wx.ID_ANY, "Subject Debt:")
+		debtlabel.SetFont(self.hfont)
 		betssizer.AddF(numroundsbox, self.bflag)
+		#numroundsbox.AddF(debtlabel, self.bflag)
+		#numroundsbox.AddF(self.debtallowed, self.bflag)
+		betssizer.AddF(debtlabel, self.bflag)
+		betssizer.AddF(self.debtallowed, self.bflag)
 		betssizer.AddF(wx.StaticLine(betspage), self.eflag)
 
 		# the currency stuff
 		currencylabel = wx.StaticText(betspage, wx.ID_ANY, "Currency:")
 		currencylabel.SetFont(self.hfont)
 		betssizer.AddF(currencylabel, self.hflag)
-		self.currencytype = wx.Choice(betspage, wx.ID_ANY, choices=["Credits", "Dollars"])
+		self.currencytype = wx.Choice(betspage, wx.ID_ANY, choices=["Credits", "$"])
 		currencybox = wx.BoxSizer(wx.HORIZONTAL)
 		currencybox.AddF(wx.StaticText(betspage, wx.ID_ANY, "Seed Amount:"), self.bflag)
 		currencybox.AddF(self.seedentry, self.bflag)
@@ -463,7 +467,7 @@ class SetupGUI(wx.Frame):
 			
 	def SetBets(self):
 		#set the values of the items in the bet tab
-		self.debtallowed.SetSelection(self.settings.debt)
+		self.debtallowed.SetValue(self.settings.debt)
 		self.roundsentry.SetValue(str(self.settings.rounds))
 		self.seedentry.SetValue(str(self.settings.seed))
 		self.currencytype.SetStringSelection(self.settings.currency)
@@ -476,7 +480,7 @@ class SetupGUI(wx.Frame):
 
 	def SetBetSettings(self):
 		#sets the values of the bet object based on the gui contents
-		debt = self.debtallowed.GetCurrentSelection()
+		debt = self.debtallowed.GetValue()
 		currency = self.currencytype.GetStringSelection()
 		#if cindex is 0:
 		#	currency = "c"

@@ -54,6 +54,8 @@ class GamePlayGUI(wx.Frame):
 					self.subject = infodialog.cogsub
 			else:
 				self.subject= Subject()
+				self.subject.expname = self.settings.saveAs
+				self.subject.session = self.settings.session
 
 
 		#create a Slots object
@@ -219,8 +221,6 @@ class GamePlayGUI(wx.Frame):
 		wager = self.wagertext.GetValue()
 		wager = commongui.StringToType(wager)
 
-		
-
 		i = self.betsizes.index(wager)
 
 		# if we can't increase beyond zero, stop doing anything
@@ -230,7 +230,7 @@ class GamePlayGUI(wx.Frame):
 
 			self.wagerstep = self.betsizes[i+1]
 
-			if self.balance < self.wagerstep and not self.debtallowed:
+			if (self.balance < self.wagerstep) and not self.settings.debt:
 				return 
 			#self.balance -= self.wagerstep - int(wager)
 			wager = self.wagerstep
@@ -244,7 +244,7 @@ class GamePlayGUI(wx.Frame):
 			# we can't automatically win money!
 			if wager < self.wagerstep:
 				return
-			self.balance += wager - self.wagerstep
+			#self.balance += wager - self.wagerstep
 			wager = self.wagerstep
 		
 		self.wagertext.SetValue(str(wager))
@@ -301,7 +301,7 @@ class GamePlayGUI(wx.Frame):
 		self.Update()
 
 
-		if self.balance <= 0 and self.settings.debt == False:
+		if self.balance <= 0 and not self.settings.debt:
 			self.gameOver()
 
 		# Check to see if the maximum number of rounds has been reached 
