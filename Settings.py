@@ -2,7 +2,7 @@ import pickle
 import cfg
 
 class Settings:
-	def __init__(self, name="unnamed.set", betsizes=[1, 2, 5, 10, 50], numPayouts=5, numReels=3, payouts=[20, 12, 10, 5, 3, 2, 1], rounds=100, seed=20, debt=False, currency="Dollars", probDict = {'obtain' : True, 'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_CLOVER, cfg.IM_BLANK], visibleSymbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], showPayouts = True, saveAs = "Subject", session=1, subInfo = {'Name' : True, 'Age' : True, 'Sex': True, 'Handedness': True}):
+	def __init__(self, name="unnamed.set", betsizes=[1, 2, 5, 10, 50], numPayouts=5, numReels=3, payouts=[20, 12, 10, 5, 3, 2, 1], rounds=100, seed=20, debt=False, currency="$", probDict = {'obtain' : True, 'msg': "What do you think the odds of winning were?", 'interval' : 100, 'when' : "end"}, symbols=[cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_CLOVER, cfg.IM_BLANK], visibleSymbols = [cfg.IM_GOLDBARS, cfg.IM_TREASURECHEST, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL], showPayouts = True, saveAs = "Subject", session=1, subInfo = {'Name' : True, 'Age' : True, 'Sex': True, 'Handedness': True}):
 		#Main class with which to access and set experimental settings (Bets, Symbols, Payouts)
 		self.name = name
 		self.betsizes = betsizes
