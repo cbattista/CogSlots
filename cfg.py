@@ -31,6 +31,6 @@ IM_INCREASEWAGER_DOWN = wx.ART_MISSING_IMAGE
 FELT_GREEN = (0,153,0)
 WINNING_GOLD = (255, 150, 0)
 
-WEIGHTS_TEXT = "The controls below change the weighting of each symbol on each reel.  A value of '1' indicates that the symbol appears once per reel, a value of '10' indicates that the symbol appears 10 times, and so on.  This affects the odds of winning combinations in two ways.  First, increasing the weight of a symbol increases the win odds of combinations containing that symbol.  Second, increasing the weight of a symbol decreases the win odds of combinations not containing that symbol."
+WEIGHTS_TEXT = "The controls below change the weighting of each symbol on each reel.  Values indicate how often symbols appear on reels.  Increasing the weight of a symbol increases the win odds of combinations containing that symbol, and decreases the win odds of combinations not containing that symbol."
 
-COMBOS_TEXT = "The controls below determine the winning combinations.  Each row contains a payout, a winning combination, and the odds of that winning combination.  You can adjust the payout and the symbols making up a combo, but the odds are determined by the settings in the weights table above.  The 'any' symbol can be used as a wildcard symbol, so that whatever symbol comes up is considered a winner."
+COMBOS_TEXT = "The controls below determine the winning combinations.  Adjust the payout and the symbols making up a combo.  Odds are determined by the settings in the weights table above."

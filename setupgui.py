@@ -253,12 +253,12 @@ class SetupGUI(wx.Frame):
 		bottomflag = wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand()
 		outersizer = wx.FlexGridSizer(3, 1)
 		middleSizer = wx.BoxSizer(wx.HORIZONTAL)
-		payoutSizer = wx.BoxSizer(wx.VERTICAL)
-		payoutSizer.AddF(self.payoutframe, bottomflag)
-		payoutSizer.AddF(infosizer, bottomflag)
+		self.payoutSizer = wx.BoxSizer(wx.VERTICAL)
+		self.payoutSizer.AddF(self.payoutframe, bottomflag)
+		self.payoutSizer.AddF(infosizer, bottomflag)
 
 		middleSizer.AddF(self.book, wx.SizerFlags(1).Expand())
-		middleSizer.AddF(payoutSizer, bottomflag)
+		middleSizer.AddF(self.payoutSizer, bottomflag)
 		midSize = (self.FRAME_SIZE[0] * 0.5, self.FRAME_SIZE[1] * 0.85)
 		middleSizer.SetMinSize(midSize)
 
@@ -390,12 +390,20 @@ class SetupGUI(wx.Frame):
 		self.SetInfoSettings()
 		self.SetBetSettings()
 		self.SetSymbolSettings()
-		self.SetOddsSettings()
-		
-		self.payoutframe.update(self.settings)
-				
+						
 		if self.ActivePage() == 'Symbols':
 			self.makeOddsTab()
+
+		self.SetOddsSettings()
+		
+		self.payoutSizer.Hide(self.payoutframe)
+		self.payoutSizer.Remove(self.payoutframe)
+		self.payoutSizer.Layout()
+		self.payoutframe = commongui.PayoutTable(self, self.settings)
+		self.payoutSizer.InsertF(0, self.payoutframe, wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand())
+		self.payoutSizer.Layout()
+		
+
 		
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 
