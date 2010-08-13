@@ -3,6 +3,7 @@
 import wx, wx.html, wx.combo
 import cfg
 import CogSub
+import os
 
 def StringToType(value):
 	if value.isdigit():
@@ -126,14 +127,7 @@ class PayoutTable(wx.Panel):
 			self.payoutgrid.AddF(wx.StaticText(self, wx.ID_ANY, "Payout " + str(i+1) + ":"), flag)
 
 			for icon in icons:
-				img = wx.Image(icon)
-				try:
-					img = img.Scale(cfg.SLOT_SIZE[0], cfg.SLOT_SIZE[1], 1)
-				except:
-					pass
-				bitmap = wx.BitmapFromImage(img)
-				bitmap.SetHeight(cfg.SLOT_SIZE[0])
-				bitmap.SetWidth(cfg.SLOT_SIZE[1])
+				bitmap = makeBitmap(icon, cfg.SLOT_SIZE)
 				icon = wx.StaticBitmap(self, wx.ID_ANY, bitmap)
 				self.payoutgrid.AddF(icon, flag)
 			
@@ -144,14 +138,12 @@ class PayoutTable(wx.Panel):
 
 def makeBitmap(filename, scale=()):
 	#make wx.Bitmap of an image from a file, and optionally scale it
-	img = wx.Image(filename)
-	if scale:
-		try:
-			img = img.Scale(scale[0], scale[1], 1)
-		except:
-			pass
-	bitmap = wx.BitmapFromImage(img)
-	if scale:
-		bitmap.SetHeight(scale[0])
-		bitmap.SetWidth(scale[1])
-	return bitmap
+	imgpath = os.path.join(os.getcwd(), "images", filename)
+        img = wx.Image(imgpath)
+        if scale:
+                img = img.Scale(scale[0], scale[1], 1)
+        bitmap = wx.BitmapFromImage(img)
+        if scale:
+                bitmap.SetHeight(scale[0])
+                bitmap.SetWidth(scale[1])
+        return bitmap

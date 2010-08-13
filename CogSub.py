@@ -1,5 +1,6 @@
 import time
 import pickle
+import os
 
 class Subject:
 	def __init__(self, s_id="000", age=0, sex="unknown", hand="unknown", session=0, expname="unnamed"):		
@@ -26,7 +27,8 @@ class Subject:
 
 
 	def printData(self):	
-		self.fname = "data/%s_%s_%s %s.csv" % (self.expname, self.s_id, self.session, self.date)
+		fname = "%s_%s_%s %s.csv" % (self.expname, self.s_id, self.session, self.date)
+                fpath = os.path.join(os.getcwd(), "data", fname)
 		trials = self.results.keys()
 		intTrials = []
 		for t in trials:
@@ -35,7 +37,7 @@ class Subject:
 		trials = []
 		for t in intTrials:
 			trials.append(str(t))
-		f = open(self.fname, "w")
+		f = open(fpath, "w")
 		for t in trials:
 			line = t
 			trial = self.results[t]
@@ -53,7 +55,9 @@ class Subject:
 		f.close()
 
 	def preserve(self):
-		f = open("data/%s_%s.cogsub" % (self.s_id, self.expname), "a")
+                fname = "%s_%s.cogsub" % (self.s_id, self.expname)
+                fpath = os.path.join(os.getcwd(), "data", fname)
+		f = open(fpath, "a")
 		pickle.dump(self, f)
 		f.close()
 
