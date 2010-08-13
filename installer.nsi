@@ -80,8 +80,8 @@ SectionEnd
 Section "Finalize" SEC06	
 	;Create useful shortcuts
 	CreateDirectory "$SMPROGRAMS\CogSlots"
-	CreateShortcut "$SMPROGRAMS\CogSlots\Game.lnk" "python" "$INSTDIR\gameplay.py"
-	CreateShortcut "$SMPROGRAMS\CogSlots\SetupExperiment.lnk" "python" "$INSTDIR\setupgui.py"
+	CreateShortcut "$SMPROGRAMS\CogSlots\Game.lnk" "$INSTDIR\gameplay.py"
+	CreateShortcut "$SMPROGRAMS\CogSlots\SetupExperiment.lnk" "$INSTDIR\setupgui.py"
 	CreateShortcut "$SMPROGRAMS\CogSlots\README.lnk" "notepad" "$INSTDIR\README"
 	CreateSHortcut "$SMPROGRAMS\CogSlots\uninstall.lnk" "$INSTDIR\uninstall.exe"	
 SectionEnd
