@@ -33,7 +33,7 @@ class SetupGUI(wx.Frame):
 		self.betspage = betspage
 		self.betssizer = betssizer
 		symbolpage, symbolsizer = self.create_page('Symbols')
-		self.oddpage, self.oddsizer = self.create_page('Odds')
+		#self.oddpage, self.oddsizer = self.create_page('Odds')
 
 		# same font for all the headers
 		self.hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
@@ -277,32 +277,36 @@ class SetupGUI(wx.Frame):
 	#				Settings Tab Getters and Setters
 	#******************************************
 
-	def makeOddsTab(self):
-		oddpage = self.oddpage
-		oddsizer = self.oddsizer
-		oddsizer.Clear(True)
-
+	def makeOddsTab(self):		
+		if self.book.GetPageCount() == 3:
+			self.book.DeletePage(2)
+		
+		oddpage, oddsizer = self.create_page('Odds')
+		
 		oddGrid = wx.FlexGridSizer(cols=1, vgap=5)
 		
 		weightLabel = wx.StaticText(oddpage, -1, "Symbol Weights")
 		weightLabel.SetFont(self.hfont)
 		oddsLabel = wx.StaticText(oddpage, -1, "Winning Combos")
 		oddsLabel.SetFont(self.hfont)
-	
+				
 		oddGrid.Add(weightLabel)
 		text = wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT)
 		text.Wrap(self.nbW * .95)
 		oddGrid.Add(text)
-	
+
+		print self.settings.numReels
+		
 		#create top half
 		self.weights = []
-				
 		weightSizer = wx.GridSizer(cols=self.settings.numReels+1, rows=len(self.settings.visibleSymbols))
 		weightSizer.Add(wx.StaticText(oddpage, -1, "Symbol"))
 		for r in range(self.settings.numReels):
 			text = "Reel %s" % (r + 1)
 			weightSizer.Add(wx.StaticText(oddpage, -1, text))
-		
+
+		print self.settings.visibleSymbols
+			
 		for s in self.settings.visibleSymbols:
 			w = []
 			
@@ -367,7 +371,6 @@ class SetupGUI(wx.Frame):
 		
 		oddsizer.Add(oddGrid)
 		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
-		oddsizer.Layout()
 		oddpage.SetSizerAndFit(oddsizer)
 		self.SetOdds()
 		self.makeReels()
@@ -389,19 +392,14 @@ class SetupGUI(wx.Frame):
 		self.SetCursor(wx.StockCursor(wx.CURSOR_WAIT))
 
 		self.SetInfoSettings()
-
-		if self.ActivePage() == 'Bets':
-			self.SetBetSettings()
-
-		elif self.ActivePage() == 'Symbols':
-			self.SetSymbolSettings()
-			self.makeOddsTab()
-			self.SetOddsSettings()
-
-		elif self.ActivePage() == 'Odds':
-			self.SetOddsSettings()
+		self.SetBetSettings()
+		self.SetSymbolSettings()
+		self.SetOddsSettings()
 		
 		self.payoutframe.update(self.settings)
+				
+		if self.ActivePage() == 'Symbols':
+			self.makeOddsTab()
 		
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 
