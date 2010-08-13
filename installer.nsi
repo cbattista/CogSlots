@@ -85,16 +85,20 @@ Section "Python Setuptools" SEC03
 	ExecWait '$INSTDIR\pkgs\setuptools-0.6c11.win32-py2.6'
 SectionEnd
 
-Section "wxPython" SEC04
+Section "vcredist" SEC04
+	ExecWait '$INSTDIR\pkgs\vcredist_x86.exe'
+SectionEnd
+
+Section "wxPython" SEC05
 	;Use easy_install for python package deps
 	ExecWait '$INSTDIR\pkgs\wxPython2.8-win32-unicode-2.8.11.0-py26.exe'
 SectionEnd
 
-Section "PyOpenGL" SEC05
+Section "PyOpenGL" SEC06
 	ExecWait '$INSTDIR\pkgs\PyOpenGL-3.0.1.win32.exe'
 SectionEnd
 
-Section "Finalize" SEC06	
+Section "Finalize" SEC07	
 	;Create useful shortcuts
 	CreateDirectory "$SMPROGRAMS\CogSlots"
 	CreateShortcut "$SMPROGRAMS\CogSlots\Game.lnk" "$INSTDIR\gameplay.py"
@@ -104,7 +108,7 @@ Section "Finalize" SEC06
 		
 SectionEnd
 
-Section "Uninstall" SEC07
+Section "Uninstall" SEC08
 	RMDir /r $INSTDIR
 	Delete $SMPROGRAMS\CogSlots\Game.lnk
 	Delete $SMPROGRAMS\CogSlots\SetupExperiment.lnk
