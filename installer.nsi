@@ -18,6 +18,12 @@ Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "installCogSlots0.7.exe"
 InstallDir "$PROGRAMFILES\CogSlots"
 
+Function "GetMyDocs"
+  ReadRegStr $0 HKCU \
+             "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" \
+             Personal
+FunctionEnd
+
 ;Disallow concurrent installers
 Function .onInit
 	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "CogSlotsMutex") i .r1 ?e'
@@ -83,7 +89,16 @@ Section "Finalize" SEC06
 	CreateShortcut "$SMPROGRAMS\CogSlots\Game.lnk" "$INSTDIR\gameplay.py"
 	CreateShortcut "$SMPROGRAMS\CogSlots\SetupExperiment.lnk" "$INSTDIR\setupgui.py"
 	CreateShortcut "$SMPROGRAMS\CogSlots\README.lnk" "notepad" "$INSTDIR\README"
-	CreateSHortcut "$SMPROGRAMS\CogSlots\uninstall.lnk" "$INSTDIR\uninstall.exe"	
+	CreateShortcut "$SMPROGRAMS\CogSlots\uninstall.lnk" "$INSTDIR\uninstall.exe"	
+	
+	FileOpen $9 docpath.txt w ;Opens a Empty File an fills it
+	Call "GetMyDocs"
+	FileWrite $9 $0
+	FileClose $9 ;Closes the filled file
+  
+	CreateDirectory "$0\CogSlots"
+	CreateDirectory "$0\CogSlots\settings"
+	CreateDirectory "$0\CogSlots\data"
 SectionEnd
 
 Section "Uninstall" SEC07
