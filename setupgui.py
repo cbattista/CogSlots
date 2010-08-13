@@ -294,8 +294,6 @@ class SetupGUI(wx.Frame):
 		text = wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT)
 		text.Wrap(self.nbW * .95)
 		oddGrid.Add(text)
-
-		print self.settings.numReels
 		
 		#create top half
 		self.weights = []
@@ -305,8 +303,6 @@ class SetupGUI(wx.Frame):
 			text = "Reel %s" % (r + 1)
 			weightSizer.Add(wx.StaticText(oddpage, -1, text))
 
-		print self.settings.visibleSymbols
-			
 		for s in self.settings.visibleSymbols:
 			w = []
 			
