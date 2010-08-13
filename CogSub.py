@@ -53,7 +53,7 @@ class Subject:
 		f.close()
 
 	def preserve(self):
-		f = open("data/%s.cogsub" % self.s_id, "w")
+		f = open("data/%s_%s.cogsub" % (self.s_id, self.expname), "a")
 		pickle.dump(self, f)
 		f.close()
 
