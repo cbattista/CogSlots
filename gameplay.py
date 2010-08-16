@@ -57,6 +57,13 @@ class GamePlayGUI(wx.Frame):
 				self.subject.expname = self.settings.saveAs
 				self.subject.session = self.settings.session
 
+		fname = "%s_%s_%s_%s" % (self.subject.expname, self.subject.s_id, self.subject.session, self.subject.date)
+				
+		dlg = wx.FileDialog(self, "Choose a location to save subject data file", os.path.join(os.getcwd(), "data"), fname, "*.csv", wx.SAVE)
+		if dlg.ShowModal() == wx.ID_OK:
+			path = dlg.GetPath()
+			self.subject.fpath = path
+		dlg.Destroy()
 
 		#create a Slots object
 		self.slots = self.settings.slots

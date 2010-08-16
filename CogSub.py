@@ -13,6 +13,7 @@ class Subject:
 		self.expname = expname
 		#create dictionary to hold trial results
 		self.results = {}
+		self.fpath = ""
 
 	def inputData(self, trial, condition, value):
 		trial = str(trial)
@@ -27,8 +28,12 @@ class Subject:
 
 
 	def printData(self):	
-		fname = "%s_%s_%s %s.csv" % (self.expname, self.s_id, self.session, self.date)
-                fpath = os.path.join(os.getcwd(), "data", fname)
+		if not self.fpath:
+			fname = "%s_%s_%s %s.csv" % (self.expname, self.s_id, self.session, self.date)
+			fpath = os.path.join(os.getcwd(), "data", fname)
+		else:
+			fpath = self.fpath
+		
 		trials = self.results.keys()
 		intTrials = []
 		for t in trials:
@@ -55,9 +60,12 @@ class Subject:
 		f.close()
 
 	def preserve(self):
-                fname = "%s_%s.cogsub" % (self.s_id, self.expname)
-                fpath = os.path.join(os.getcwd(), "data", fname)
-		f = open(fpath, "a")
+		if not self.fpath:
+			fname = "%s_%s.cogsub" % (self.s_id, self.expname)
+			fpath = os.path.join(os.getcwd(), "data", fname)
+		else:
+			fpath = self.fpath
+		f = open(self.fpath, "a")
 		pickle.dump(self, f)
 		f.close()
 
