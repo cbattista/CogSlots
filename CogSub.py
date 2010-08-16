@@ -30,7 +30,7 @@ class Subject:
 	def printData(self):	
 		if not self.fpath:
 			fname = "%s_%s_%s %s.csv" % (self.expname, self.s_id, self.session, self.date)
-			fpath = os.path.join(os.getcwd(), "data", fname)
+			fpath = os.path.join(os.getcwd(), fname)
 		else:
 			fpath = self.fpath
 		
@@ -62,7 +62,7 @@ class Subject:
 	def preserve(self):
 		if not self.fpath:
 			fname = "%s_%s.cogsub" % (self.s_id, self.expname)
-			fpath = os.path.join(os.getcwd(), "data", fname)
+			fpath = os.path.join(os.getcwd(), fname)
 		else:
 			fpath = self.fpath
 		f = open(self.fpath, "a")

@@ -40,7 +40,6 @@ Section "Main" SEC01
 	
 	;List of source files to copy
 	File "CogSub.py"
-	File "README"
 	File "Settings.py"
 	File "SlotReels.py"
 	File "cfg.py"
@@ -51,7 +50,6 @@ Section "Main" SEC01
 	File "subjectinfo.py"
 	File "brain_icon.ico"
 	File /r "images"
-	
 	File /r "pkgs"
 	
 	FileOpen $9 docpath.txt w ;Opens a Empty File an fills it
@@ -60,7 +58,6 @@ Section "Main" SEC01
 	FileClose $9 ;Closes the filled file
   
 	CreateDirectory "$0\CogSlots"
-	CreateDirectory "$0\CogSlots\data"
 	SetOutPath "$0\CogSlots\"
 	File /r "settings"
 	File /r "images"

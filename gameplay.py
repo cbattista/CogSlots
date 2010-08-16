@@ -59,7 +59,7 @@ class GamePlayGUI(wx.Frame):
 
 		fname = "%s_%s_%s_%s" % (self.subject.expname, self.subject.s_id, self.subject.session, self.subject.date)
 				
-		dlg = wx.FileDialog(self, "Choose a location to save subject data file", os.path.join(os.getcwd(), "data"), fname, "*.csv", wx.SAVE)
+		dlg = wx.FileDialog(self, "Choose a location to save subject data file", os.getcwd(), fname, "*.csv", wx.SAVE)
 		if dlg.ShowModal() == wx.ID_OK:
 			path = dlg.GetPath()
 			self.subject.fpath = path
