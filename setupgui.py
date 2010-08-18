@@ -515,7 +515,7 @@ class SetupGUI(wx.Frame):
 		for scb in self.symboxes:
 			if scb.GetValue():
 				self.settings.visibleSymbols.append(scb.cbname)
-
+				
 		self.settings.numPayouts = self.pCtrl.GetSelection() + 1
 		self.settings.numReels = self.rCtrl.GetSelection() + 1
 
@@ -540,6 +540,14 @@ class SetupGUI(wx.Frame):
 		
 
 	def SetOdds(self):
+
+		#if the reels exist, get their weights...
+		if "slots" in dir(self.settings):	
+			slotweights = self.settings.slots.getWeights()
+			for w, sw in zip(self.weights, slotweights):
+				for ww, sww in zip(w, sw):
+					ww.SetValue(sww)
+		
 		for p, sp in zip(self.payoffs, self.settings.payouts):
 			p.SetValue(str(sp))
 		
@@ -548,6 +556,8 @@ class SetupGUI(wx.Frame):
 				cc.SetStringSelection(ssc)
 				
 		self.makeReels()
+	
+				
 
 	def makeReels(self):
 		reels = {}
@@ -560,7 +570,7 @@ class SetupGUI(wx.Frame):
 				else:
 					reels[k] = {s : w.GetValue()}
 		
-		self.settings.slots = Slots(reels)				
+		self.settings.slots = Slots(reels, self.settings.visibleSymbols)				
 		self.updateOdds()		
 
 	def updateOdds(self):

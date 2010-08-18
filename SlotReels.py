@@ -4,11 +4,13 @@ import cfg
 import copy
 
 class Slots:
-	def __init__(self, reels={}):
+	def __init__(self, reels={}, symbols=[]):
 		self.reels = []
 		rkeys = reels.keys()
 		rkeys.sort()
 		self.numreels = len(reels)
+		self.symbols = symbols
+
 		for k in rkeys:
 			reel = Reel(reels[k])
 			self.reels.append(copy.deepcopy(reel))
@@ -38,6 +40,15 @@ class Slots:
 				outputList.append(posts[l][k])
 
 		return outputList, winners
+		
+	def getWeights(self):
+		weights = []
+		for s in self.symbols:
+			w = []
+			for r in self.reels:
+				w.append(r.getWeight(s))
+			weights.append(w)
+		return weights
 
 	def getComboOdds(self, combo):
 		odds = 1
@@ -88,6 +99,10 @@ class Reel:
 		odds = float(howmany) / float(len(self.stops))
 		return odds
 
+	def getWeight(self, s):
+		stop = self.symbols.index(s)
+		return self.stops.count(stop)
+		
 	def spin(self, before = 2, after = 1):
 		#seed the num generator w the system time
 		random.seed()
