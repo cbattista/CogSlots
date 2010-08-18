@@ -309,17 +309,19 @@ class GamePlayGUI(wx.Frame):
 
 
 		if self.balance <= 0 and not self.settings.debt:
-			self.gameOver()
+			self.gameOver("You're out of money.")
 
 		# Check to see if the maximum number of rounds has been reached 
 		if self.round > self.settings.rounds:
-			self.gameOver()
+			self.gameOver("Round limit reached.")
 		
 				
-	def gameOver(self):
+	def gameOver(self, msg):
 		self.subject.printData()
-		#wx.MessageBox("Game over!")
 		self.subject.preserve()
+		dlg = wx.MessageDialog(self, msg, "Game over", wx.OK)
+		dlg.ShowModal()
+		dlg.Destroy()
 		self.Destroy()
 	
 		
