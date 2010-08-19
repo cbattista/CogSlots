@@ -220,19 +220,15 @@ class GamePlayGUI(wx.Frame):
 		for c in self.settings.combos:
 			if cfg.IM_EMPTY in c:
 				any = True
-
-		print any
 				
 		if any:
 			for c in self.settings.combos:
 				match = []
-				print c, payline
 				for cc, p in zip(c, payline):
 					if cc == cfg.IM_EMPTY or cc == p:
 						match.append(self.settings.combos.index(c) + 1)
 					else:
 						match.append(0)
-				print match
 				if not match.count(0):
 					return match[0]
 		else:
