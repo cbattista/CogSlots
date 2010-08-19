@@ -104,7 +104,15 @@ class Reel:
 
 	def getNearMissOdds(self):
 		#returns the odds of near misses occuring on this reel
-		odds = (sum(self.nms.values()) * 2.) / float(len(self.stops))
+		total = 0.
+		for k in self.nms.keys():
+			if self.nms[k]:
+				i = self.symbols.index(k)
+				ss = self.stops.count(i)
+				total = total + (self.nms[k] * ss * 2.)
+		
+		
+		odds = total / float(len(self.stops))
 		return odds
 					
 	def getIndex(self, i):
