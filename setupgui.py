@@ -375,6 +375,9 @@ class SetupGUI(wx.Frame):
 		oddGrid.Add(comboSizer)
 		oddGrid.Add(totalOddsText)
 		oddGrid.Add(self.totalOdds)
+		oddGrid.Add(wx.StaticText(oddpage, -1, "Near Miss Odds:"))
+		self.nmOdds = wx.TextCtrl(oddpage, -1, "0", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
+		oddGrid.Add(self.nmOdds)
 		
 		oddsizer.Add(oddGrid)
 		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
@@ -602,6 +605,8 @@ class SetupGUI(wx.Frame):
 			total = 100.
 		total = str(round(total, 2))
 		self.totalOdds.SetValue(total)
+		nm = str(round(self.settings.slots.getNearMissOdds() * 100., 2))
+		self.nmOdds.SetValue(nm)
 
 		
 	def onSpin(self, event):

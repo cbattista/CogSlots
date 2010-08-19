@@ -56,6 +56,12 @@ class Slots:
 			odds *= r.getSymbolOdds(c)
 		return odds
 
+	def getNearMissOdds(self):
+		odds = 1.
+		for r in self.reels:
+			odds *= r.getNearMissOdds()
+		return odds
+		
 	def __str__(self):
 		output = ""
 		for r in self.reels:
@@ -70,6 +76,7 @@ class Reel:
 		random.seed()
 		random.shuffle(self.symbols)
 		self.stops = []
+		self.nms = nms
 		for k in symbols.keys():
 			self.stops = self.stops + ([self.symbols.index(k)] * symbols[k])
 
@@ -95,6 +102,11 @@ class Reel:
 							newstops.append(stops)
 					self.stops = newstops
 
+	def getNearMissOdds(self):
+		#returns the odds of near misses occuring on this reel
+		odds = (sum(self.nms.values()) * 2.) / float(len(self.stops))
+		return odds
+					
 	def getIndex(self, i):
 		#returns the first symbol on the reel
 		
