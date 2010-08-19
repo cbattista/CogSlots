@@ -215,9 +215,30 @@ class GamePlayGUI(wx.Frame):
 			bmp = commongui.makeBitmap(img, (50, 50))
 			sb.SetBitmapLabel(bmp)
 
-		if payline in self.settings.combos:
-			self.subject.inputData(self.round, 'outcome', 'WIN')
-			return self.settings.combos.index(payline) + 1
+		#if we are dealing with the 'any' symbol, we must account for that
+		any = False
+		for c in self.settings.combos:
+			if cfg.IM_EMPTY in c:
+				any = True
+
+		print any
+				
+		if any:
+			for c in self.settings.combos:
+				match = []
+				print c, payline
+				for cc, p in zip(c, payline):
+					if cc == cfg.IM_EMPTY or cc == p:
+						match.append(self.settings.combos.index(c) + 1)
+					else:
+						match.append(0)
+				print match
+				if not match.count(0):
+					return match[0]
+		else:
+			if payline in self.settings.combos:
+				self.subject.inputData(self.round, 'outcome', 'WIN')
+				return self.settings.combos.index(payline) + 1
 
 		self.subject.inputData(self.round, 'outcome', 'LOSS')
 		return 0

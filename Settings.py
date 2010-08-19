@@ -55,7 +55,7 @@ class Settings:
 
 		combos.append([s, s, cfg.IM_EMPTY*(self.numReels-2)])
 		combos.append([s, cfg.IM_EMPTY*(self.numReels-2)])
-		self.combos = combos
+		self.combos = combos[0:self.numPayouts]
 
 	def setPayoff(self, i, value, combo):
 		#set the value of a particular payoff given an index, value, and combination of symbols [str]
