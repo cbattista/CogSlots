@@ -109,7 +109,7 @@ class Reel:
 			if self.nms[k]:
 				i = self.symbols.index(k)
 				ss = self.stops.count(i)
-				total = total + (self.nms[k] * ss * 2.)
+				total = total + (ss * 2.)
 		
 		
 		odds = total / float(len(self.stops))
