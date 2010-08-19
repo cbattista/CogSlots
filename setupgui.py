@@ -299,13 +299,16 @@ class SetupGUI(wx.Frame):
 		text.Wrap(self.nbW * .95)
 		oddGrid.Add(text)
 		
+		self.nearMisses = []
+		
 		#create top half
 		self.weights = []
-		weightSizer = wx.GridSizer(cols=self.settings.numReels+1, rows=len(self.settings.visibleSymbols))
+		weightSizer = wx.GridSizer(cols=self.settings.numReels+2, rows=len(self.settings.visibleSymbols))
 		weightSizer.Add(wx.StaticText(oddpage, -1, "Symbol"))
 		for r in range(self.settings.numReels):
 			text = "Reel %s" % (r + 1)
 			weightSizer.Add(wx.StaticText(oddpage, -1, text))
+		weightSizer.Add(wx.StaticText(oddpage, -1, "Near miss"))
 
 		for s in self.settings.visibleSymbols:
 			w = []
@@ -314,8 +317,12 @@ class SetupGUI(wx.Frame):
 			for r in range(self.settings.numReels):
 				ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1, size=cfg.CTRL_SIZE)
 				w.append(ctrl)
+				
 				weightSizer.Add(ctrl)
-				#make a symbol row
+			nmctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=0, size=cfg.CTRL_SIZE)
+			weightSizer.Add(nmctrl)
+			self.nearMisses.append(nmctrl)
+				
 			self.weights.append(w)
 
 		oddGrid.Add(weightSizer)
@@ -570,7 +577,12 @@ class SetupGUI(wx.Frame):
 				else:
 					reels[k] = {s : w.GetValue()}
 		
-		self.settings.slots = Slots(reels, self.settings.visibleSymbols)				
+		nms = {}
+		for s, nm in zip(self.settings.visibleSymbols, self.nearMisses):
+			nms[s] = nm.GetValue()
+		
+		
+		self.settings.slots = Slots(reels, self.settings.visibleSymbols, nms)				
 		self.updateOdds()		
 
 	def updateOdds(self):

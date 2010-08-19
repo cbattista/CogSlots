@@ -4,7 +4,7 @@ import cfg
 import copy
 
 class Slots:
-	def __init__(self, reels={}, symbols=[]):
+	def __init__(self, reels={}, symbols=[], nms={}):
 		self.reels = []
 		rkeys = reels.keys()
 		rkeys.sort()
@@ -12,7 +12,7 @@ class Slots:
 		self.symbols = symbols
 
 		for k in rkeys:
-			reel = Reel(reels[k])
+			reel = Reel(reels[k], nms)
 			self.reels.append(copy.deepcopy(reel))
 
 	def spin(self, before = 1, after = 1):
@@ -64,7 +64,7 @@ class Slots:
 		return output
 
 class Reel:
-	def __init__(self, symbols={}):
+	def __init__(self, symbols={}, nms={}):
 		#symbols are the images which can appear on the stops, stops is a list of which symbols (their indeces) appear when on each reel
 		self.symbols = symbols.keys()
 		random.seed()
@@ -72,6 +72,28 @@ class Reel:
 		self.stops = []
 		for k in symbols.keys():
 			self.stops = self.stops + ([self.symbols.index(k)] * symbols[k])
+
+		#if there will be near misses
+		if sum(nms.values()): 
+			#add a blank if it's not in the symbol list already
+			if cfg.IM_BLANK not in self.symbols:
+				self.symbols.append(cfg.IM_BLANK)
+			
+			blankIndex = self.symbols.index(cfg.IM_BLANK)
+			
+			for k in nms.keys():
+				if nms[k]:
+					newstops = []
+					stop = self.symbols.index(k)
+					#si = self.stops.index(i)
+					for stops in self.stops:
+						if stops == stop:
+							newstops = newstops + ([blankIndex] * nms[k])
+							newstops.append(stops)
+							newstops = newstops + ([blankIndex] * nms[k])
+						else:
+							newstops.append(stops)
+					self.stops = newstops
 
 	def getIndex(self, i):
 		#returns the first symbol on the reel
