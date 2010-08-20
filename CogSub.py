@@ -65,6 +65,8 @@ class Subject:
 			fpath = os.path.join(os.getcwd(), fname)
 		else:
 			fpath = self.fpath
+			fpath = fpath.replace(".csv", "")
+			fpath = fpath + ".cogsub"
 		f = open(self.fpath, "a")
 		pickle.dump(self, f)
 		f.close()
