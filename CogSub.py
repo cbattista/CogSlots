@@ -67,7 +67,7 @@ class Subject:
 			fpath = self.fpath
 			fpath = fpath.replace(".csv", "")
 			fpath = fpath + ".cogsub"
-		f = open(self.fpath, "a")
+		f = open(fpath, "a")
 		pickle.dump(self, f)
 		f.close()
 
