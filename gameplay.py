@@ -256,8 +256,9 @@ class GamePlayGUI(wx.Frame):
 
 			if (self.balance < self.wagerstep) and not self.settings.debt:
 				return 
-			#self.balance -= self.wagerstep - int(wager)
+			self.balance -= self.wagerstep - int(wager)
 			wager = self.wagerstep
+			
 		
 		elif 'decrease' in name:
 			if i == 0:
@@ -268,7 +269,7 @@ class GamePlayGUI(wx.Frame):
 			# we can't automatically win money!
 			if wager < self.wagerstep:
 				return
-			#self.balance += wager - self.wagerstep
+			self.balance += wager - self.wagerstep
 			wager = self.wagerstep
 		
 		self.wagertext.SetValue(str(wager))
