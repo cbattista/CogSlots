@@ -314,6 +314,7 @@ class GamePlayGUI(wx.Frame):
 				outcome = dia.ShowModal()
 				if outcome == wx.ID_OK:
 					est = dia.est.GetValue()
+					est = est.replace(",", "_")
 					self.subject.inputData(self.round, 'estimate', est)
 			else:
 				self.subject.inputData(self.round, 'estimate', "NA")

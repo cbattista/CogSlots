@@ -24,9 +24,9 @@ class ProbDialog(wx.Dialog):
 	def __init__(self, parent, title, msg):
 		wx.Dialog.__init__(self, parent, -1, title)
 		
-		sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer = wx.FlexGridSizer(3, 1, 5, 5)
 		sizer.Add(wx.StaticText(self, -1, msg), 1)
-		self.est = wx.SpinCtrl(self, -1, "0")
+		self.est = wx.TextCtrl(self, -1, "", size=(300, 200), style=wx.TE_MULTILINE)
 		sizer.Add(self.est, 1)
 		sizer.Add(wx.Button(self, wx.ID_OK, "OK"), 1)
 		self.SetSizerAndFit(sizer)
