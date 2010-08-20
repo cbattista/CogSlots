@@ -236,13 +236,13 @@ class SetupGUI(wx.Frame):
 		resetbtn = wx.Button(self, wx.ID_ANY, 'Reset')
 		loadbtn = wx.Button(self, wx.ID_OPEN)
 		savebtn = wx.Button(self, wx.ID_SAVE)
-		cancelbtn = wx.Button(self, wx.ID_CANCEL)
+		#cancelbtn = wx.Button(self, wx.ID_CANCEL)
 		okaybtn = wx.Button(self, wx.ID_OK)
 		buttonsizer.AddF(updatebtn, self.bflag)
 		buttonsizer.AddF(resetbtn, self.bflag)
 		buttonsizer.AddF(loadbtn, self.bflag)
 		buttonsizer.AddF(savebtn, self.bflag)
-		buttonsizer.AddF(cancelbtn, self.bflag)
+		#buttonsizer.AddF(cancelbtn, self.bflag)
 		buttonsizer.AddF(okaybtn, self.bflag)
 		
 		# button bindings
