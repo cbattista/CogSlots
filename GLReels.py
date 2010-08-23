@@ -19,11 +19,17 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 
+# Rotations for cube. 
+zrot = 0.0
+xrot = 0.0
+yrot = 90.0
+
+
 # A general OpenGL initialization function.  Sets all of the initial parameters. 
 def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
 	global quadratic
 	
-	LoadTextures()
+	#LoadTextures()
 
 	quadratic = gluNewQuadric()
 	gluQuadricNormals(quadratic, GLU_SMOOTH)		# Create Smooth Normals (NEW) 
@@ -64,6 +70,7 @@ def DrawGLScene():
 	global xrot, yrot, zrot, textures, texture_num, object, quadratic, light
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
+
 	glLoadIdentity()					# Reset The View
 	glTranslatef(0.0,0.0,-5.0)			# Move Into The Screen
 
@@ -71,46 +78,30 @@ def DrawGLScene():
 	glRotatef(yrot,0.0,1.0,0.0)			# Rotate The Cube On It's Y Axis
 	glRotatef(zrot,0.0,0.0,1.0)			# Rotate The Cube On It's Z Axis
 	
-	glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
+	#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
-	if light:
-		glEnable(GL_LIGHTING)
-	else:
-		glDisable(GL_LIGHTING)
+	glEnable(GL_LIGHTING)
 
-	if object == 0:
-		DrawCube()
-	elif object == 1:
-		glTranslatef(0.0,0.0,-1.5)			# Center The Cylinder 
-		gluCylinder(quadratic,1.0,1.0,3.0,32,32)	# A Cylinder With A Radius Of 0.5 And A Height Of 2 
-	elif object == 2:
-		gluDisk(quadratic,0.5,1.5,32,32)
-		# Draw A Disc (CD Shape) With An 
-		# Inner Radius Of 0.5, And An 
-		# Outer Radius Of 2.  Plus A Lot Of Segments  
-	elif object == 3:
-		gluSphere(quadratic,1.3,32,32) # Draw A Sphere With A Radius Of 1 And 16 Longitude And 16 Latitude Segments 
-	elif object == 4:
-		glTranslatef(0.0,0.0,-1.5)			# Center The Cone
-		# A Cone With A Bottom Radius Of .5 And A Height Of 2 
-		gluCylinder(quadratic,1.0,0.0,3.0,32,32)	
-	elif object == 5:
-		gluPartialDisk(quadratic,0.5,1.5,32,32,0,300)	# A Disk Like The One Before 
-	elif object == 6:
-		glutSolidTeapot(1.0)
+	glTranslatef(0.0,0.0,-1.5)			# Center The Cylinder 
+	gluCylinder(quadratic,1.0,1.0,1.0,32,32)	# A Cylinder With A Radius Of 0.5 And A Height Of 2 
 
-	xrot  = xrot + 0.2				# X rotation
-	yrot = yrot + 0.2				 # Y rotation
-	zrot = zrot + 0.2				 # Z rotation
+	glTranslatef(0.0,0.0,0.0)			# Center The Cylinder 
+	gluCylinder(quadratic,1.0,1.0,1.0,32,32)
+
+	glTranslatef(0.0,0.0,1.5)			# Center The Cylinder 
+	gluCylinder(quadratic,1.0,1.0,1.0,32,32)
+
+
+	#xrot  = xrot + 0.2				# X rotation
+	#yrot = yrot + 0.2				 # Y rotation
+	zrot = zrot + 1				 # Z rotation
+
 
 	#  since this is double buffered, swap the buffers to display what just got drawn. 
 	glutSwapBuffers()
 	
-	def main():
-	usage = """Press L to toggle Lighting
-Press T to change textures
-Press O to change objects"""
-	print usage
+def main():
+
 	global window
 	glutInit(sys.argv)
 
@@ -146,9 +137,6 @@ Press O to change objects"""
 	# Register the function called when our window is resized.
 	glutReshapeFunc(ReSizeGLScene)
 	
-	# Register the function called when the keyboard is pressed.  
-	glutKeyboardFunc(keyPressed)
-
 	# Initialize our window. 
 	InitGL(640, 480)
 
