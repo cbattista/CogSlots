@@ -82,13 +82,13 @@ def DrawGLScene():
 
 	glEnable(GL_LIGHTING)
 
-	glTranslatef(0.0,0.0,-1.5)			# Center The Cylinder 
+	glTranslatef(0.0,0.0,-1.6)			# Center The Cylinder 
 	gluCylinder(quadratic,1.0,1.0,1.0,32,32)	# A Cylinder With A Radius Of 0.5 And A Height Of 2 
 
-	glTranslatef(0.0,0.0,0.0)			# Center The Cylinder 
+	glTranslatef(0.0,0.0,1.1)			# Center The Cylinder 
 	gluCylinder(quadratic,1.0,1.0,1.0,32,32)
 
-	glTranslatef(0.0,0.0,1.5)			# Center The Cylinder 
+	glTranslatef(0.0,0.0,1.1)			# Center The Cylinder 
 	gluCylinder(quadratic,1.0,1.0,1.0,32,32)
 
 
