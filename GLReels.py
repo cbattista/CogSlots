@@ -65,7 +65,7 @@ def LoadTextures():
 def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
 	global quadratic
 	
-	#LoadTextures()
+	LoadTextures()
 
 	quadratic = gluNewQuadric()
 	gluQuadricNormals(quadratic, GLU_SMOOTH)		# Create Smooth Normals (NEW) 
@@ -103,7 +103,7 @@ def ReSizeGLScene(Width, Height):
 	
 	# The main drawing function. 
 def DrawGLScene():
-	global xrot, yrot, zrot, textures, texture_num, object, quadratic, light
+	global xrot, yrot, zrot, textures, texture_num, quadratic, light
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 
@@ -127,11 +127,11 @@ def DrawGLScene():
 	glTranslatef(0.0,0.0,1.1)			# Center The Cylinder 
 	gluCylinder(quadratic,1.0,1.0,1.0,32,32)
 
-	glBindTexture(GL_TEXTURE_2D, textures[2])
+	glBindTexture(GL_TEXTURE_2D, textures[0])
 
 	#xrot  = xrot + 0.2				# X rotation
 	#yrot = yrot + 0.2				 # Y rotation
-	zrot = zrot + 1				 # Z rotation
+	zrot = zrot + 20				 # Z rotation
 
 
 	#  since this is double buffered, swap the buffers to display what just got drawn. 
@@ -158,7 +158,7 @@ def main():
 	# Okay, like the C version we retain the window id to use when closing, but for those of you new
 	# to Python (like myself), remember this assignment would make the variable local and not global
 	# if it weren't for the global declaration at the start of main.
-	window = glutCreateWindow("Jeff Molofee's GL Code Tutorial ... NeHe '99")
+	window = glutCreateWindow("GLReels.py")
 
 	# Register the drawing function with glut, BUT in Python land, at least using PyOpenGL, we need to
 	# set the function pointer and invoke a function to actually register the callback, otherwise it
