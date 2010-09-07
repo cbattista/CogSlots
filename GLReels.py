@@ -18,11 +18,47 @@ Animating
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
+import sys
+from Image import *
 
 # Rotations for cube. 
 zrot = 0.0
 xrot = 0.0
 yrot = 90.0
+
+def LoadTextures():
+	global textures
+	image = open("images/strip.bmp")
+	
+	ix = image.size[0]
+	iy = image.size[1]
+	image = image.tostring("raw", "RGBX", 0, -1)
+	
+	# Create Texture
+	textures = glGenTextures(3)
+	glBindTexture(GL_TEXTURE_2D, int(textures[0]))   # 2d texture (x and y size)
+	
+	glPixelStorei(GL_UNPACK_ALIGNMENT,1)
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+
+	# Create Linear Filtered Texture 
+	glBindTexture(GL_TEXTURE_2D, int(textures[1]))
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR)
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
+
+	# Create MipMapped Texture
+	glBindTexture(GL_TEXTURE_2D, int(textures[2]))
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST)
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, ix, iy, GL_RGBA, GL_UNSIGNED_BYTE, image)
 
 
 # A general OpenGL initialization function.  Sets all of the initial parameters. 
@@ -91,6 +127,7 @@ def DrawGLScene():
 	glTranslatef(0.0,0.0,1.1)			# Center The Cylinder 
 	gluCylinder(quadratic,1.0,1.0,1.0,32,32)
 
+	glBindTexture(GL_TEXTURE_2D, textures[2])
 
 	#xrot  = xrot + 0.2				# X rotation
 	#yrot = yrot + 0.2				 # Y rotation
@@ -123,7 +160,7 @@ def main():
 	# if it weren't for the global declaration at the start of main.
 	window = glutCreateWindow("Jeff Molofee's GL Code Tutorial ... NeHe '99")
 
-   	# Register the drawing function with glut, BUT in Python land, at least using PyOpenGL, we need to
+	# Register the drawing function with glut, BUT in Python land, at least using PyOpenGL, we need to
 	# set the function pointer and invoke a function to actually register the callback, otherwise it
 	# would be very much like the C version of the code.	
 	glutDisplayFunc(DrawGLScene)
