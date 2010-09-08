@@ -19,7 +19,10 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import sys
-from Image import *
+import wx
+import os
+import cfg
+import math
 
 # Rotations for cube. 
 zrot = 0.0
@@ -28,18 +31,20 @@ yrot = 90.0
 
 def LoadTextures():
 	global textures
-	image = open("images/strip.bmp")
-	
-	ix = image.size[0]
-	iy = image.size[1]
-	image = image.tostring("raw", "RGBX", 0, -1)
-	
-	# Create Texture
-	textures = glGenTextures(3)
-	glBindTexture(GL_TEXTURE_2D, int(textures[0]))   # 2d texture (x and y size)
-	
+	imgpath = os.path.join(os.getcwd(), "images", "cherries.png")
+	print imgpath
+		
+	image = wx.Image(imgpath)
+
+	ix = image.GetSize()[0]
+	iy = image.GetSize()[1]
+	image = image.GetData()
+
+	# Create Texture	
+	glBindTexture(GL_TEXTURE_2D, glGenTextures(1))   # 2d texture (x and y size)
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1)
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGB, GL_UNSIGNED_BYTE, image)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
@@ -48,29 +53,12 @@ def LoadTextures():
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
 
-	# Create Linear Filtered Texture 
-	glBindTexture(GL_TEXTURE_2D, int(textures[1]))
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR)
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
-
-	# Create MipMapped Texture
-	glBindTexture(GL_TEXTURE_2D, int(textures[2]))
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST)
-	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, ix, iy, GL_RGBA, GL_UNSIGNED_BYTE, image)
-
 
 # A general OpenGL initialization function.  Sets all of the initial parameters. 
 def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
-	global quadratic
 	
 	LoadTextures()
 
-	quadratic = gluNewQuadric()
-	gluQuadricNormals(quadratic, GLU_SMOOTH)		# Create Smooth Normals (NEW) 
-	gluQuadricTexture(quadratic, GL_TRUE)			# Create Texture Coords (NEW) 
- 
 	glEnable(GL_TEXTURE_2D)
 	glClearColor(0.0, 0.0, 0.0, 0.0)	# This Will Clear The Background Color To Black
 	glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
@@ -100,6 +88,39 @@ def ReSizeGLScene(Width, Height):
 	glLoadIdentity()
 	gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
 	glMatrixMode(GL_MODELVIEW)
+
+def drawCylinder(stops = [], radius=1):
+
+	faces = len(stops)
+	theta = (2 * math.pi) / faces
+	quad_width = (2 * radius * math.sin(theta/2)) / 2
+	
+	a = 0
+	b = 0
+	
+	lastz = a + radius
+	lasty = b
+
+	glBegin(GL_QUADS)			    # Start Drawing The Reel
+		
+	for f in range(1, faces+1):
+		angle = theta * f
+		z = a + (radius * math.cos(angle))
+		y = b + (radius * math.sin(angle))
+		print "QUAD:", lastz, lasty, z, y
+		
+		# Front Face (note that the texture's corners have to match the quad's corners)
+		glTexCoord2f(0.0, 0.0); glVertex3f(quad_width, lasty, lastz)
+		glTexCoord2f(1.0, 0.0); glVertex3f(-quad_width, lasty, lastz)
+		glTexCoord2f(1.0, 1.0); glVertex3f(-quad_width, y, z)
+		glTexCoord2f(0.0, 1.0); glVertex3f(quad_width, y, z)
+
+		
+		lastz = z
+		lasty = y
+	
+	glEnd(); #done drawing the reel
+		
 	
 	# The main drawing function. 
 def DrawGLScene():
@@ -110,29 +131,20 @@ def DrawGLScene():
 	glLoadIdentity()					# Reset The View
 	glTranslatef(0.0,0.0,-5.0)			# Move Into The Screen
 
-	glRotatef(xrot,1.0,0.0,0.0)			# Rotate The Cube On It's X Axis
-	glRotatef(yrot,0.0,1.0,0.0)			# Rotate The Cube On It's Y Axis
-	glRotatef(zrot,0.0,0.0,1.0)			# Rotate The Cube On It's Z Axis
 	
 	#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
 	glEnable(GL_LIGHTING)
 
-	glTranslatef(0.0,0.0,-1.6)			# Center The Cylinder 
-	gluCylinder(quadratic,1.0,1.0,1.0,32,32)	# A Cylinder With A Radius Of 0.5 And A Height Of 2 
+	stops = [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR]
+	
+	glRotatef(xrot,1.0,0.0,0.0)	
+	
+	drawCylinder(stops, 1)
+	
+	#glBindTexture(GL_TEXTURE_2D, textures[0])
 
-	glTranslatef(0.0,0.0,1.1)			# Center The Cylinder 
-	gluCylinder(quadratic,1.0,1.0,1.0,32,32)
-
-	glTranslatef(0.0,0.0,1.1)			# Center The Cylinder 
-	gluCylinder(quadratic,1.0,1.0,1.0,32,32)
-
-	glBindTexture(GL_TEXTURE_2D, textures[0])
-
-	#xrot  = xrot + 0.2				# X rotation
-	#yrot = yrot + 0.2				 # Y rotation
-	zrot = zrot + 20				 # Z rotation
-
+	xrot  = xrot + 0.2				# X rotation
 
 	#  since this is double buffered, swap the buffers to display what just got drawn. 
 	glutSwapBuffers()
