@@ -31,32 +31,46 @@ yrot = 90.0
 
 def LoadTextures():
 	global textures
-	imgpath = os.path.join(os.getcwd(), "images", "cherries.png")
-	print imgpath
+	global stops
+	global images
+	
+	count = 0
+	
+	images = list(set(stops))
+	
+	print images, stops
+	
+	textures = glGenTextures(len(images))
+	
+	print textures
+	
+	for i in images:
+	
+		imgpath = os.path.join(os.getcwd(), "images", i)
+		print imgpath
+			
+		image = wx.Image(imgpath)
+
+		ix = image.GetSize()[0]
+		iy = image.GetSize()[1]
+		image = image.GetData()
+
+		# Create Texture	
+
+		glBindTexture(GL_TEXTURE_2D, int(textures[count]))   # 2d texture (x and y size)
+
+		print count
 		
-	image = wx.Image(imgpath)
-
-	ix = image.GetSize()[0]
-	iy = image.GetSize()[1]
-	image = image.GetData()
-
-	# Create Texture	
-	glBindTexture(GL_TEXTURE_2D, glGenTextures(1))   # 2d texture (x and y size)
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT,1)
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGB, GL_UNSIGNED_BYTE, image)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR)
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGB, GL_UNSIGNED_BYTE, image)
+		
+		count += 1
 
 
 # A general OpenGL initialization function.  Sets all of the initial parameters. 
 def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
-	
+		
 	LoadTextures()
 
 	glEnable(GL_TEXTURE_2D)
@@ -90,7 +104,9 @@ def ReSizeGLScene(Width, Height):
 	glMatrixMode(GL_MODELVIEW)
 
 def drawCylinder(stops = [], radius=1):
-
+	
+	global images, textures
+	
 	faces = len(stops)
 	theta = (2 * math.pi) / faces
 	quad_width = (2 * radius * math.sin(theta/2)) / 2
@@ -101,31 +117,37 @@ def drawCylinder(stops = [], radius=1):
 	lastz = a + radius
 	lasty = b
 
-	glBegin(GL_QUADS)			    # Start Drawing The Reel
 		
 	for f in range(1, faces+1):
+	
+		face = stops[f-1]
+		
+		texture_num = images.index(face)
 		angle = theta * f
+	
 		z = a + (radius * math.cos(angle))
 		y = b + (radius * math.sin(angle))
-		print "QUAD:", lastz, lasty, z, y
 		
-		# Front Face (note that the texture's corners have to match the quad's corners)
-		glTexCoord2f(0.0, 0.0); glVertex3f(quad_width, lasty, lastz)
-		glTexCoord2f(1.0, 0.0); glVertex3f(-quad_width, lasty, lastz)
-		glTexCoord2f(1.0, 1.0); glVertex3f(-quad_width, y, z)
-		glTexCoord2f(0.0, 1.0); glVertex3f(quad_width, y, z)
+		#print texture_num, textures[texture_num]
 
+		glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
+
+		glBegin(GL_QUADS)
+	
+		glTexCoord2f(1.0, 1.0); glVertex3f(quad_width, lasty, lastz)
+		glTexCoord2f(0.0, 1.0); glVertex3f(-quad_width, lasty, lastz)
+		glTexCoord2f(0.0, 0.0); glVertex3f(-quad_width, y, z)
+		glTexCoord2f(1.0, 0.0); glVertex3f(quad_width, y, z)
 		
 		lastz = z
 		lasty = y
 	
-	glEnd(); #done drawing the reel
+		glEnd() #done drawing the reel
 		
 	
 	# The main drawing function. 
 def DrawGLScene():
-	global xrot, yrot, zrot, textures, texture_num, quadratic, light
-
+	global xrot, yrot, zrot, textures, texture_num, quadratic, light, stops
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 
 	glLoadIdentity()					# Reset The View
@@ -134,9 +156,7 @@ def DrawGLScene():
 	
 	#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
-	glEnable(GL_LIGHTING)
-
-	stops = [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR]
+	#glEnable(GL_LIGHTING)
 	
 	glRotatef(xrot,1.0,0.0,0.0)	
 	
@@ -144,7 +164,7 @@ def DrawGLScene():
 	
 	#glBindTexture(GL_TEXTURE_2D, textures[0])
 
-	xrot  = xrot + 0.2				# X rotation
+	xrot  = xrot + 1				# X rotation
 
 	#  since this is double buffered, swap the buffers to display what just got drawn. 
 	glutSwapBuffers()
@@ -152,8 +172,11 @@ def DrawGLScene():
 def main():
 
 	global window
+	global stops
 	glutInit(sys.argv)
 
+	stops = [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR]
+	
 	# Select type of Display mode:   
 	#  Double buffer 
 	#  RGBA color
