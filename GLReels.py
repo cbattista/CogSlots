@@ -28,6 +28,7 @@ import math
 zrot = 0.0
 xrot = 0.0
 yrot = 90.0
+inc = 0
 
 def LoadTextures():
 	global textures
@@ -103,7 +104,7 @@ def ReSizeGLScene(Width, Height):
 	gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
 	glMatrixMode(GL_MODELVIEW)
 
-def drawCylinder(stops = [], radius=1):
+def drawCylinder(stops = [], radius=1, xshift=0, xrot=0):
 	
 	global images, textures
 	
@@ -117,6 +118,7 @@ def drawCylinder(stops = [], radius=1):
 	lastz = a + radius
 	lasty = b
 
+	glRotatef(xrot,1.0,0.0,0.0)
 		
 	for f in range(1, faces+1):
 	
@@ -134,22 +136,23 @@ def drawCylinder(stops = [], radius=1):
 
 		glBegin(GL_QUADS)
 	
-		glTexCoord2f(1.0, 1.0); glVertex3f(quad_width, lasty, lastz)
-		glTexCoord2f(0.0, 1.0); glVertex3f(-quad_width, lasty, lastz)
-		glTexCoord2f(0.0, 0.0); glVertex3f(-quad_width, y, z)
-		glTexCoord2f(1.0, 0.0); glVertex3f(quad_width, y, z)
+		glTexCoord2f(1.0, 1.0); glVertex3f(quad_width + xshift, lasty, lastz)
+		glTexCoord2f(0.0, 1.0); glVertex3f(-quad_width + xshift, lasty, lastz)
+		glTexCoord2f(0.0, 0.0); glVertex3f(-quad_width + xshift, y, z)
+		glTexCoord2f(1.0, 0.0); glVertex3f(quad_width + xshift, y, z)
 		
 		lastz = z
 		lasty = y
 	
 		glEnd() #done drawing the reel
 		
+	glRotatef(-xrot,1.0,0.0,0.0)
 	
 	# The main drawing function. 
 def DrawGLScene():
-	global xrot, yrot, zrot, textures, texture_num, quadratic, light, stops
+	global xrot, yrot, zrot, textures, texture_num, quadratic, light, stops, inc
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
-
+	
 	glLoadIdentity()					# Reset The View
 	glTranslatef(0.0,0.0,-5.0)			# Move Into The Screen
 
@@ -158,16 +161,28 @@ def DrawGLScene():
 
 	#glEnable(GL_LIGHTING)
 	
-	glRotatef(xrot,1.0,0.0,0.0)	
+		
 	
-	drawCylinder(stops, 1)
+	drawCylinder(stops, 1.5, -.65, xrot)
+	drawCylinder(stops, 1.5, 0, xrot)
+	drawCylinder(stops, 1.5, .65, xrot)
 	
 	#glBindTexture(GL_TEXTURE_2D, textures[0])
 
-	xrot  = xrot + 1				# X rotation
+	xrot  = xrot + inc
+	
+	#inc = inc - 0.05
+	#print inc
 
 	#  since this is double buffered, swap the buffers to display what just got drawn. 
 	glutSwapBuffers()
+
+def keyPressed(key, x, y):
+	global inc
+	# If escape is pressed, kill everything.
+	if key == 's':
+		#SPIN!
+		inc = 20
 	
 def main():
 
@@ -175,7 +190,7 @@ def main():
 	global stops
 	glutInit(sys.argv)
 
-	stops = [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR]
+	stops = [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES,]
 	
 	# Select type of Display mode:   
 	#  Double buffer 
@@ -208,6 +223,8 @@ def main():
 	
 	# Register the function called when our window is resized.
 	glutReshapeFunc(ReSizeGLScene)
+	
+	glutKeyboardFunc(keyPressed)
 	
 	# Initialize our window. 
 	InitGL(640, 480)
