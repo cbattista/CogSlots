@@ -161,8 +161,6 @@ def DrawGLScene():
 
 	#glEnable(GL_LIGHTING)
 	
-		
-	
 	drawCylinder(stops, 1.5, -.65, xrot)
 	drawCylinder(stops, 1.5, 0, xrot)
 	drawCylinder(stops, 1.5, .65, xrot)
@@ -171,6 +169,12 @@ def DrawGLScene():
 
 	xrot  = xrot + inc
 	
+	if xrot >= 1200:
+		inc = inc - 2
+		
+	if inc <= 0:
+		inc = 0
+	
 	#inc = inc - 0.05
 	#print inc
 
@@ -178,11 +182,13 @@ def DrawGLScene():
 	glutSwapBuffers()
 
 def keyPressed(key, x, y):
-	global inc
+	global inc, xrot
 	# If escape is pressed, kill everything.
 	if key == 's':
+		xrot = xrot % 360
 		#SPIN!
-		inc = 20
+		inc = 20	
+	
 	
 def main():
 
@@ -190,7 +196,9 @@ def main():
 	global stops
 	glutInit(sys.argv)
 
-	stops = [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES,]
+	stops = [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES]
+	
+	stopAt = [5, 8, 14]
 	
 	# Select type of Display mode:   
 	#  Double buffer 
