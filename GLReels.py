@@ -26,16 +26,22 @@ import math
 
 # Rotations for cube. 
 zrot = 0.0
-xrot = 0.0
+xrot = [0.0, 0.0, 0.0]
 yrot = 90.0
+xpos = [-.65, 0, .65]
 inc = 0
 
 def LoadTextures():
 	global textures
-	global stops
+	global allstops
 	global images
 	
 	count = 0
+	
+	stops = []
+	
+	for s in allstops:
+		stops = stops + s
 	
 	images = list(set(stops))
 	
@@ -104,11 +110,11 @@ def ReSizeGLScene(Width, Height):
 	gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
 	glMatrixMode(GL_MODELVIEW)
 
-def drawCylinder(stops = [], radius=1, xshift=0, xrot=0):
+def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0):
 	
 	global images, textures
 	
-	faces = len(stops)
+	faces = len(reelStops)
 	theta = (2 * math.pi) / faces
 	quad_width = (2 * radius * math.sin(theta/2)) / 2
 	
@@ -122,7 +128,7 @@ def drawCylinder(stops = [], radius=1, xshift=0, xrot=0):
 		
 	for f in range(1, faces+1):
 	
-		face = stops[f-1]
+		face = reelStops[f-1]
 		
 		texture_num = images.index(face)
 		angle = theta * f
@@ -150,7 +156,7 @@ def drawCylinder(stops = [], radius=1, xshift=0, xrot=0):
 	
 	# The main drawing function. 
 def DrawGLScene():
-	global xrot, yrot, zrot, textures, texture_num, quadratic, light, stops, inc
+	global xrot, xpos, textures, texture_num, quadratic, light, inc
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	
 	glLoadIdentity()					# Reset The View
@@ -161,15 +167,16 @@ def DrawGLScene():
 
 	#glEnable(GL_LIGHTING)
 	
-	drawCylinder(stops, 1.5, -.65, xrot)
-	drawCylinder(stops, 1.5, 0, xrot)
-	drawCylinder(stops, 1.5, .65, xrot)
+	for s, p, r in zip(allstops, xpos, xrot):
+		drawCylinder(s, 1.5, p, r)
+	#drawCylinder(allstops[1], 1.5, 0, xrot)
+	#drawCylinder(allstops[2], 1.5, .65, xrot)
 	
 	#glBindTexture(GL_TEXTURE_2D, textures[0])
 
-	xrot  = xrot + inc
+	xrot = map(lambda x: x + inc, xrot)
 	
-	if xrot >= 1200:
+	if xrot[0] >= 1200:
 		inc = inc - 2
 		
 	if inc <= 0:
@@ -185,18 +192,18 @@ def keyPressed(key, x, y):
 	global inc, xrot
 	# If escape is pressed, kill everything.
 	if key == 's':
-		xrot = xrot % 360
+		xrot = map(lambda x: x % 360, xrot)
 		#SPIN!
-		inc = 20	
+		inc = 25	
 	
 	
 def main():
 
 	global window
-	global stops
+	global allstops
 	glutInit(sys.argv)
 
-	stops = [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES]
+	allstops = [[cfg.IM_CHERRIES, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES], [cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES], [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR]]
 	
 	stopAt = [5, 8, 14]
 	
