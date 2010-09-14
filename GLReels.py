@@ -45,8 +45,6 @@ def LoadTextures():
 	
 	images = list(set(stops))
 	
-	print images, stops
-	
 	textures = glGenTextures(len(images))
 	
 	print textures
@@ -110,13 +108,14 @@ def ReSizeGLScene(Width, Height):
 	gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
 	glMatrixMode(GL_MODELVIEW)
 
-def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0):
+def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0, stopAt=0):
 	
 	global images, textures
 	
 	faces = len(reelStops)
 	theta = (2 * math.pi) / faces
 	quad_width = (2 * radius * math.sin(theta/2)) / 2
+	stopAngle = theta * stopAt
 	
 	a = 0
 	b = 0
@@ -153,10 +152,11 @@ def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0):
 		glEnd() #done drawing the reel
 		
 	glRotatef(-xrot,1.0,0.0,0.0)
+	return stopAngle
 	
 	# The main drawing function. 
 def DrawGLScene():
-	global xrot, xpos, textures, texture_num, quadratic, light, inc
+	global xrot, xpos, textures, texture_num, quadratic, light, inc, settle
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	
 	glLoadIdentity()					# Reset The View
@@ -167,20 +167,37 @@ def DrawGLScene():
 
 	#glEnable(GL_LIGHTING)
 	
-	for s, p, r in zip(allstops, xpos, xrot):
-		drawCylinder(s, 1.5, p, r)
+	stopAngles = []
+	
+	for s, p, r, stop in zip(allstops, xpos, xrot, stopAt):
+		sa = drawCylinder(s, 1.5, p, r, stop)
+		stopAngles.append(sa)
 	#drawCylinder(allstops[1], 1.5, 0, xrot)
 	#drawCylinder(allstops[2], 1.5, .65, xrot)
 	
 	#glBindTexture(GL_TEXTURE_2D, textures[0])
 
-	xrot = map(lambda x: x + inc, xrot)
+	
 	
 	if xrot[0] >= 1200:
-		inc = inc - 2
+		settle = True
+		xrot = map(lambda x: x % 360, xrot)
 		
-	if inc <= 0:
-		inc = 0
+	if settle:
+		inc = inc - 1
+		if inc <= 1:
+			inc = 1
+		count = 0
+		for xr, sa in zip(xrot, stopAngles):
+			print xr, sa
+			if int(xr % 360) == int(sa):
+				xrot[count] = xr
+			else:
+				xrot[count] = xr + inc
+			count += 1
+	else:
+		xrot = map(lambda x: x + inc, xrot)
+	
 	
 	#inc = inc - 0.05
 	#print inc
@@ -189,24 +206,25 @@ def DrawGLScene():
 	glutSwapBuffers()
 
 def keyPressed(key, x, y):
-	global inc, xrot
+	global inc, xrot, settle
 	# If escape is pressed, kill everything.
 	if key == 's':
-		xrot = map(lambda x: x % 360, xrot)
+		settle = False
+		#xrot = map(lambda x: x % 360, xrot)
 		#SPIN!
-		inc = 25	
+		inc = 30	
 	
 	
 def main():
 
 	global window
-	global allstops
+	global allstops, stopAt, settle
 	glutInit(sys.argv)
 
 	allstops = [[cfg.IM_CHERRIES, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES], [cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES], [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR]]
-	
-	stopAt = [5, 8, 14]
-	
+		
+	stopAt = [12, 6, 14]
+	settle = False
 	# Select type of Display mode:   
 	#  Double buffer 
 	#  RGBA color
@@ -249,5 +267,4 @@ def main():
 
 
 # Print message to console, and kick off the main to get it rolling.
-print "Hit ESC key to quit."
 main()
