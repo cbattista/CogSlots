@@ -28,8 +28,44 @@ import math
 zrot = 0.0
 xrot = [0.0, 0.0, 0.0]
 yrot = 90.0
-xpos = [-.65, 0, .65]
+#xpos = [-.65, 0, .65]
 inc = 0
+
+def fitScreen():
+	#get viewport origin and extent
+	global xpos, inset
+
+	viewport = glGetIntegerv(GL_VIEWPORT)
+	x = viewport[0]
+	y = viewport[1]
+	width = viewport[2]
+	height = viewport[3]
+	
+	#get modelview & projection matrix information
+	modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
+	projection = glGetDoublev(GL_PROJECTION_MATRIX)
+	
+	reels = len(allstops)
+	
+	reelWidth = windowSize[0] / reels
+	
+	winY = windowSize[1]/2
+	
+	count = 1
+	#coords = []
+	xpos = []
+	
+	for r in range(reels):
+		winX = reelWidth * count - (reelWidth/2)
+		#winZ = glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT)
+		#print winZ
+		c = gluUnProject(winX, winY, 0, modelview, projection, viewport)
+		print c
+		xpos.append(c[0])
+		count+=1
+	
+	inset = c[2]
+	
 
 def LoadTextures():
 	global textures
@@ -97,6 +133,8 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	glLightfv(GL_LIGHT0, GL_POSITION, (0.0, 0.0, 2.0, 1.0))	# Position The Light 
 	glEnable(GL_LIGHT0)					# Enable Light One 
 	
+	fitScreen()
+	
 	# The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
 def ReSizeGLScene(Width, Height):
 	if Height == 0:						# Prevent A Divide By Zero If The Window Is Too Small 
@@ -110,12 +148,12 @@ def ReSizeGLScene(Width, Height):
 
 def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0, stopAt=0):
 	
-	global images, textures
+	#global images, textures
 	
 	faces = len(reelStops)
 	theta = (2 * math.pi) / faces
 	quad_width = (2 * radius * math.sin(theta/2)) / 2
-	stopAngle = theta * stopAt
+	stopAngle = theta * stopAt - (theta/2)
 	
 	a = 0
 	b = 0
@@ -156,11 +194,13 @@ def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0, stopAt=0):
 	
 	# The main drawing function. 
 def DrawGLScene():
-	global xrot, xpos, textures, texture_num, quadratic, light, inc, settle
+	global xrot, xpos, textures, texture_num, quadratic, light, inc, settle, radius, inset
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	
+	#inset = -5.0
+	
 	glLoadIdentity()					# Reset The View
-	glTranslatef(0.0,0.0,-5.0)			# Move Into The Screen
+	glTranslatef(0.0,0.0,inset)			# Move Into The Screen
 
 	
 	#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
@@ -169,8 +209,10 @@ def DrawGLScene():
 	
 	stopAngles = []
 	
+	radius = 1.5
+	
 	for s, p, r, stop in zip(allstops, xpos, xrot, stopAt):
-		sa = drawCylinder(s, 1.5, p, r, stop)
+		sa = drawCylinder(s, radius, p, r, stop)
 		stopAngles.append(sa)
 	#drawCylinder(allstops[1], 1.5, 0, xrot)
 	#drawCylinder(allstops[2], 1.5, .65, xrot)
@@ -179,17 +221,17 @@ def DrawGLScene():
 
 	
 	
-	if xrot[0] >= 1200:
+	if xrot[0] >= 1440:
 		settle = True
 		xrot = map(lambda x: x % 360, xrot)
 		
 	if settle:
 		inc = inc - 1
-		if inc <= 1:
+		if inc < 1:
 			inc = 1
 		count = 0
 		for xr, sa in zip(xrot, stopAngles):
-			print xr, sa
+			#print xr, sa
 			if int(xr % 360) == int(sa):
 				xrot[count] = xr
 			else:
@@ -206,7 +248,7 @@ def DrawGLScene():
 	glutSwapBuffers()
 
 def keyPressed(key, x, y):
-	global inc, xrot, settle
+	global inc, settle
 	# If escape is pressed, kill everything.
 	if key == 's':
 		settle = False
@@ -218,39 +260,29 @@ def keyPressed(key, x, y):
 def main():
 
 	global window
-	global allstops, stopAt, settle
+	global allstops, stopAt, settle, windowSize
 	glutInit(sys.argv)
 
 	allstops = [[cfg.IM_CHERRIES, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES], [cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES], [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR]]
 		
-	stopAt = [12, 6, 14]
+	stopAt = [-1, -1, -1]
 	settle = False
-	# Select type of Display mode:   
-	#  Double buffer 
-	#  RGBA color
-	# Alpha components supported 
-	# Depth buffer
+	
+	windowSize = (480, 640)
+
+	#Set Display Mode
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
 	
-	# get a 640 x 480 window 
-	glutInitWindowSize(640, 480)
+	glutInitWindowSize(windowSize[0], windowSize[1])
 	
 	# the window starts at the upper left corner of the screen 
 	glutInitWindowPosition(0, 0)
 	
-	# Okay, like the C version we retain the window id to use when closing, but for those of you new
-	# to Python (like myself), remember this assignment would make the variable local and not global
-	# if it weren't for the global declaration at the start of main.
 	window = glutCreateWindow("GLReels.py")
 
-	# Register the drawing function with glut, BUT in Python land, at least using PyOpenGL, we need to
-	# set the function pointer and invoke a function to actually register the callback, otherwise it
-	# would be very much like the C version of the code.	
+	# Register the drawing function with glut
 	glutDisplayFunc(DrawGLScene)
 	
-	# Uncomment this line to get full screen.
-	# glutFullScreen()
-
 	# When we are doing nothing, redraw the scene.
 	glutIdleFunc(DrawGLScene)
 	
@@ -260,11 +292,9 @@ def main():
 	glutKeyboardFunc(keyPressed)
 	
 	# Initialize our window. 
-	InitGL(640, 480)
-
+	InitGL(windowSize[0], windowSize[1])
+	
 	# Start Event Processing Engine	
 	glutMainLoop()
 
-
-# Print message to console, and kick off the main to get it rolling.
 main()
