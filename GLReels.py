@@ -25,46 +25,43 @@ import cfg
 import math
 
 # Rotations for cube. 
-zrot = 0.0
 xrot = [0.0, 0.0, 0.0]
-yrot = 90.0
-#xpos = [-.65, 0, .65]
 inc = 0
 
 def fitScreen():
 	#get viewport origin and extent
-	global xpos, inset
+	global xpos, inset, radius, quad_width, theta
 
 	viewport = glGetIntegerv(GL_VIEWPORT)
-	x = viewport[0]
-	y = viewport[1]
-	width = viewport[2]
-	height = viewport[3]
+	
+	for v in viewport:
+		print v
 	
 	#get modelview & projection matrix information
 	modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
 	projection = glGetDoublev(GL_PROJECTION_MATRIX)
 	
+	
 	reels = len(allstops)
 	
-	reelWidth = windowSize[0] / reels
+	quad_width = windowSize[0] / reels
 	
-	winY = windowSize[1]/2
+	winY = windowSize[1] / 2
 	
 	count = 1
 	#coords = []
 	xpos = []
 	
 	for r in range(reels):
-		winX = reelWidth * count - (reelWidth/2)
-		#winZ = glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT)
-		#print winZ
-		c = gluUnProject(winX, winY, 0, modelview, projection, viewport)
-		print c
-		xpos.append(c[0])
+		winX = quad_width * count - (quad_width/2)
+		xpos.append(winX)
 		count+=1
+			
+	faces = len(allstops[0])
+	theta = (2 * math.pi) / faces
+	radius = quad_width / math.sin(theta/2)
+	inset = 0
 	
-	inset = c[2]
 	
 
 def LoadTextures():
@@ -83,12 +80,9 @@ def LoadTextures():
 	
 	textures = glGenTextures(len(images))
 	
-	print textures
-	
 	for i in images:
 	
 		imgpath = os.path.join(os.getcwd(), "images", i)
-		print imgpath
 			
 		image = wx.Image(imgpath)
 
@@ -100,8 +94,6 @@ def LoadTextures():
 
 		glBindTexture(GL_TEXTURE_2D, int(textures[count]))   # 2d texture (x and y size)
 
-		print count
-		
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR)
 		glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGB, GL_UNSIGNED_BYTE, image)
@@ -121,10 +113,17 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	glEnable(GL_DEPTH_TEST)				# Enables Depth Testing
 	glShadeModel(GL_SMOOTH)				# Enables Smooth Color Shading
 	
+	glViewport(0, 0, Width, Height)
+	
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()					# Reset The Projection Matrix
-										# Calculate The Aspect Ratio Of The Window
-	gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
+	
+	# Set up orthographic project here
+	
+	#glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near, GLdouble far);
+	
+	glOrtho(0, Width, 0, Height, -1000, 0)
+	#gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
 
 	glMatrixMode(GL_MODELVIEW)
 
@@ -135,28 +134,17 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	
 	fitScreen()
 	
-	# The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
-def ReSizeGLScene(Width, Height):
-	if Height == 0:						# Prevent A Divide By Zero If The Window Is Too Small 
-		Height = 1
-
-	glViewport(0, 0, Width, Height)		# Reset The Current Viewport And Perspective Transformation
-	glMatrixMode(GL_PROJECTION)
-	glLoadIdentity()
-	gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
-	glMatrixMode(GL_MODELVIEW)
-
-def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0, stopAt=0):
+def drawCylinder(reelStops = [], xshift=0, xrot=0, stopAt=0):
 	
 	#global images, textures
 	
 	faces = len(reelStops)
-	theta = (2 * math.pi) / faces
-	quad_width = (2 * radius * math.sin(theta/2)) / 2
+	#quad_width = (2 * radius * math.sin(theta/2)) / 2
+		
 	stopAngle = theta * stopAt - (theta/2)
 	
 	a = 0
-	b = 0
+	b = windowSize[1] / 2
 	
 	lastz = a + radius
 	lasty = b
@@ -172,6 +160,8 @@ def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0, stopAt=0):
 	
 		z = a + (radius * math.cos(angle))
 		y = b + (radius * math.sin(angle))
+		
+		print y, z
 		
 		#print texture_num, textures[texture_num]
 
@@ -194,7 +184,7 @@ def drawCylinder(reelStops = [], radius=1, xshift=0, xrot=0, stopAt=0):
 	
 	# The main drawing function. 
 def DrawGLScene():
-	global xrot, xpos, textures, texture_num, quadratic, light, inc, settle, radius, inset
+	global xrot, textures, texture_num, inc, settle, radius, inset
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	
 	#inset = -5.0
@@ -208,11 +198,9 @@ def DrawGLScene():
 	#glEnable(GL_LIGHTING)
 	
 	stopAngles = []
-	
-	radius = 1.5
-	
+		
 	for s, p, r, stop in zip(allstops, xpos, xrot, stopAt):
-		sa = drawCylinder(s, radius, p, r, stop)
+		sa = drawCylinder(s, p, r, stop)
 		stopAngles.append(sa)
 	#drawCylinder(allstops[1], 1.5, 0, xrot)
 	#drawCylinder(allstops[2], 1.5, .65, xrot)
@@ -268,7 +256,7 @@ def main():
 	stopAt = [-1, -1, -1]
 	settle = False
 	
-	windowSize = (480, 640)
+	windowSize = (300, 500)
 
 	#Set Display Mode
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
@@ -285,10 +273,7 @@ def main():
 	
 	# When we are doing nothing, redraw the scene.
 	glutIdleFunc(DrawGLScene)
-	
-	# Register the function called when our window is resized.
-	glutReshapeFunc(ReSizeGLScene)
-	
+		
 	glutKeyboardFunc(keyPressed)
 	
 	# Initialize our window. 
