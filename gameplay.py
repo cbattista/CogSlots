@@ -172,58 +172,6 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 		return 360 - abs(deg)
 	else:
 		return deg
-	
-	# The main drawing function. 
-def DrawGLScene():
-	global xrot, textures, texture_num, settle, radius, inset, inc, settle
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
-	
-	#inset = -5.0
-	
-	glLoadIdentity()					# Reset The View
-	glTranslatef(0.0,windowSize[1]/2 - quad_width/2,0.0)			# Move Into The Screen
-
-	
-	#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
-
-	#glEnable(GL_LIGHTING)
-	
-	stopAngles = []
-		
-	for s, p, r, stop in zip(allstops, xpos, xrot, stopAt):
-		sa = drawCylinder(s, p, r, stop)
-		stopAngles.append(sa)
-	#drawCylinder(allstops[1], 1.5, 0, xrot)
-	#drawCylinder(allstops[2], 1.5, .65, xrot)
-	
-	#glBindTexture(GL_TEXTURE_2D, textures[0])
-	if xrot[0] >= 1440:
-		settle = True
-		xrot = map(lambda x: x % 360, xrot)
-		
-	if settle:
-		inc = inc - 1
-		if inc < 1:
-			inc = 1
-		count = 0
-		for xr, sa in zip(xrot, stopAngles):
-			if int(xr % 360) == int(sa):
-				print xr, sa
-				xrot[count] = xr
-			else:
-				print xr, sa
-				xrot[count] = xr + inc
-			count += 1
-	else:
-		xrot = map(lambda x: x + inc, xrot)
-	
-	
-	#inc = inc - 0.05
-	#print inc
-
-	#  since this is double buffered, swap the buffers to display what just got drawn. 
-	#glutSwapBuffers()
-
 
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
@@ -407,7 +355,6 @@ class GamePlayGUI(wx.Frame):
 				symbolList.append(r.symbols[s])
 			allstops.append(symbolList)
 		
-		print allstops
 		
 		xrot = [0.0] * len(allstops)
 		stopAt = [0] * len(allstops)
@@ -421,19 +368,24 @@ class GamePlayGUI(wx.Frame):
 		# Create the canvas
 		self.reelBox = glcanvas.GLCanvas(self, attribList=attribList)
 		self.reelBox.SetSize(windowSize)
-		
+		self.reelBox.Refresh(True)
 		#
 		# Set the event handlers.
 		self.reelBox.Bind(wx.EVT_ERASE_BACKGROUND, self.processEraseBackgroundEvent)
 		self.reelBox.Bind(wx.EVT_SIZE, self.processSizeEvent)
 		self.reelBox.Bind(wx.EVT_PAINT, self.processPaintEvent)
-				
+		
+		self.timer = wx.Timer(self)
+		self.Bind(wx.EVT_TIMER, self.OnDraw, self.timer)
+		
 		sizer.Add(self.reelBox)
 	
 	def spin(self):
 		global settle, inc, stopAt
 
 		imageList, payline, stopAt = self.slots.spin(2)
+		self.timer.Start(1)
+
 		
 		print stopAt
 		
@@ -617,7 +569,6 @@ class GamePlayGUI(wx.Frame):
 
 			size = self.GetGLExtents()
 			self.OnReshape(size.width, size.height)
-			self.reelBox.Refresh(False)
 		event.Skip()
 
 	def processPaintEvent(self, event):
@@ -651,7 +602,47 @@ class GamePlayGUI(wx.Frame):
 
 	def OnDraw(self, *args, **kwargs):
 		"Draw the window."
-		DrawGLScene()
+		global xrot, textures, texture_num, settle, radius, inset, inc, settle
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
+		
+		#inset = -5.0
+		
+		glLoadIdentity()					# Reset The View
+		glTranslatef(0.0,windowSize[1]/2 - quad_width/2,0.0)			# Move Into The Screen
+
+		
+		#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
+
+		#glEnable(GL_LIGHTING)
+		
+		stopAngles = []
+			
+		for s, p, r, stop in zip(allstops, xpos, xrot, stopAt):
+			sa = drawCylinder(s, p, r, stop)
+			stopAngles.append(sa)
+		#drawCylinder(allstops[1], 1.5, 0, xrot)
+		#drawCylinder(allstops[2], 1.5, .65, xrot)
+		
+		#glBindTexture(GL_TEXTURE_2D, textures[0])
+		if xrot[0] >= 1440:
+			settle = True
+			xrot = map(lambda x: x % 360, xrot)
+
+		#print settle
+			
+		if settle:
+			inc = inc - 1
+			if inc < 1:
+				inc = 1
+			count = 0
+			for xr, sa in zip(xrot, stopAngles):
+				if int(xr % 360) == int(sa):
+					xrot[count] = xr
+				else:
+					xrot[count] = xr + inc
+				count += 1
+		else:
+			xrot = map(lambda x: x + inc, xrot)
 		self.SwapBuffers()
 
 		

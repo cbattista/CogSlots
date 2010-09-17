@@ -186,7 +186,7 @@ class Reel:
 		for p in post:
 			postSymbols.append(self.symbols[p])
 
-		return preSymbols, self.symbols[symbolIndex], postSymbols, symbolIndex
+		return preSymbols, self.symbols[symbolIndex], postSymbols, stopNum
 
 	def __str__(self):
 		output = ""
