@@ -2,7 +2,13 @@
 
 import sys
 import os
+import math
+
+from OpenGL.GL import *
+
 import wx
+from wx import glcanvas
+
 import cfg
 import commongui
 from Settings import Settings
@@ -11,12 +17,220 @@ from CogSub import Subject
 import pickle
 import subjectinfo
 
+def fitScreen():
+	#get viewport origin and extent
+	global xpos, inset, radius, quad_width, theta
+
+	viewport = glGetIntegerv(GL_VIEWPORT)
+		
+	#get modelview & projection matrix information
+	modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
+	projection = glGetDoublev(GL_PROJECTION_MATRIX)
+	
+	
+	reels = len(allstops)
+	
+	quad_width = windowSize[0] / reels
+	
+	winY = windowSize[1] / 2
+	
+	count = 0
+	#coords = []
+	xpos = []
+	#quad_width = 20
+	
+	for r in range(reels):
+		xpos.append([quad_width * (count + 1), quad_width * count, quad_width * count, quad_width * (count + 1)])
+		count+=1
+	
+	faces = len(allstops[0])
+	theta = (2 * math.pi) / faces
+	radius = quad_width / math.sin(theta/2) / 2
+	inset = 0
+	
+
+def LoadTextures():
+	global textures
+	global allstops
+	global images
+	
+	count = 0
+	
+	stops = []
+	
+	for s in allstops:
+		stops = stops + s
+	
+	images = list(set(stops))
+	
+	textures = glGenTextures(len(images))
+	
+	for i in images:
+	
+		imgpath = os.path.join(os.getcwd(), "images", i)
+			
+		image = wx.Image(imgpath)
+
+		ix = image.GetSize()[0]
+		iy = image.GetSize()[1]
+		image = image.GetData()
+
+		# Create Texture	
+
+		glBindTexture(GL_TEXTURE_2D, int(textures[count]))   # 2d texture (x and y size)
+
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR)
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGB, GL_UNSIGNED_BYTE, image)
+		
+		count += 1
+
+
+# A general OpenGL initialization function.  Sets all of the initial parameters. 
+def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
+		
+	LoadTextures()
+
+	glEnable(GL_TEXTURE_2D)
+	glClearColor(0.0, 0.0, 0.0, 0.0)	# This Will Clear The Background Color To Black
+	glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
+	glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
+	glEnable(GL_DEPTH_TEST)				# Enables Depth Testing
+	glShadeModel(GL_SMOOTH)				# Enables Smooth Color Shading
+	
+	glViewport(0, 0, Width, Height)
+	
+	glMatrixMode(GL_PROJECTION)
+	glLoadIdentity()					# Reset The Projection Matrix
+	
+	# Set up orthographic project here
+	
+	#glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near, GLdouble far);
+	
+	glOrtho(0, Width, 0, Height, -1000, 0)
+	#gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
+
+	glMatrixMode(GL_MODELVIEW)
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, (0.5, 0.5, 0.5, 1.0))		# Setup The Ambient Light 
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))		# Setup The Diffuse Light 
+	glLightfv(GL_LIGHT0, GL_POSITION, (0.0, 0.0, 2.0, 1.0))	# Position The Light 
+	glEnable(GL_LIGHT0)					# Enable Light One 
+	
+	fitScreen()
+	
+def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
+	
+	#global images, textures
+	
+	faces = len(reelStops)
+	#quad_width = (2 * radius * math.sin(theta/2)) / 2
+		
+	stopAngle = theta * stopAt - (theta/2)
+	
+	a = 0
+	b = 0
+	
+	lastz = a + radius
+	lasty = b
+
+	#glTranslate(0.0, windowSize[0]/2, 0.0)
+	
+	glRotatef(xrot,1.0,0.0,0.0)
+		
+	for f in range(1, faces+1):
+	
+		face = reelStops[f-1]
+		
+		texture_num = images.index(face)
+		angle = theta * f
+	
+		z = a + (radius * math.cos(angle))
+		y = b + (radius * math.sin(angle))
+				
+		#print texture_num, textures[texture_num]
+
+		glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
+
+		glBegin(GL_QUADS)
+	
+		glTexCoord2f(1.0, 1.0); glVertex3f(xpos[0], lasty, lastz)
+		glTexCoord2f(0.0, 1.0); glVertex3f(xpos[1], lasty, lastz)
+		glTexCoord2f(0.0, 0.0); glVertex3f(xpos[2], y, z)
+		glTexCoord2f(1.0, 0.0); glVertex3f(xpos[3], y, z)
+		
+		lastz = z
+		lasty = y
+	
+		glEnd() #done drawing the reel
+		
+	glRotatef(-xrot,1.0,0.0,0.0)
+		
+	deg = math.degrees(stopAngle)
+	
+	if deg < 0:
+		return 360 - abs(deg)
+	else:
+		return deg
+	
+	# The main drawing function. 
+def DrawGLScene():
+	global xrot, textures, texture_num, settle, radius, inset, inc, settle
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
+	
+	#inset = -5.0
+	
+	glLoadIdentity()					# Reset The View
+	glTranslatef(0.0,windowSize[1]/2 - quad_width/2,0.0)			# Move Into The Screen
+
+	
+	#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
+
+	#glEnable(GL_LIGHTING)
+	
+	stopAngles = []
+		
+	for s, p, r, stop in zip(allstops, xpos, xrot, stopAt):
+		sa = drawCylinder(s, p, r, stop)
+		stopAngles.append(sa)
+	#drawCylinder(allstops[1], 1.5, 0, xrot)
+	#drawCylinder(allstops[2], 1.5, .65, xrot)
+	
+	#glBindTexture(GL_TEXTURE_2D, textures[0])
+	if xrot[0] >= 1440:
+		settle = True
+		xrot = map(lambda x: x % 360, xrot)
+		
+	if settle:
+		inc = inc - 1
+		if inc < 1:
+			inc = 1
+		count = 0
+		for xr, sa in zip(xrot, stopAngles):
+			if int(xr % 360) == int(sa):
+				print xr, sa
+				xrot[count] = xr
+			else:
+				print xr, sa
+				xrot[count] = xr + inc
+			count += 1
+	else:
+		xrot = map(lambda x: x + inc, xrot)
+	
+	
+	#inc = inc - 0.05
+	#print inc
+
+	#  since this is double buffered, swap the buffers to display what just got drawn. 
+	#glutSwapBuffers()
+
+
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
 	def __init__(self, parent, settings="", subject="", *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
-
+		
 		#initialize the game settings
 		if settings:
 			self.settings = settings
@@ -179,30 +393,42 @@ class GamePlayGUI(wx.Frame):
 		return commongui.StringToType(text)
 	
 	def create_spinning_wheel(self, sizer, before=2, after=1):
-		#NOTE: this will be the real spinning gui stuff
-
-		self.slotButtons = []
-		span = range(-before,after+1)
-
-		reelBox = wx.GridSizer(3, self.settings.numReels)
-
+		global allstops, xrot, windowSize, stopAt, settle, inc
+		allstops = []
+		settle = False
+		inc = 0
+		windowSize = (200, 200)
 		
-		for i in span:
-			for r in self.slots.reels:
-				#create reel image
-				bmpfile = r.getIndex(i)
-				bmp = commongui.makeBitmap(bmpfile, (50, 50))
-				#put it on a button
-				if i == 0:
-					button = wx.BitmapButton(self, -1, bmp)
-					button.SetBackgroundColour(cfg.WINNING_GOLD)
-				else:
-					button = wx.BitmapButton(self, -1, bmp)
-				#add this to the list to access when spinning occurs
-				self.slotButtons.append(button)
-				reelBox.Add(button)
+		reels = self.settings.slots.reels
+		
+		for r in reels:
+			symbolList = []
+			for s in r.stops:
+				symbolList.append(r.symbols[s])
+			allstops.append(symbolList)
+		
+		print allstops
+		
+		xrot = [0.0] * len(allstops)
+		stopAt = [0] * len(allstops)
+		
+		self.GLinitialized = False
+		attribList = (glcanvas.WX_GL_RGBA, # RGBA
+					  glcanvas.WX_GL_DOUBLEBUFFER, # Double Buffered
+					  glcanvas.WX_GL_DEPTH_SIZE, 24) # 24 bit
 
-		sizer.Add(reelBox)
+		#
+		# Create the canvas
+		self.reelBox = glcanvas.GLCanvas(self, attribList=attribList)
+		self.reelBox.SetSize(windowSize)
+		
+		#
+		# Set the event handlers.
+		self.reelBox.Bind(wx.EVT_ERASE_BACKGROUND, self.processEraseBackgroundEvent)
+		self.reelBox.Bind(wx.EVT_SIZE, self.processSizeEvent)
+		self.reelBox.Bind(wx.EVT_PAINT, self.processPaintEvent)
+				
+		sizer.Add(self.reelBox)
 	
 	def spin(self):
 		imageList, payline = self.slots.spin(2)
@@ -348,6 +574,71 @@ class GamePlayGUI(wx.Frame):
 		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND, size=self.GetSize())
 		event.Skip()
 		self.Refresh(False)
+		
+	#
+	# Canvas Proxy Methods
+
+	def GetGLExtents(self):
+		"""Get the extents of the OpenGL canvas."""
+		return self.reelBox.GetClientSize()
+
+	def SwapBuffers(self):
+		"""Swap the OpenGL buffers."""
+		self.reelBox.SwapBuffers()
+
+	#
+	# wxPython Window Handlers
+
+	def processEraseBackgroundEvent(self, event):
+		"""Process the erase background event."""
+		pass # Do nothing, to avoid flashing on MSWin
+
+	def processSizeEvent(self, event):
+		"""Process the resize event."""
+		if self.reelBox.GetContext():
+			# Make sure the frame is shown before calling SetCurrent.
+			self.Show()
+			self.reelBox.SetCurrent()
+
+			size = self.GetGLExtents()
+			self.OnReshape(size.width, size.height)
+			self.reelBox.Refresh(False)
+		event.Skip()
+
+	def processPaintEvent(self, event):
+		"""Process the drawing event."""
+		self.reelBox.SetCurrent()
+
+		# This is a 'perfect' time to initialize OpenGL ... only if we need to
+		if not self.GLinitialized:
+			self.OnInitGL()
+			self.GLinitialized = True
+
+		self.OnDraw()
+		event.Skip()
+
+	#
+	# GLFrame OpenGL Event Handlers
+
+	def OnInitGL(self):
+		InitGL(windowSize[0], windowSize[1])
+
+	def OnReshape(self, width, height):
+		"""Reshape the OpenGL viewport based on the dimensions of the window."""
+		glViewport(0, 0, width, height)
+
+		glMatrixMode(GL_PROJECTION)
+		glLoadIdentity()
+		glOrtho(-0.5, 0.5, -0.5, 0.5, -1, 1)
+
+		glMatrixMode(GL_MODELVIEW)
+		glLoadIdentity()
+
+	def OnDraw(self, *args, **kwargs):
+		"Draw the window."
+		DrawGLScene()
+		self.SwapBuffers()
+
 		
 if __name__ == "__main__":
 	app = wx.App(False)
