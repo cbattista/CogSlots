@@ -18,11 +18,13 @@ class Slots:
 	def spin(self, before = 1, after = 1):
 		pres = [] 
 		winners = []
+		stopAt = []
 		posts = []
 		for r in self.reels:
-			pre, sym, post = r.spin(before, after)
+			pre, sym, post, i = r.spin(before, after)
 			pres.append(pre)
 			winners.append(sym)
+			stopAt.append(i)
 			posts.append(post)
 
 		outputList = []
@@ -39,7 +41,7 @@ class Slots:
 			for l in range(self.numreels):
 				outputList.append(posts[l][k])
 
-		return outputList, winners
+		return outputList, winners, stopAt
 		
 	def getWeights(self):
 		weights = []
@@ -184,12 +186,12 @@ class Reel:
 		for p in post:
 			postSymbols.append(self.symbols[p])
 
-		return preSymbols, self.symbols[symbolIndex], postSymbols
+		return preSymbols, self.symbols[symbolIndex], postSymbols, symbolIndex
 
 	def __str__(self):
 		output = ""
 		for s in self.stops:
 			output = "%s\n%s" % (output, self.symbols[s])
 		return "%s\n" % output
-
+		
 s = Slots()
