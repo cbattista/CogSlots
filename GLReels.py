@@ -33,10 +33,7 @@ def fitScreen():
 	global xpos, inset, radius, quad_width, theta
 
 	viewport = glGetIntegerv(GL_VIEWPORT)
-	
-	for v in viewport:
-		print v
-	
+		
 	#get modelview & projection matrix information
 	modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
 	projection = glGetDoublev(GL_PROJECTION_MATRIX)
@@ -48,20 +45,19 @@ def fitScreen():
 	
 	winY = windowSize[1] / 2
 	
-	count = 1
+	count = 0
 	#coords = []
 	xpos = []
+	#quad_width = 20
 	
 	for r in range(reels):
-		winX = quad_width * count - (quad_width/2)
-		xpos.append(winX)
+		xpos.append([quad_width * (count + 1), quad_width * count, quad_width * count, quad_width * (count + 1)])
 		count+=1
-			
+	
 	faces = len(allstops[0])
 	theta = (2 * math.pi) / faces
-	radius = quad_width / math.sin(theta/2)
+	radius = quad_width / math.sin(theta/2) / 2
 	inset = 0
-	
 	
 
 def LoadTextures():
@@ -134,7 +130,7 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	
 	fitScreen()
 	
-def drawCylinder(reelStops = [], xshift=0, xrot=0, stopAt=0):
+def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 	
 	#global images, textures
 	
@@ -144,11 +140,13 @@ def drawCylinder(reelStops = [], xshift=0, xrot=0, stopAt=0):
 	stopAngle = theta * stopAt - (theta/2)
 	
 	a = 0
-	b = windowSize[1] / 2
+	b = 0
 	
 	lastz = a + radius
 	lasty = b
 
+	#glTranslate(0.0, windowSize[0]/2, 0.0)
+	
 	glRotatef(xrot,1.0,0.0,0.0)
 		
 	for f in range(1, faces+1):
@@ -160,19 +158,17 @@ def drawCylinder(reelStops = [], xshift=0, xrot=0, stopAt=0):
 	
 		z = a + (radius * math.cos(angle))
 		y = b + (radius * math.sin(angle))
-		
-		print y, z
-		
+				
 		#print texture_num, textures[texture_num]
 
 		glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
 		glBegin(GL_QUADS)
 	
-		glTexCoord2f(1.0, 1.0); glVertex3f(quad_width + xshift, lasty, lastz)
-		glTexCoord2f(0.0, 1.0); glVertex3f(-quad_width + xshift, lasty, lastz)
-		glTexCoord2f(0.0, 0.0); glVertex3f(-quad_width + xshift, y, z)
-		glTexCoord2f(1.0, 0.0); glVertex3f(quad_width + xshift, y, z)
+		glTexCoord2f(1.0, 1.0); glVertex3f(xpos[0], lasty, lastz)
+		glTexCoord2f(0.0, 1.0); glVertex3f(xpos[1], lasty, lastz)
+		glTexCoord2f(0.0, 0.0); glVertex3f(xpos[2], y, z)
+		glTexCoord2f(1.0, 0.0); glVertex3f(xpos[3], y, z)
 		
 		lastz = z
 		lasty = y
@@ -180,6 +176,7 @@ def drawCylinder(reelStops = [], xshift=0, xrot=0, stopAt=0):
 		glEnd() #done drawing the reel
 		
 	glRotatef(-xrot,1.0,0.0,0.0)
+		
 	return stopAngle
 	
 	# The main drawing function. 
@@ -190,7 +187,7 @@ def DrawGLScene():
 	#inset = -5.0
 	
 	glLoadIdentity()					# Reset The View
-	glTranslatef(0.0,0.0,inset)			# Move Into The Screen
+	glTranslatef(0.0,windowSize[1]/2 - quad_width/2,0.0)			# Move Into The Screen
 
 	
 	#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
@@ -251,12 +248,12 @@ def main():
 	global allstops, stopAt, settle, windowSize
 	glutInit(sys.argv)
 
-	allstops = [[cfg.IM_CHERRIES, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES], [cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES], [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR]]
+	allstops = [[cfg.IM_CHERRIES, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL], [cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CLOVER], [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_BAR]]
 		
-	stopAt = [-1, -1, -1]
+	stopAt = [0, 14, 10]
 	settle = False
 	
-	windowSize = (300, 500)
+	windowSize = (100, 300)
 
 	#Set Display Mode
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
