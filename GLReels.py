@@ -24,10 +24,6 @@ import os
 import cfg
 import math
 
-# Rotations for cube. 
-xrot = [0.0, 0.0, 0.0]
-inc = 0
-
 def fitScreen():
 	#get viewport origin and extent
 	global xpos, inset, radius, quad_width, theta
@@ -177,11 +173,16 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 		
 	glRotatef(-xrot,1.0,0.0,0.0)
 		
-	return stopAngle
+	deg = math.degrees(stopAngle)
+	
+	if deg < 0:
+		return 360 - abs(deg)
+	else:
+		return deg
 	
 	# The main drawing function. 
 def DrawGLScene():
-	global xrot, textures, texture_num, inc, settle, radius, inset
+	global xrot, textures, texture_num, settle, radius, inset, inc, settle
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	
 	#inset = -5.0
@@ -203,9 +204,6 @@ def DrawGLScene():
 	#drawCylinder(allstops[2], 1.5, .65, xrot)
 	
 	#glBindTexture(GL_TEXTURE_2D, textures[0])
-
-	
-	
 	if xrot[0] >= 1440:
 		settle = True
 		xrot = map(lambda x: x % 360, xrot)
@@ -216,10 +214,11 @@ def DrawGLScene():
 			inc = 1
 		count = 0
 		for xr, sa in zip(xrot, stopAngles):
-			#print xr, sa
 			if int(xr % 360) == int(sa):
+				print xr, sa
 				xrot[count] = xr
 			else:
+				print xr, sa
 				xrot[count] = xr + inc
 			count += 1
 	else:
@@ -233,7 +232,7 @@ def DrawGLScene():
 	glutSwapBuffers()
 
 def keyPressed(key, x, y):
-	global inc, settle
+	global settle, inc
 	# If escape is pressed, kill everything.
 	if key == 's':
 		settle = False
@@ -245,15 +244,27 @@ def keyPressed(key, x, y):
 def main():
 
 	global window
-	global allstops, stopAt, settle, windowSize
+	global allstops, stopAt, settle, windowSize, xrot, inc
+	inc = 0
+
+
 	glutInit(sys.argv)
 
-	allstops = [[cfg.IM_CHERRIES, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL], [cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CLOVER], [cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_BAR]]
-		
-	stopAt = [0, 14, 10]
+	allstops = [
+	[cfg.IM_CHERRIES, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL], 
+	[cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CLOVER], 
+	[cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_BAR], 
+	[cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_CLOVER, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_CHERRIES, cfg.IM_BELL, cfg.IM_BAR, cfg.IM_BAR]]
+
+
+	
+	stopAt = [1, 5, 10, 15]
+	
+	xrot = [0.0] * len(allstops)
+
 	settle = False
 	
-	windowSize = (100, 300)
+	windowSize = (200, 200)
 
 	#Set Display Mode
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
