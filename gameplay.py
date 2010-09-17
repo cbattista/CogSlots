@@ -624,7 +624,17 @@ class GamePlayGUI(wx.Frame):
 		#drawCylinder(allstops[2], 1.5, .65, xrot)
 		
 		#glBindTexture(GL_TEXTURE_2D, textures[0])
-		if xrot[0] >= 1440:
+		if xrot[0] > 365 and not settle:
+			inc = 21
+			
+		if xrot[0] > 720 and not settle:
+			inc = 14
+		
+		if xrot[0] > 1080 and not settle:
+			inc = 7
+		
+		
+		if xrot[0] > 1440:
 			settle = True
 			xrot = map(lambda x: x % 360, xrot)
 
@@ -639,6 +649,7 @@ class GamePlayGUI(wx.Frame):
 				if int(xr % 360) == int(sa):
 					xrot[count] = xr
 				else:
+					print xr, sa
 					xrot[count] = xr + inc
 				count += 1
 		else:
