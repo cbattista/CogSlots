@@ -431,16 +431,31 @@ class GamePlayGUI(wx.Frame):
 		sizer.Add(self.reelBox)
 	
 	def spin(self):
-		imageList, payline = self.slots.spin(2)
+		global settle, inc, stopAt
+
+		imageList, payline, stopAt = self.slots.spin(2)
+		
+		print stopAt
+		
+		print payline
+		
 		pcount = 1
 		for p in payline:
 			self.subject.inputData(self.round, 'Reel %s' % pcount, p)
 			pcount += 1
-
+		
+		settle = False
+		#xrot = map(lambda x: x % 360, xrot)
+		#SPIN!
+		inc = 30	
+			
+		"""
 		for sb, img in zip(self.slotButtons, imageList):
 			bmp = commongui.makeBitmap(img, (50, 50))
 			sb.SetBitmapLabel(bmp)
 
+		"""	
+		
 		#if we are dealing with the 'any' symbol, we must account for that
 		any = False
 		for c in self.settings.combos:
