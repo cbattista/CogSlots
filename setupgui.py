@@ -34,6 +34,7 @@ class SetupGUI(wx.Frame):
 		self.betssizer = betssizer
 		symbolpage, symbolsizer = self.create_page('Symbols')
 		#self.oddpage, self.oddsizer = self.create_page('Odds')
+		infopage, infosize = self.create_page('Info')
 
 		# same font for all the headers
 		self.hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
@@ -69,6 +70,7 @@ class SetupGUI(wx.Frame):
 		debtlabel = wx.StaticText(betspage, wx.ID_ANY, "Subject Debt:")
 		debtlabel.SetFont(self.hfont)
 		betssizer.AddF(numroundsbox, self.bflag)
+		
 		#numroundsbox.AddF(debtlabel, self.bflag)
 		#numroundsbox.AddF(self.debtallowed, self.bflag)
 		betssizer.AddF(debtlabel, self.bflag)
@@ -339,6 +341,10 @@ class SetupGUI(wx.Frame):
 		self.allCombos = []
 		self.payoffs = []
 		
+		self.gfBox = wx.CheckBox(oddpage, -1, "Employ Gambler's Fallacy")
+		oddGrid.Add(self.gfBox)
+
+		
 		comboSizer = wx.GridSizer(rows=len(self.settings.payouts) + 1, cols=self.settings.numReels+2)
 		
 		comboSizer.Add(wx.StaticText(oddpage, -1, "Payout"))
@@ -381,11 +387,18 @@ class SetupGUI(wx.Frame):
 		
 		oddsizer.Add(oddGrid)
 		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
+
 		oddpage.SetSizerAndFit(oddsizer)
 		self.SetOdds()
 		self.makeReels()
 		self.updateOdds()
+		oddpage.SetupScrolling()
+		oddpage.Refresh()
+		oddpage.Update()
 
+
+
+		
 	
 	def UpdateFromSettings(self):
 		self.SetInfo()
@@ -548,6 +561,8 @@ class SetupGUI(wx.Frame):
 				c.append(com.GetStringSelection())
 			self.settings.combos.append(c)
 		
+		self.settings.gamblersFallacy = self.gfBox.GetValue()
+		
 
 	def SetOdds(self):
 
@@ -564,6 +579,8 @@ class SetupGUI(wx.Frame):
 		for c, sc in zip(self.allCombos, self.settings.combos):
 			for cc, ssc in zip(c, sc):
 				cc.SetStringSelection(ssc)
+
+		self.gfBox.SetValue(self.settings.gamblersFallacy)
 				
 		self.makeReels()
 	
@@ -589,6 +606,7 @@ class SetupGUI(wx.Frame):
 		self.updateOdds()		
 
 	def updateOdds(self):
+
 		total=0
 		for combo in self.allCombos:
 			c = []
@@ -624,6 +642,7 @@ class SetupGUI(wx.Frame):
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		page.SetSizer(sizer)
 		page.SetupScrolling()
+		page.SetClientSizeWH(self.nbW, self.nbH)
 		return page, sizer
 
 	def create_symbols_checkbox(self, parent, index):
