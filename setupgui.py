@@ -10,6 +10,8 @@ import subjectinfo
 from Settings import Settings
 import pickle
 from SlotReels import Slots
+import Shuffler
+
 
 class SetupGUI(wx.Frame):
 	""" The interface for the tester to set up parameters """
@@ -175,7 +177,6 @@ class SetupGUI(wx.Frame):
 		self.getprobestimate.SetFont(self.hfont)
 		self.estimatetiming = wx.Choice(self, wx.ID_ANY, choices=["beginning", "end"])
 		self.estimateinterval = wx.TextCtrl(self, wx.ID_ANY, style=wx.TE_RIGHT)
-		
 		
 		# save as
 		self.filenamebox = wx.TextCtrl(self, wx.ID_ANY)
@@ -395,10 +396,6 @@ class SetupGUI(wx.Frame):
 		oddpage.SetupScrolling()
 		oddpage.Refresh()
 		oddpage.Update()
-
-
-
-		
 	
 	def UpdateFromSettings(self):
 		self.SetInfo()
@@ -430,10 +427,25 @@ class SetupGUI(wx.Frame):
 		self.payoutSizer.InsertF(0, self.payoutframe, wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand())
 		self.payoutSizer.Layout()
 		
-
-		
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 
+		#determine 
+		if self.settings.gamblersFallacy:
+			ratio = []
+			for o in self.odds:
+				amount = float(o.GetValue()) * self.settings.rounds / 100.
+				ratio.append(int(amount))
+				
+			print ratio
+			losses = self.settings.rounds - sum(ratio)
+			items = self.settings.combos + ["LOSS"]
+			ratios = ratio + [losses]
+			shuffler = Shuffler.Shuffler(items, self.settings.rounds, 2, ratios)
+			self.settings.stimList = shuffler.shuffleIt()
+			print self.settings.stimList	
+				
+			
+		
 	def OnReset(self, event):
 		if self.ActivePage() == 'Bets':	
 			self.SetBets()
@@ -606,7 +618,7 @@ class SetupGUI(wx.Frame):
 		self.updateOdds()		
 
 	def updateOdds(self):
-
+	
 		total=0
 		for combo in self.allCombos:
 			c = []
@@ -618,6 +630,7 @@ class SetupGUI(wx.Frame):
 			total+=odds
 			odds = str(round(odds, 2))
 			self.odds[i].SetValue(odds)
+
 		
 		if total > 100:
 			total = 100.
