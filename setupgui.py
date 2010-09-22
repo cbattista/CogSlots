@@ -344,15 +344,20 @@ class SetupGUI(wx.Frame):
 		
 		self.gfBox = wx.CheckBox(oddpage, -1, "Employ Gambler's Fallacy")
 		oddGrid.Add(self.gfBox)
-
+		self.overBox = wx.CheckBox(oddpage, -1, "Override True Reel Odds")
+		oddGrid.Add(self.overBox)
 		
-		comboSizer = wx.GridSizer(rows=len(self.settings.payouts) + 1, cols=self.settings.numReels+2)
+		
+		comboSizer = wx.GridSizer(rows=len(self.settings.payouts) + 1, cols=self.settings.numReels+3)
 		
 		comboSizer.Add(wx.StaticText(oddpage, -1, "Payout"))
 		for r in range(self.settings.numReels):
 			text = "Reel %s" % (r+1)
 			comboSizer.Add(wx.StaticText(oddpage, -1, text))
 		comboSizer.Add(wx.StaticText(oddpage, -1, "Odds (%)"))
+		comboSizer.Add(wx.StaticText(oddpage, -1, "Odds Override"))
+		
+		self.overrides = []
 		
 		for p in range(self.settings.numPayouts):
 			o = []
@@ -373,8 +378,11 @@ class SetupGUI(wx.Frame):
 				
 			self.allCombos.append(combos)
 			oddsText = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
+			override = wx.TextCtrl(oddpage, -1, "0", size=cfg.CTRL_SIZE)
 			comboSizer.Add(oddsText)
+			comboSizer.Add(override)
 			self.odds.append(oddsText)
+			self.overrides.append(override)
 		
 		totalOddsText = wx.StaticText(oddpage, -1, "Total Odds of a Win (%):")
 		self.totalOdds = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
@@ -562,7 +570,7 @@ class SetupGUI(wx.Frame):
 		for p in self.payoffs:
 			value = 0.0
 			if not p.IsEmpty():
-				value = float(p.GetValue())
+				value = commongui.StringToType(p.GetValue())
 			self.settings.payouts.append(value)
 
 		self.settings.combos = []
@@ -574,7 +582,14 @@ class SetupGUI(wx.Frame):
 			self.settings.combos.append(c)
 		
 		self.settings.gamblersFallacy = self.gfBox.GetValue()
+		self.settings.override['engage'] = self.overBox.GetValue()
 		
+		overrides = []
+		
+		for o in self.overrides:
+			overrides.append(commongui.StringToType(o.GetValue()))
+			
+		self.settings.override['odds'] = overrides
 
 	def SetOdds(self):
 
@@ -591,8 +606,12 @@ class SetupGUI(wx.Frame):
 		for c, sc in zip(self.allCombos, self.settings.combos):
 			for cc, ssc in zip(c, sc):
 				cc.SetStringSelection(ssc)
+				
+		for o, oo in zip(self.overrides, self.settings.override['odds']):
+			o.SetValue(str(oo))
 
 		self.gfBox.SetValue(self.settings.gamblersFallacy)
+		self.overBox.SetValue(self.settings.override['engage'])
 				
 		self.makeReels()
 	
