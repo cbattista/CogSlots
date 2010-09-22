@@ -178,6 +178,10 @@ class GamePlayGUI(wx.Frame):
 	def __init__(self, parent, settings="", subject="", *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
+
+		#self.SetSize((800, 600))
+		bmp = wx.Bitmap('images/background.png')
+		#self.background = wx.StaticBitmap(self, -1, bmp, (0,0))
 		
 		#initialize the game settings
 		if settings:
@@ -233,7 +237,7 @@ class GamePlayGUI(wx.Frame):
 		self.balance = self.settings.seed
 		# the pretty background - not working properly yet
 		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
-		self.SetOwnBackgroundColour(cfg.FELT_GREEN)
+		#self.SetOwnBackgroundColour(cfg.FELT_GREEN)
 		
 		# get the user params from the database
 		self.get_user_params()
@@ -380,16 +384,46 @@ class GamePlayGUI(wx.Frame):
 		
 		sizer.Add(self.reelBox)
 	
+	def phoneySpin(self):
+		if self.settings.gamblersFallacy:
+			combo = self.settings.stimList.pop()
+		else:
+			odds = self.settings.overrides['odds']
+			itemList =[]
+			index = 0
+			for o in odds:
+
+				if index <= len(self.settings.combos):
+					item = self.settings.combos[index]
+				else:
+					item = "LOSS"
+
+				for i in range(o*100):
+					itemList.append(item)
+				index = index + 1
+				
+		theItem = random.choice(itemList)
+	
+		if item != "LOSS":
+			while cfg.IM_ANY in theItem:
+				newItem = random.choice(self.settings.symbols)
+				theItem.replace(item, newItem, 1)
+		else:
+			loss = False
+			while not loss:
+				loss = True
+		
+		return theItem
+	
+	
 	def spin(self):
 		global settle, inc, stopAt
+		if not self.settings.gamblersFallacy and not self.settings.override['engage']:
+			imageList, payline, stopAt = self.slots.spin(2)
+		else:
+			payline = self.phoneySpin()
 
-		imageList, payline, stopAt = self.slots.spin(2)
-		self.timer.Start(1)
-
-		
-		print stopAt
-		
-		print payline
+			self.timer.Start(1)
 		
 		pcount = 1
 		for p in payline:
@@ -397,17 +431,9 @@ class GamePlayGUI(wx.Frame):
 			pcount += 1
 		
 		settle = False
-		#xrot = map(lambda x: x % 360, xrot)
 		#SPIN!
 		inc = 30	
-			
-		"""
-		for sb, img in zip(self.slotButtons, imageList):
-			bmp = commongui.makeBitmap(img, (50, 50))
-			sb.SetBitmapLabel(bmp)
-
-		"""	
-		
+					
 		#if we are dealing with the 'any' symbol, we must account for that
 		any = False
 		for c in self.settings.combos:
@@ -431,7 +457,6 @@ class GamePlayGUI(wx.Frame):
 
 		self.subject.inputData(self.round, 'outcome', 'LOSS')
 		return 0
-
 
 	# Callbacks!
 	def OnChangeWager(self, event, name):
