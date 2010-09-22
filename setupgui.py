@@ -440,15 +440,20 @@ class SetupGUI(wx.Frame):
 		#determine 
 		if self.settings.gamblersFallacy:
 			ratio = []
-			for o in self.odds:
-				amount = float(o.GetValue()) * self.settings.rounds / 100.
-				ratio.append(int(amount))
-				
-			print ratio
+
+			if not self.settings.override['engage']:
+				for o in self.odds:
+					amount = float(o.GetValue()) * self.settings.rounds / 100.
+					ratio.append(int(amount))
+			else:
+				for o in self.settings.override['odds']:
+					amount = o * self.settings.rounds / 100.
+					ratio.append(int(amount))
+			
 			losses = self.settings.rounds - sum(ratio)
 			items = self.settings.combos + ["LOSS"]
 			ratios = ratio + [losses]
-			shuffler = Shuffler.Shuffler(items, self.settings.rounds, 2, ratios)
+			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
 			self.settings.stimList = shuffler.shuffleIt()
 			print self.settings.stimList	
 				
