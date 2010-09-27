@@ -16,6 +16,7 @@ import SlotReels
 from CogSub import Subject
 import pickle
 import subjectinfo
+import random
 
 def fitScreen():
 	#get viewport origin and extent
@@ -385,8 +386,13 @@ class GamePlayGUI(wx.Frame):
 		sizer.Add(self.reelBox)
 	
 	def phoneySpin(self):
+	
+		print "Phoney Spinning"
+	
+		print self.settings.stimList
+	
 		if self.settings.gamblersFallacy:
-			combo = self.settings.stimList.pop()
+			theItem = self.settings.stimList.pop(0)
 		else:
 			odds = self.settings.overrides['odds']
 			itemList =[]
@@ -402,28 +408,50 @@ class GamePlayGUI(wx.Frame):
 					itemList.append(item)
 				index = index + 1
 				
-		theItem = random.choice(itemList)
+			theItem = random.choice(itemList)
+
 	
-		if item != "LOSS":
-			while cfg.IM_ANY in theItem:
+		if theItem != "LOSS":
+			while cfg.IM_EMPTY in theItem:
 				newItem = random.choice(self.settings.symbols)
 				theItem.replace(item, newItem, 1)
+			#now we need to come up with the actual payline numbers
+			payline = []
+			count = 0
+			for item in theItem:
+				symbolIndex = self.settings.symbols.index(item)
+				indeces = []
+				symcount = 0
+				for stop in self.settings.slots.reels[count].stops:
+					if stop == symbolIndex:
+						indeces.append(stop)
+					symcount += 1
+				
+				payline.append(random.choice(indeces))
+					
+				count += 1
 		else:
 			loss = False
 			while not loss:
-				loss = True
+				imageList, payline, stopAt = self.slots.spin()
+				outcome = self.judgeOutcome(payline)
+				if not outcome:
+					loss = True
 		
-		return theItem
+		return payline
 	
 	
 	def spin(self):
 		global settle, inc, stopAt
+
 		if not self.settings.gamblersFallacy and not self.settings.override['engage']:
 			imageList, payline, stopAt = self.slots.spin(2)
 		else:
 			payline = self.phoneySpin()
 
-			self.timer.Start(1)
+		imageList, payline, stopAt = self.slots.spin(2)
+		
+		self.timer.Start(1)
 		
 		pcount = 1
 		for p in payline:
@@ -435,11 +463,20 @@ class GamePlayGUI(wx.Frame):
 		inc = 30	
 					
 		#if we are dealing with the 'any' symbol, we must account for that
+		outcome = self.judgeOutcome(payline)
+		if outcome:
+			self.subject.inputData(self.round, 'outcome', 'WIN')
+		else:
+			self.subject.inputData(self.round, 'outcome', 'LOSS')
+			
+		return outcome
+		
+	def judgeOutcome(self, payline):
+		#if we are dealing with the 'any' symbol, we must account for that
 		any = False
 		for c in self.settings.combos:
 			if cfg.IM_EMPTY in c:
-				any = True
-				
+				any = True				
 		if any:
 			for c in self.settings.combos:
 				match = []
@@ -452,12 +489,9 @@ class GamePlayGUI(wx.Frame):
 					return match[0]
 		else:
 			if payline in self.settings.combos:
-				self.subject.inputData(self.round, 'outcome', 'WIN')
 				return self.settings.combos.index(payline) + 1
-
-		self.subject.inputData(self.round, 'outcome', 'LOSS')
 		return 0
-
+		
 	# Callbacks!
 	def OnChangeWager(self, event, name):
 		wager = self.wagertext.GetValue()
@@ -674,7 +708,6 @@ class GamePlayGUI(wx.Frame):
 				if int(xr % 360) == int(sa):
 					xrot[count] = xr
 				else:
-					print xr, sa
 					xrot[count] = xr + inc
 				count += 1
 		else:
