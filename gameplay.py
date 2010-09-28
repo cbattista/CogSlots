@@ -394,24 +394,23 @@ class GamePlayGUI(wx.Frame):
 		if self.settings.gamblersFallacy:
 			theItem = self.settings.stimList.pop(0)
 		else:
-			odds = self.settings.overrides['odds']
+			odds = self.settings.override['odds']
 			itemList =[]
 			index = 0
+			print odds
 			for o in odds:
 
-				if index <= len(self.settings.combos):
-					item = self.settings.combos[index]
-				else:
-					item = "LOSS"
+				item = self.settings.combos[index]
 
-				for i in range(o*100):
-					itemList.append(item)
+				itemList = itemList + ([item] * o)
+				
 				index = index + 1
+
+				numLoss = 100 - sum(odds)
+			itemList = itemList + (['LOSS'] * numLoss)
 				
 			theItem = random.choice(itemList)
-	
-		print theItem
-	
+		
 		if theItem != "LOSS":
 			payline = theItem
 			while cfg.IM_EMPTY in theItem:
@@ -426,18 +425,15 @@ class GamePlayGUI(wx.Frame):
 				indeces = []
 				symcount = 0
 				for stop in reel.stops:
-					print stop
 					if stop == symbolIndex:
 						indeces.append(symcount)
 					symcount += 1
 				
-				print indeces
 				stopAt.append(random.choice(indeces))
 					
 				count += 1
 				
 		else:
-			print "LOsssss"
 			loss = False
 			while not loss:
 				imageList, payline, stopAt = self.slots.spin()
@@ -456,9 +452,6 @@ class GamePlayGUI(wx.Frame):
 		else:
 			imageList, payline, stopAt = self.slots.spin(2)
 
-		#imageList, payline, stopAt = self.slots.spin(2)
-		
-		print payline, stopAt
 		
 		self.timer.Start(1)
 		
