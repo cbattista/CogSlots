@@ -389,7 +389,7 @@ class GamePlayGUI(wx.Frame):
 	
 		print "Phoney Spinning"
 	
-		print self.settings.stimList
+		#print self.settings.stimList
 	
 		if self.settings.gamblersFallacy:
 			theItem = self.settings.stimList.pop(0)
@@ -409,28 +409,35 @@ class GamePlayGUI(wx.Frame):
 				index = index + 1
 				
 			theItem = random.choice(itemList)
-
+	
+		print theItem
 	
 		if theItem != "LOSS":
+			payline = theItem
 			while cfg.IM_EMPTY in theItem:
 				newItem = random.choice(self.settings.symbols)
 				theItem.replace(item, newItem, 1)
+				print "switching any"
 			#now we need to come up with the actual payline numbers
-			payline = []
+			stopAt = []
 			count = 0
-			for item in theItem:
-				symbolIndex = self.settings.symbols.index(item)
+			for item, reel in zip(theItem, self.settings.slots.reels):
+				symbolIndex = reel.symbols.index(item)
 				indeces = []
 				symcount = 0
-				for stop in self.settings.slots.reels[count].stops:
+				for stop in reel.stops:
+					print stop
 					if stop == symbolIndex:
-						indeces.append(stop)
+						indeces.append(symcount)
 					symcount += 1
 				
-				payline.append(random.choice(indeces))
+				print indeces
+				stopAt.append(random.choice(indeces))
 					
 				count += 1
+				
 		else:
+			print "LOsssss"
 			loss = False
 			while not loss:
 				imageList, payline, stopAt = self.slots.spin()
@@ -438,18 +445,20 @@ class GamePlayGUI(wx.Frame):
 				if not outcome:
 					loss = True
 		
-		return payline
+		return payline, stopAt
 	
 	
 	def spin(self):
 		global settle, inc, stopAt
 
-		if not self.settings.gamblersFallacy and not self.settings.override['engage']:
-			imageList, payline, stopAt = self.slots.spin(2)
+		if self.settings.gamblersFallacy or self.settings.override['engage']:
+			payline,stopAt = self.phoneySpin()
 		else:
-			payline = self.phoneySpin()
+			imageList, payline, stopAt = self.slots.spin(2)
 
-		imageList, payline, stopAt = self.slots.spin(2)
+		#imageList, payline, stopAt = self.slots.spin(2)
+		
+		print payline, stopAt
 		
 		self.timer.Start(1)
 		
@@ -510,8 +519,7 @@ class GamePlayGUI(wx.Frame):
 				return 
 			self.balance -= self.wagerstep - int(wager)
 			wager = self.wagerstep
-			
-		
+					
 		elif 'decrease' in name:
 			if i == 0:
 				return
