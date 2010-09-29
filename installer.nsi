@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "CogSlots"
-!define PRODUCT_VERSION "0.7"
+!define PRODUCT_VERSION "0.8"
 !define PRODUCT_PUBLISHER "Jobe Microsystems"
 !define PRODUCT_WEB_SITE "www.github.com/cbattista/cogslots"
 
@@ -15,7 +15,7 @@
 !insertmacro MUI_LANGUAGE "English"
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "installCogSlots0.7.exe"
+OutFile "installCogSlots0.8.exe"
 InstallDir "$PROGRAMFILES\CogSlots"
 
 Function "GetMyDocs"
@@ -48,6 +48,7 @@ Section "Main" SEC01
 	File "introtext.html"
 	File "setupgui.py"
 	File "subjectinfo.py"
+	File "Shuffler.py"
 	File "brain_icon.ico"
 	File /r "images"
 	File /r "pkgs"
