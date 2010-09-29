@@ -300,7 +300,7 @@ class SetupGUI(wx.Frame):
 				
 		oddGrid.Add(weightLabel)
 		text = wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT)
-		text.Wrap(self.nbW * .95)
+		text.Wrap(self.nbW * .9)
 		oddGrid.Add(text)
 		
 		self.nearMisses = []
@@ -679,8 +679,8 @@ class SetupGUI(wx.Frame):
 		self.book.AddPage(page, name)
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		page.SetSizer(sizer)
-		page.SetupScrolling()
 		page.SetClientSizeWH(self.nbW, self.nbH)
+		page.SetupScrolling()
 		return page, sizer
 
 	def create_symbols_checkbox(self, parent, index):
