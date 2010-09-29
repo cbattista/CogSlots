@@ -28,9 +28,12 @@ class Settings:
 		
 	def getWinnings(self, i, j):
 		if self.override['engage']:
-			odds = override['odds']
+			odds = self.override['odds']
+			odds = map(lambda x: x / 100., odds)
 		else:
 			odds = self.odds
+			
+		print odds
 		#returns the winnings given indeces of the payout size and bet size  
 		winnings = self.odds[i] * self.payouts[i] * self.betsizes[j]
 		return winnings
@@ -40,7 +43,7 @@ class Settings:
 		maxpay = self.seed
 		subtractor = self.rounds * self.betsizes[0] * (1-sum(self.odds))
 		for j in range(0, len(self.payouts)):
-			maxpay = maxpay + self.getWinnings(j, -1) 
+			maxpay = maxpay + self.getWinnings(j, 0) 
 		maxpay = maxpay - subtractor
 		return maxpay
 
@@ -49,7 +52,7 @@ class Settings:
 		minpay = self.seed
 		subtractor = self.rounds * self.betsizes[-1] * (1-sum(self.odds))
 		for j in range(0, len(self.payouts)):
-			minpay = minpay + self.getWinnings(j, 0)
+			minpay = minpay + self.getWinnings(j, -1)
 		minpay = minpay - subtractor
 		return minpay
 

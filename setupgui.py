@@ -703,7 +703,7 @@ class SetupGUI(wx.Frame):
 		self.book.AddPage(page, name)
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		page.SetSizer(sizer)
-		page.SetClientSizeWH(self.nbW, self.nbH)
+		#page.SetClientSizeWH(self.nbW, self.nbH)
 		page.SetupScrolling()
 		return page, sizer
 
