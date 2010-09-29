@@ -333,7 +333,6 @@ class SetupGUI(wx.Frame):
 			
 		#oddsizer.Add(wx.Button(oddpage, -1, "Update Reels"))
 		
-		self.Bind(wx.EVT_SPINCTRL, self.onSpin)
 		oddGrid.Add(oddsLabel)
 		text = wx.StaticText(oddpage, -1, cfg.COMBOS_TEXT)
 		text.Wrap(self.nbW * .95)
@@ -379,7 +378,7 @@ class SetupGUI(wx.Frame):
 				
 			self.allCombos.append(combos)
 			oddsText = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
-			override = wx.TextCtrl(oddpage, -1, "0", size=cfg.CTRL_SIZE)
+			override = wx.SpinCtrl(oddpage, -1, min=0, initial=0, size=cfg.CTRL_SIZE)
 			comboSizer.Add(oddsText)
 			comboSizer.Add(override)
 			self.odds.append(oddsText)
@@ -413,6 +412,10 @@ class SetupGUI(wx.Frame):
 		oddsizer.Add(oddGrid)
 		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
 
+		self.Bind(wx.EVT_CHECKBOX, self.onSpin)
+		self.Bind(wx.EVT_SPINCTRL, self.onSpin)
+
+		
 		oddpage.SetSizerAndFit(oddsizer)
 		self.SetOdds()
 		self.makeReels()
@@ -471,7 +474,6 @@ class SetupGUI(wx.Frame):
 			ratios = ratio + [losses]
 			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
 			self.settings.stimList = shuffler.shuffleIt()
-			print self.settings.stimList	
 
 		
 	def OnReset(self, event):
@@ -608,7 +610,7 @@ class SetupGUI(wx.Frame):
 		overrides = []
 		
 		for o in self.overrides:
-			overrides.append(commongui.StringToType(o.GetValue()))
+			overrides.append(o.GetValue())
 			
 		self.settings.override['odds'] = overrides
 		
@@ -661,6 +663,16 @@ class SetupGUI(wx.Frame):
 		self.updateOdds()		
 
 	def updateOdds(self):
+
+		self.settings.gamblersFallacy = self.gfBox.GetValue()
+		self.settings.override['engage'] = self.overBox.GetValue()
+				
+		overrides = []
+		
+		for o in self.overrides:
+			overrides.append(o.GetValue())
+			
+		self.settings.override['odds'] = overrides
 	
 		total=0
 		setOdds = []
@@ -679,9 +691,13 @@ class SetupGUI(wx.Frame):
 
 		self.settings.odds = setOdds	
 		
+		if self.settings.override['engage']:
+			total = sum(self.settings.override['odds'])
+	
 		if total > 100:
 			total = 100.
 		total = str(round(total, 2))
+	
 		self.totalOdds.SetValue(total)
 		nm = str(round(self.settings.slots.getNearMissOdds() * 100., 2))
 		self.nmOdds.SetValue(nm)
@@ -703,7 +719,7 @@ class SetupGUI(wx.Frame):
 		self.book.AddPage(page, name)
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		page.SetSizer(sizer)
-		#page.SetClientSizeWH(self.nbW, self.nbH)
+		page.SetClientSizeWH(self.nbW, self.nbH)
 		page.SetupScrolling()
 		return page, sizer
 
