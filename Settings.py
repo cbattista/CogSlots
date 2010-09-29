@@ -24,17 +24,21 @@ class Settings:
 		self.gamblersFallacy = gamblersFallacy
 		self.stimList = stimList
 		self.override = override
+		self.odds = [0] * len(self.payouts)
 		
 	def getWinnings(self, i, j):
+		if self.override['engage']:
+			odds = override['odds']
+		else:
+			odds = self.odds
 		#returns the winnings given indeces of the payout size and bet size  
-		op =  self.odds / float(len(self.payouts))
-		winnings = op * self.payouts[i] * self.betsizes[j]
+		winnings = self.odds[i] * self.payouts[i] * self.betsizes[j]
 		return winnings
 
 	def getMaxPay(self):
 		#returns the maximum amount of money that can be won
 		maxpay = self.seed
-		subtractor = (self.rounds * self.betsizes[0] * ((100-self.odds)/100.))
+		subtractor = self.rounds * self.betsizes[0] * (1-sum(self.odds))
 		for j in range(0, len(self.payouts)):
 			maxpay = maxpay + self.getWinnings(j, -1) 
 		maxpay = maxpay - subtractor
@@ -43,7 +47,7 @@ class Settings:
 	def getMinPay(self):
 		#returns the minimum amount of money that can be one
 		minpay = self.seed
-		subtractor = (self.rounds * self.betsizes[-1] * ((100-self.odds)/100.))
+		subtractor = self.rounds * self.betsizes[-1] * (1-sum(self.odds))
 		for j in range(0, len(self.payouts)):
 			minpay = minpay + self.getWinnings(j, 0)
 		minpay = minpay - subtractor
@@ -78,9 +82,6 @@ class Settings:
 		self.betsizes = betsizes
 		self.debt = debt
 		self.currency = currency
-
-	def setCustomOdds(self):
-		pass
 
 	def preserve(self):
 		f = open("%s" % self.name, "w")

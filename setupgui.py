@@ -267,7 +267,7 @@ class SetupGUI(wx.Frame):
 
 		middleSizer.AddF(self.book, wx.SizerFlags(1).Expand())
 		
-		midSize = (self.FRAME_SIZE[0] * 0.5, self.FRAME_SIZE[1] * 0.85)
+		midSize = (self.FRAME_SIZE[0] * 0.9, self.FRAME_SIZE[1] * 0.9)
 		middleSizer.SetMinSize(midSize)
 
 		outersizer.AddF(middleSizer, bottomflag)
@@ -284,7 +284,7 @@ class SetupGUI(wx.Frame):
 	#******************************************
 	#				Settings Tab Getters and Setters
 	#******************************************
-
+	
 	def makeOddsTab(self):		
 		if self.book.GetPageCount() == 4:
 			self.book.DeletePage(3)
@@ -385,15 +385,30 @@ class SetupGUI(wx.Frame):
 			self.odds.append(oddsText)
 			self.overrides.append(override)
 		
+		#SUMMARY INFORMATION
+		summaryGrid = wx.BoxSizer(wx.HORIZONTAL)
+		
+		#odds
 		totalOddsText = wx.StaticText(oddpage, -1, "Total Odds of a Win (%):")
 		self.totalOdds = wx.TextCtrl(oddpage, -1, "100", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
-		
 		oddGrid.Add(comboSizer)
-		oddGrid.Add(totalOddsText)
-		oddGrid.Add(self.totalOdds)
-		oddGrid.Add(wx.StaticText(oddpage, -1, "Near Miss Odds:"))
+		summaryGrid.Add(totalOddsText)
+		summaryGrid.Add(self.totalOdds)
+		summaryGrid.Add(wx.StaticText(oddpage, -1, "Near Miss Odds:"))
 		self.nmOdds = wx.TextCtrl(oddpage, -1, "0", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
-		oddGrid.Add(self.nmOdds)
+		summaryGrid.Add(self.nmOdds)
+		
+		#max and min payouts
+		summaryGrid.Add(wx.StaticText(oddpage, -1, "Max Payout:"))
+		self.maxPay = wx.TextCtrl(oddpage, -1, "0", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
+		summaryGrid.Add(self.maxPay)
+		summaryGrid.Add(wx.StaticText(oddpage, -1, "Min Payout:"))
+		self.minPay = wx.TextCtrl(oddpage, -1, "0", style=wx.TE_READONLY, size=cfg.CTRL_SIZE)
+		summaryGrid.Add(self.minPay)
+		
+		
+		oddGrid.AddF(wx.StaticLine(oddpage), self.eflag)
+		oddGrid.Add(summaryGrid)
 		
 		oddsizer.Add(oddGrid)
 		self.Bind(wx.EVT_COMBOBOX, self.onComboSelect)
@@ -596,7 +611,7 @@ class SetupGUI(wx.Frame):
 			overrides.append(commongui.StringToType(o.GetValue()))
 			
 		self.settings.override['odds'] = overrides
-
+		
 	def SetOdds(self):
 
 		#if the reels exist, get their weights...
@@ -618,8 +633,11 @@ class SetupGUI(wx.Frame):
 
 		self.gfBox.SetValue(self.settings.gamblersFallacy)
 		self.overBox.SetValue(self.settings.override['engage'])
-				
+		
 		self.makeReels()
+
+		self.minPay.SetValue(str(self.settings.getMinPay()))
+		self.maxPay.SetValue(str(self.settings.getMaxPay()))
 	
 				
 
@@ -645,17 +663,21 @@ class SetupGUI(wx.Frame):
 	def updateOdds(self):
 	
 		total=0
+		setOdds = []
 		for combo in self.allCombos:
 			c = []
 			for com in combo:
 				c.append(com.GetStringSelection())
 			odds = self.settings.slots.getComboOdds(c)
+			setOdds.append(odds)
 			i = self.allCombos.index(combo)
 			odds = odds * 100.0
 			total+=odds
+			
 			odds = str(round(odds, 2))
 			self.odds[i].SetValue(odds)
 
+		self.settings.odds = setOdds	
 		
 		if total > 100:
 			total = 100.
@@ -664,7 +686,9 @@ class SetupGUI(wx.Frame):
 		nm = str(round(self.settings.slots.getNearMissOdds() * 100., 2))
 		self.nmOdds.SetValue(nm)
 
-		
+		self.minPay.SetValue(str(self.settings.getMinPay()))
+		self.maxPay.SetValue(str(self.settings.getMaxPay()))
+	
 	def onSpin(self, event):
 		self.makeReels()
 		
