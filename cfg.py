@@ -33,4 +33,4 @@ WINNING_GOLD = (255, 150, 0)
 
 WEIGHTS_TEXT = "Values indicate how often symbols appear on reels."
 
-COMBOS_TEXT = "The controls below determine the winning combinations.  Adjust the payout and the symbols making up a combo.  Odds are determined by the settings in the weights table above."
+COMBOS_TEXT = "Adjust the payout and the symbols making up a combo.  Odds are determined by the settings in the weights table above."
