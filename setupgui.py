@@ -491,11 +491,7 @@ class SetupGUI(wx.Frame):
 			
 			losses = self.settings.rounds - sum(ratio)
 			items = items + ["LOSS"]
-			ratios = ratio + [losses]
-			
-			print ratio
-			print items
-			
+			ratios = ratio + [losses]			
 			
 			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
 			self.settings.stimList = shuffler.shuffleIt()
@@ -693,12 +689,15 @@ class SetupGUI(wx.Frame):
 		self.settings.override['engage'] = self.overBox.GetValue()
 				
 		overrides = []
+		nearMisses = []
 		
-		for o in self.overrides:
+		for o, nmo in zip(self.overrides, self.nearMissOdds):
 			overrides.append(o.GetValue())
+			nearMisses.append(nmo.GetValue())
 			
 		self.settings.override['odds'] = overrides
-	
+		self.settings.override['nearMiss'] = nearMisses
+		
 		total=0
 		setOdds = []
 		for combo in self.allCombos:

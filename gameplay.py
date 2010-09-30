@@ -3,6 +3,7 @@
 import sys
 import os
 import math
+import copy
 
 from OpenGL.GL import *
 
@@ -400,18 +401,26 @@ class GamePlayGUI(wx.Frame):
 			theItem = self.settings.stimList.pop(0)
 		else:
 			odds = self.settings.override['odds']
+			nms = self.settings.override['nearMiss']
 			itemList =[]
 			index = 0
-			print odds
-			for o in odds:
 
+			for o, nm in zip(odds, nms):
 				item = self.settings.combos[index]
-
 				itemList = itemList + ([item] * o)
-				
+				if nm:
+					newItem = copy.deepcopy(item)
+					newItem[0] = cfg.IM_BLANK
+					random.shuffle(newItem)
+					itemList = itemList + ([newItem] * o)
+								
 				index = index + 1
-
-				numLoss = 100 - sum(odds)
+				if nm:
+					numLoss = 100 - sum(odds) - sum(nms)
+				else:
+					numLoss = 100 - sum(odds)
+				
+				
 			itemList = itemList + (['LOSS'] * numLoss)
 				
 			theItem = random.choice(itemList)
