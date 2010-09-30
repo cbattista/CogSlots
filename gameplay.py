@@ -359,7 +359,7 @@ class GamePlayGUI(wx.Frame):
 		allstops = []
 		settle = False
 		inc = 0
-		windowSize = (200, 200)
+		windowSize = (250, 250)
 		
 		reels = self.settings.slots.reels
 		
@@ -392,13 +392,9 @@ class GamePlayGUI(wx.Frame):
 		self.timer = wx.Timer(self)
 		self.Bind(wx.EVT_TIMER, self.OnDraw, self.timer)
 		
-		sizer.Add(self.reelBox)
+		sizer.AddF(self.reelBox, wx.SizerFlags().Align(wx.ALIGN_CENTER))
 	
 	def phoneySpin(self):
-	
-		print "Phoney Spinning"
-	
-		#print self.settings.stimList
 	
 		if self.settings.gamblersFallacy:
 			theItem = self.settings.stimList.pop(0)
