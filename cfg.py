@@ -9,7 +9,7 @@ IM_CHERRIES = "cherries.png"
 IM_CLOVER = "clover.png"
 IM_GOLDBARS = "gold_bullion.png"
 IM_TREASURECHEST = "chest.png"
-IM_BLANK = "spacer.gif"
+IM_BLANK = "spacer.png"
 IM_EMPTY = "any.png"
 
 # pack them in to a tuple to make things easier
@@ -31,6 +31,6 @@ IM_INCREASEWAGER_DOWN = wx.ART_MISSING_IMAGE
 FELT_GREEN = (0,153,0)
 WINNING_GOLD = (255, 150, 0)
 
-WEIGHTS_TEXT = "The controls below change the weighting of each symbol on each reel.  Values indicate how often symbols appear on reels.  Increasing the weight of a symbol increases the win odds of combinations containing that symbol, and decreases the win odds of combinations not containing that symbol."
+WEIGHTS_TEXT = "Values indicate how often symbols appear on reels."
 
 COMBOS_TEXT = "The controls below determine the winning combinations.  Adjust the payout and the symbols making up a combo.  Odds are determined by the settings in the weights table above."
