@@ -127,7 +127,7 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 	faces = len(reelStops)
 	#quad_width = (2 * radius * math.sin(theta/2)) / 2
 		
-	stopAngle = theta * stopAt - (theta/2)
+	stopAngle = theta * stopAt# - (theta/2)
 	
 	a = 0
 	b = 0
@@ -313,6 +313,15 @@ class GamePlayGUI(wx.Frame):
 		if (dialog.ShowModal() == wx.ID_CANCEL):
 			sys.exit(0)
 		
+		#if gamblersFallacy, need to purge near misses from the combos list
+		if self.settings.gamblersFallacy:
+			newComs = []
+			for c in self.settings.combos:
+				if cfg.IM_BLANK not in c:
+					newComs.append(c)
+				
+			self.settings.combos = newComs
+			
 		# show thyself
 		self.Centre()
 		self.Show(True)

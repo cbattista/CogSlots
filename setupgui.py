@@ -3,6 +3,7 @@
 import sys
 import wx, wx.combo, wx.lib.scrolledpanel
 import cfg
+import copy
 import commongui
 from commongui import makeBitmap
 import gameplay
@@ -11,7 +12,7 @@ from Settings import Settings
 import pickle
 from SlotReels import Slots
 import Shuffler
-
+import random
 
 class SetupGUI(wx.Frame):
 	""" The interface for the tester to set up parameters """
@@ -19,17 +20,17 @@ class SetupGUI(wx.Frame):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
-		self.FRAME_SIZE = (750, 600)
+		#self.FRAME_SIZE = (750, 600)
 
 		self.settings = Settings()
 
 		# the notebook
-		nbW = self.FRAME_SIZE[0]
-		nbH = self.FRAME_SIZE[1] * 0.9
-		self.nbH = nbH
-		self.nbW = nbW
+		#nbW = self.FRAME_SIZE[0]
+		#nbH = self.FRAME_SIZE[1] * 0.9
+		#self.nbH = nbH
+		#self.nbW = nbW
 		self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
-		self.book = wx.Notebook(self, wx.ID_ANY, size=(nbW, nbH))
+		self.book = wx.Notebook(self, wx.ID_ANY)
 
 		betspage, betssizer = self.create_page('Bets')
 		self.betspage = betspage
@@ -146,6 +147,7 @@ class SetupGUI(wx.Frame):
 				checkbox.cbname = s
 				self.symboxes.append(checkbox)
 				checkSizer = wx.BoxSizer(wx.VERTICAL)
+				print s
 				checkSizer.Add(wx.StaticBitmap(symbolpage, -1, makeBitmap(s, [16, 16])), 1)
 				checkSizer.Add(checkbox, 1)
 				symsizer.AddF(checkSizer, self.bflag)
@@ -267,14 +269,14 @@ class SetupGUI(wx.Frame):
 
 		middleSizer.AddF(self.book, wx.SizerFlags(1).Expand())
 		
-		midSize = (self.FRAME_SIZE[0] * 0.9, self.FRAME_SIZE[1] * 0.9)
-		middleSizer.SetMinSize(midSize)
+		#midSize = (self.FRAME_SIZE[0] * 0.9, self.FRAME_SIZE[1] * 0.9)
+		#middleSizer.SetMinSize(midSize)
 
 		outersizer.AddF(middleSizer, bottomflag)
 		outersizer.AddF(buttonsizer, bottomflag)
 
 		self.SetSizerAndFit(outersizer)
-		self.SetSize(self.FRAME_SIZE)
+		#self.SetSize(self.FRAME_SIZE)
 		self.Show(True)
 
 
@@ -300,31 +302,33 @@ class SetupGUI(wx.Frame):
 				
 		oddGrid.Add(weightLabel)
 		text = wx.StaticText(oddpage, -1, cfg.WEIGHTS_TEXT)
-		text.Wrap(self.nbW * .9)
+		#text.Wrap(self.GetSize()[0] * .9)
 		oddGrid.Add(text)
 		
 		self.nearMisses = []
+		self.nearMissOdds = []
+		cflag = wx.SizerFlags().Align(wx.ALIGN_CENTER_HORIZONTAL)
 		
 		#create top half
 		self.weights = []
 		weightSizer = wx.GridSizer(cols=self.settings.numReels+2, rows=len(self.settings.visibleSymbols))
-		weightSizer.Add(wx.StaticText(oddpage, -1, "Symbol"))
+		weightSizer.AddF(wx.StaticText(oddpage, -1, "Symbol"), cflag)
 		for r in range(self.settings.numReels):
 			text = "Reel %s" % (r + 1)
-			weightSizer.Add(wx.StaticText(oddpage, -1, text))
-		weightSizer.Add(wx.StaticText(oddpage, -1, "Near miss"))
+			weightSizer.AddF(wx.StaticText(oddpage, -1, text), cflag)
+		weightSizer.AddF(wx.StaticText(oddpage, -1, "Blank Pad"), cflag)
 
 		for s in self.settings.visibleSymbols:
 			w = []
 			
-			weightSizer.Add(wx.StaticBitmap(oddpage, -1, makeBitmap(s, cfg.SLOT_SIZE)))
+			weightSizer.AddF(wx.StaticBitmap(oddpage, -1, makeBitmap(s, cfg.SLOT_SIZE)), cflag)
 			for r in range(self.settings.numReels):
 				ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1, size=cfg.CTRL_SIZE)
 				w.append(ctrl)
+				weightSizer.AddF(ctrl, cflag)
 				
-				weightSizer.Add(ctrl)
 			nmctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=0, size=cfg.CTRL_SIZE)
-			weightSizer.Add(nmctrl)
+			weightSizer.AddF(nmctrl, cflag)
 			self.nearMisses.append(nmctrl)
 				
 			self.weights.append(w)
@@ -335,7 +339,7 @@ class SetupGUI(wx.Frame):
 		
 		oddGrid.Add(oddsLabel)
 		text = wx.StaticText(oddpage, -1, cfg.COMBOS_TEXT)
-		text.Wrap(self.nbW * .95)
+		#text.Wrap(self.nbW * .95)
 		oddGrid.Add(text)
 		#create bottom half
 		self.odds = []
@@ -348,14 +352,15 @@ class SetupGUI(wx.Frame):
 		oddGrid.Add(self.overBox)
 		
 		
-		comboSizer = wx.GridSizer(rows=len(self.settings.payouts) + 1, cols=self.settings.numReels+3)
+		comboSizer = wx.GridSizer(rows=len(self.settings.payouts) + 1, cols=self.settings.numReels+4)
 		
 		comboSizer.Add(wx.StaticText(oddpage, -1, "Payout"))
 		for r in range(self.settings.numReels):
 			text = "Reel %s" % (r+1)
 			comboSizer.Add(wx.StaticText(oddpage, -1, text))
-		comboSizer.Add(wx.StaticText(oddpage, -1, "Odds (%)"))
-		comboSizer.Add(wx.StaticText(oddpage, -1, "Odds Override"))
+		comboSizer.AddF(wx.StaticText(oddpage, -1, "Odds (%)"), cflag)
+		comboSizer.AddF(wx.StaticText(oddpage, -1, "Odds\n Override"), cflag)
+		comboSizer.AddF(wx.StaticText(oddpage, -1, "Miss Override %"), cflag)
 		
 		self.overrides = []
 		
@@ -381,6 +386,10 @@ class SetupGUI(wx.Frame):
 			override = wx.SpinCtrl(oddpage, -1, min=0, initial=0, size=cfg.CTRL_SIZE)
 			comboSizer.Add(oddsText)
 			comboSizer.Add(override)
+			nmoctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=0, size=cfg.CTRL_SIZE)
+			comboSizer.Add(nmoctrl)
+			self.nearMissOdds.append(nmoctrl)
+
 			self.odds.append(oddsText)
 			self.overrides.append(override)
 		
@@ -467,11 +476,27 @@ class SetupGUI(wx.Frame):
 			else:
 				for o in self.settings.override['odds']:
 					amount = o * self.settings.rounds / 100.
-					ratio.append(int(amount))
+					ratio.append(int(amount))				
+				
+			nearMisses = []
+			items = self.settings.combos
+
+			for nmo, c in zip(self.nearMissOdds, self.settings.combos):
+				if nmo.GetValue():
+					newC = copy.deepcopy(c)
+					newC[0] = cfg.IM_BLANK
+					random.shuffle(newC)
+					ratio.append(nmo.GetValue())
+					items.append(newC)
 			
 			losses = self.settings.rounds - sum(ratio)
-			items = self.settings.combos + ["LOSS"]
+			items = items + ["LOSS"]
 			ratios = ratio + [losses]
+			
+			print ratio
+			print items
+			
+			
 			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
 			self.settings.stimList = shuffler.shuffleIt()
 
@@ -631,7 +656,7 @@ class SetupGUI(wx.Frame):
 				cc.SetStringSelection(ssc)
 				
 		for o, oo in zip(self.overrides, self.settings.override['odds']):
-			o.SetValue(str(oo))
+			o.SetValue(oo)
 
 		self.gfBox.SetValue(self.settings.gamblersFallacy)
 		self.overBox.SetValue(self.settings.override['engage'])
@@ -719,8 +744,9 @@ class SetupGUI(wx.Frame):
 		self.book.AddPage(page, name)
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		page.SetSizer(sizer)
-		page.SetClientSizeWH(self.nbW, self.nbH)
-		page.SetupScrolling()
+		#page.SetClientSizeWH(self.nbW, self.nbH)
+		if name !="Odds":
+			page.SetupScrolling()
 		return page, sizer
 
 	def create_symbols_checkbox(self, parent, index):
