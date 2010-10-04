@@ -455,7 +455,7 @@ class SetupGUI(wx.Frame):
 		if self.ActivePage() == 'Symbols':
 			self.makeOddsTab()
 
-		self.SetOddsSettings()
+		self.updateOdds()
 		
 		self.payoutSizer.Hide(self.payoutframe)
 		self.payoutSizer.Remove(self.payoutframe)
@@ -627,6 +627,9 @@ class SetupGUI(wx.Frame):
 		for o, oo in zip(self.overrides, self.settings.override['odds']):
 			o.SetValue(oo)
 
+		for nm, nmo in zip(self.nearMissOdds, self.settings.override['nearMiss']):
+			nm.SetValue(nmo)
+			
 		self.gfBox.SetValue(self.settings.gamblersFallacy)
 		self.overBox.SetValue(self.settings.override['engage'])
 		
