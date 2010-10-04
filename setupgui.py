@@ -366,7 +366,7 @@ class SetupGUI(wx.Frame):
 		
 		for p in range(self.settings.numPayouts):
 			o = []
-			pctrl = wx.TextCtrl(oddpage, -1, size=cfg.CTRL_SIZE)
+			pctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=0, size=cfg.CTRL_SIZE)
 			self.payoffs.append(pctrl)
 			comboSizer.Add(pctrl)
 			#make symbol combo boxes
@@ -437,6 +437,7 @@ class SetupGUI(wx.Frame):
 		self.SetInfo()
 		self.SetBets()
 		self.SetSymbols()
+		self.makeOddsTab()
 		self.SetOdds()
 
 	def ActivePage(self):
@@ -505,7 +506,7 @@ class SetupGUI(wx.Frame):
 			self.SetSymbols()
 
 		elif self.ActivePage() == 'Odds':
-			self.SetOdds()
+			self.updateOdds()
 	
 		elif self.ActivePage() == 'Info':
 			self.SetInfo()
@@ -606,34 +607,6 @@ class SetupGUI(wx.Frame):
 		self.settings.numPayouts = self.pCtrl.GetSelection() + 1
 		self.settings.numReels = self.rCtrl.GetSelection() + 1
 
-
-	def SetOddsSettings(self):
-		#sets value of odds object from gui
-		self.settings.payouts = []
-
-		for p in self.payoffs:
-			value = 0.0
-			if not p.IsEmpty():
-				value = commongui.StringToType(p.GetValue())
-			self.settings.payouts.append(value)
-
-		self.settings.combos = []
-			
-		for combo in self.allCombos:
-			c = []
-			for com in combo:
-				c.append(com.GetStringSelection())
-			self.settings.combos.append(c)
-		
-		self.settings.gamblersFallacy = self.gfBox.GetValue()
-		self.settings.override['engage'] = self.overBox.GetValue()
-		
-		overrides = []
-		
-		for o in self.overrides:
-			overrides.append(o.GetValue())
-			
-		self.settings.override['odds'] = overrides
 		
 	def SetOdds(self):
 
@@ -645,7 +618,7 @@ class SetupGUI(wx.Frame):
 					ww.SetValue(sww)
 		
 		for p, sp in zip(self.payoffs, self.settings.payouts):
-			p.SetValue(str(sp))
+			p.SetValue(sp)
 		
 		for c, sc in zip(self.allCombos, self.settings.combos):
 			for cc, ssc in zip(c, sc):
@@ -697,6 +670,12 @@ class SetupGUI(wx.Frame):
 			
 		self.settings.override['odds'] = overrides
 		self.settings.override['nearMiss'] = nearMisses
+		
+		payoffs = []
+		for p in self.payoffs:
+			payoffs.append(p.GetValue())
+			
+		self.settings.payouts = payoffs
 		
 		total=0
 		setOdds = []
