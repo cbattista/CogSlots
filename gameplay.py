@@ -11,6 +11,9 @@ import random
 
 #gl stuff
 from OpenGL.GL import *
+from OpenGL.GLUT import *
+from OpenGL.GLU import *
+
 
 #wx stuff
 import wx
@@ -26,7 +29,7 @@ import subjectinfo
 
 def fitScreen():
 	#get viewport origin and extent
-	global xpos, inset, radius, quad_width, theta
+	global xpos, inset, radius, quad_width, theta, payline1, payline2
 
 	viewport = glGetIntegerv(GL_VIEWPORT)
 		
@@ -41,6 +44,10 @@ def fitScreen():
 	
 	winY = windowSize[1] / 2
 	
+	payline_size = windowSize[0] / 15
+		
+	payline_pos = [[0 , winY], [windowSize[0] ,winY]]
+	
 	count = 0
 	#coords = []
 	xpos = []
@@ -53,6 +60,10 @@ def fitScreen():
 	faces = len(allstops[0])
 	theta = (2 * math.pi) / faces
 	radius = quad_width / math.sin(theta/2) / 2
+	
+	payline1 = [[0, winY - payline_size/2, radius+0.5], [payline_size, winY, radius+0.5], [0, winY + payline_size/2, radius+0.5]]
+	payline2 = [[windowSize[0], winY - payline_size/2, radius+0.5], [windowSize[0]-payline_size, winY, radius+0.5], [windowSize[0], winY + payline_size/2, radius+0.5]]
+
 	inset = 0
 	
 
@@ -118,17 +129,13 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	#gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
 
 	glMatrixMode(GL_MODELVIEW)
-
-	glLightfv(GL_LIGHT0, GL_AMBIENT, (0.5, 0.5, 0.5, 1.0))		# Setup The Ambient Light 
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))		# Setup The Diffuse Light 
-	glLightfv(GL_LIGHT0, GL_POSITION, (0.0, 0.0, 2.0, 1.0))	# Position The Light 
-	glEnable(GL_LIGHT0)					# Enable Light One 
 	
 	fitScreen()
 	
 def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 	
 	#global images, textures
+	glColor3f(1.0,1.0,1.0)
 	
 	faces = len(reelStops)
 	#quad_width = (2 * radius * math.sin(theta/2)) / 2
@@ -180,12 +187,31 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 	else:
 		return deg
 
+def drawPayline():
+	glBegin(GL_TRIANGLES)
+	glColor3f(1.0,0.0,0.0)
+	#triangle 1
+	glVertex3f(payline1[0][0], payline1[0][1], payline1[0][2])
+	glVertex3f(payline1[1][0], payline1[1][1], payline1[1][2])
+	glVertex3f(payline1[2][0], payline1[2][1], payline1[2][2])
+
+	#triangle 2
+	glVertex3f(payline2[0][0], payline2[0][1], payline2[0][2])
+	glVertex3f(payline2[1][0], payline2[1][1], payline2[1][2])
+	glVertex3f(payline2[2][0], payline2[2][1], payline2[2][2])
+	
+	glEnd() #done drawing the reel
+
+		
+		
 class GamePlayGUI(wx.Frame):
 	""" The main gameplay GUI class """
 	def __init__(self, parent, settings="", subject="", *args, **kwargs):
 		# create the parent class
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
+		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+		
 		#self.SetSize((800, 600))
 		bmp = wx.Bitmap('images/background.png')
 		#self.background = wx.StaticBitmap(self, -1, bmp, (0,0))
@@ -437,14 +463,17 @@ class GamePlayGUI(wx.Frame):
 		
 		if theItem != "LOSS":
 			payline = theItem
-			while cfg.IM_EMPTY in theItem:
-				newItem = random.choice(self.settings.symbols)
-				theItem.replace(item, newItem, 1)
-				print "switching any"
+			if cfg.IM_EMPTY in theItem:
+				for i in range(0, len(theItem)):
+					if theItem[i] == cfg.IM_EMPTY:
+						theItem[i] = random.choice(self.settings.symbols)
+
 			#now we need to come up with the actual payline numbers
 			stopAt = []
 			count = 0
 			for item, reel in zip(theItem, self.settings.slots.reels):
+				print item
+				print reel.symbols
 				symbolIndex = reel.symbols.index(item)
 				indeces = []
 				symcount = 0
@@ -707,6 +736,8 @@ class GamePlayGUI(wx.Frame):
 		glTranslatef(0.0,windowSize[1]/2 - quad_width/2,0.0)			# Move Into The Screen
 
 		
+		drawPayline()
+		
 		#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
 		#glEnable(GL_LIGHTING)
@@ -756,6 +787,7 @@ class GamePlayGUI(wx.Frame):
 				count += 1
 		else:
 			xrot = map(lambda x: x + inc, xrot)
+		
 		self.SwapBuffers()
 
 		
