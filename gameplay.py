@@ -334,7 +334,10 @@ class GamePlayGUI(wx.Frame):
 		self.Refresh()
 		self.Update()
 		
+		#starting vars to monitor subject activity
 		self.startTime = time.clock()
+		self.wagerIncreases = 0
+		self.wagerDecreases = 0
 
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
@@ -472,6 +475,11 @@ class GamePlayGUI(wx.Frame):
 		RT = time.clock() - self.startTime
 		
 		self.subject.inputData(self.round, "RT", RT)
+		self.subject.inputData(self.round, "wagerInc", self.wagerIncreases)
+		self.subject.inputData(self.round, "wagerDec", self.wagerDecreases)
+		
+		self.wagerIncreases = 0
+		self.wagerDecreases = 0
 		
 		self.spinbtn.Disable()
 		
@@ -588,6 +596,7 @@ class GamePlayGUI(wx.Frame):
 
 		# if we can't increase beyond zero, stop doing anything
 		if 'increase' in name:
+			self.wagerIncreases += 1
 			if (i + 1) >= len(self.betsizes):
 				return
 
@@ -599,6 +608,7 @@ class GamePlayGUI(wx.Frame):
 			wager = self.wagerstep
 					
 		elif 'decrease' in name:
+			self.wagerDecreases += 1
 			if i == 0:
 				return
 
