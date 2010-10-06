@@ -460,7 +460,7 @@ class GamePlayGUI(wx.Frame):
 	
 	def spin(self):
 		global settle, inc, stopAt
-
+				
 		if self.settings.gamblersFallacy or self.settings.override['engage']:
 			payline,stopAt = self.phoneySpin()
 		else:
@@ -477,7 +477,7 @@ class GamePlayGUI(wx.Frame):
 		settle = False
 		#SPIN!
 		inc = 30	
-					
+		self.spinning = True
 		#if we are dealing with the 'any' symbol, we must account for that
 		outcome = self.judgeOutcome(payline)
 		if outcome:
@@ -543,6 +543,7 @@ class GamePlayGUI(wx.Frame):
 		self.balancetext.SetValue(str(self.balance))
 	
 	def OnSpin(self, event):
+		self.spinbtn.Disable()
 		win = self.spin()
 
 		wager = commongui.StringToType(self.wagertext.GetValue())
@@ -719,11 +720,17 @@ class GamePlayGUI(wx.Frame):
 			if inc < 1:
 				inc = 1
 			count = 0
+			stoppedReels = 0
 			for xr, sa in zip(xrot, stopAngles):
 				if int(xr % 360) == int(sa):
 					xrot[count] = xr
+					stoppedReels += 1 
 				else:
 					xrot[count] = xr + inc
+					
+				if stoppedReels == len(xrot) and self.spinning:
+					self.spinbtn.Enable()
+					self.spinning = False
 				count += 1
 		else:
 			xrot = map(lambda x: x + inc, xrot)
