@@ -472,6 +472,12 @@ class GamePlayGUI(wx.Frame):
 		
 		global settle, inc, stopAt
 		
+		self.subject.inputData(self.round, 'oldbalance', self.balance)
+		wager = commongui.StringToType(self.wagertext.GetValue())
+		self.balance -= wager
+		self.balancetext.SetValue(str(self.balance))
+		self.wintext.SetValue("0")
+		
 		RT = time.clock() - self.startTime
 		
 		self.subject.inputData(self.round, "RT", RT)
@@ -512,24 +518,19 @@ class GamePlayGUI(wx.Frame):
 		if win:
 			payout = self.settings.payouts[win-1]
 			self.subject.inputData(self.round, 'outcome', 'WIN')
-		else:
-			payout = 0
-			self.subject.inputData(self.round, 'outcome', 'LOSS')
-
-		self.subject.inputData(self.round, 'oldbalance', self.balance)
-		self.subject.inputData(self.round, 'wager', wager)
-		self.subject.inputData(self.round, 'payout', payout)
-
-		if win:
 			self.balance += wager*payout
 			self.subject.inputData(self.round, 'delta', wager*payout)
 			# Update the balance text box with the current balance
 			self.wintext.SetValue(str(wager*payout))
+
 		else:
-			self.balance -= wager
-			self.wintext.SetValue(str(-wager))
+			payout = 0
+			self.subject.inputData(self.round, 'outcome', 'LOSS')
+			self.wintext.SetValue("0")
 			self.subject.inputData(self.round, 'delta', -wager)
 
+		self.subject.inputData(self.round, 'wager', wager)
+		self.subject.inputData(self.round, 'payout', payout)
 		self.subject.inputData(self.round, 'newbalance', self.balance)
 
 		self.balancetext.SetValue(str(self.balance))
@@ -604,7 +605,7 @@ class GamePlayGUI(wx.Frame):
 
 			if (self.balance < self.wagerstep) and not self.settings.debt:
 				return 
-			self.balance -= self.wagerstep - int(wager)
+			#self.balance -= self.wagerstep - int(wager)
 			wager = self.wagerstep
 					
 		elif 'decrease' in name:
