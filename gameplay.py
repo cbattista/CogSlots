@@ -458,14 +458,17 @@ class GamePlayGUI(wx.Frame):
 		return payline, stopAt
 	
 	
-	def spin(self):
+	def OnSpin(self, event):
+		
 		global settle, inc, stopAt
-				
+		self.spinbtn.Disable()
+		
 		if self.settings.gamblersFallacy or self.settings.override['engage']:
 			payline,stopAt = self.phoneySpin()
 		else:
 			imageList, payline, stopAt = self.slots.spin(2)
 
+		self.payline = payline
 		
 		self.timer.Start(1)
 		
@@ -478,15 +481,66 @@ class GamePlayGUI(wx.Frame):
 		#SPIN!
 		inc = 30	
 		self.spinning = True
-		#if we are dealing with the 'any' symbol, we must account for that
-		outcome = self.judgeOutcome(payline)
-		if outcome:
+		
+	def afterSpin(self):
+		wager = commongui.StringToType(self.wagertext.GetValue())
+		win = self.judgeOutcome(self.payline)
+		
+		if win:
+			payout = self.settings.payouts[win-1]
 			self.subject.inputData(self.round, 'outcome', 'WIN')
 		else:
+			payout = 0
 			self.subject.inputData(self.round, 'outcome', 'LOSS')
-			
-		return outcome
+
+		self.subject.inputData(self.round, 'oldbalance', self.balance)
+		self.subject.inputData(self.round, 'wager', wager)
+		self.subject.inputData(self.round, 'payout', payout)
+
+		if win:
+			self.balance += wager*payout
+			self.subject.inputData(self.round, 'delta', wager*payout)
+			# Update the balance text box with the current balance
+			self.wintext.SetValue(str(wager*payout))
+		else:
+			self.balance -= wager
+			self.wintext.SetValue(str(-wager))
+			self.subject.inputData(self.round, 'delta', -wager)
+
+		self.subject.inputData(self.round, 'newbalance', self.balance)
+
+		self.balancetext.SetValue(str(self.balance))
 		
+		# Reset the wager to zero
+		self.wagertext.SetValue(str(self.settings.betsizes[0]))
+
+		if self.settings.probDict['obtain'] == True:
+			msg = self.settings.probDict['msg']
+			pround = self.settings.probDict['interval']
+			if (self.round) % pround == 0:
+				dia = commongui.ProbDialog(self, "Probability Estimate", msg)
+				outcome = dia.ShowModal()
+				if outcome == wx.ID_OK:
+					est = dia.est.GetValue()
+					est = est.replace(",", "_")
+					self.subject.inputData(self.round, 'estimate', est)
+			else:
+				self.subject.inputData(self.round, 'estimate', "NA")
+		else:
+			self.subject.inputData(self.round, 'estimate', "NA")
+
+		self.round += 1
+
+		self.Refresh()
+		self.Update()
+
+		if self.balance <= 0 and not self.settings.debt:
+			self.gameOver("You're out of money.")
+
+		# Check to see if the maximum number of rounds has been reached 
+		if self.round > self.settings.rounds:
+			self.gameOver("Round limit reached.")
+						
 	def judgeOutcome(self, payline):
 		#if we are dealing with the 'any' symbol, we must account for that
 		any = False
@@ -542,67 +596,6 @@ class GamePlayGUI(wx.Frame):
 		self.wagertext.SetValue(str(wager))
 		self.balancetext.SetValue(str(self.balance))
 	
-	def OnSpin(self, event):
-		self.spinbtn.Disable()
-		win = self.spin()
-
-		wager = commongui.StringToType(self.wagertext.GetValue())
-		if win:
-			payout = self.settings.payouts[win-1]
-		else:
-			payout = 0
-
-
-		self.subject.inputData(self.round, 'oldbalance', self.balance)
-		self.subject.inputData(self.round, 'wager', wager)
-		self.subject.inputData(self.round, 'payout', payout)
-
-		if win:
-			self.balance += wager*payout
-			self.subject.inputData(self.round, 'delta', wager*payout)
-			# Update the balance text box with the current balance
-			self.wintext.SetValue(str(wager*payout))
-		else:
-			self.balance -= wager
-			self.wintext.SetValue(str(-wager))
-			self.subject.inputData(self.round, 'delta', -wager)
-
-		self.subject.inputData(self.round, 'newbalance', self.balance)
-
-		self.balancetext.SetValue(str(self.balance))
-		
-		# Reset the wager to zero
-		self.wagertext.SetValue(str(self.settings.betsizes[0]))
-
-		if self.settings.probDict['obtain'] == True:
-			msg = self.settings.probDict['msg']
-			pround = self.settings.probDict['interval']
-			if (self.round) % pround == 0:
-				dia = commongui.ProbDialog(self, "Probability Estimate", msg)
-				outcome = dia.ShowModal()
-				if outcome == wx.ID_OK:
-					est = dia.est.GetValue()
-					est = est.replace(",", "_")
-					self.subject.inputData(self.round, 'estimate', est)
-			else:
-				self.subject.inputData(self.round, 'estimate', "NA")
-		else:
-			self.subject.inputData(self.round, 'estimate', "NA")
-
-		self.round += 1
-
-		self.Refresh()
-		self.Update()
-
-
-		if self.balance <= 0 and not self.settings.debt:
-			self.gameOver("You're out of money.")
-
-		# Check to see if the maximum number of rounds has been reached 
-		if self.round > self.settings.rounds:
-			self.gameOver("Round limit reached.")
-		
-				
 	def gameOver(self, msg):
 		self.subject.printData()
 		self.subject.preserve()
@@ -731,6 +724,7 @@ class GamePlayGUI(wx.Frame):
 				if stoppedReels == len(xrot) and self.spinning:
 					self.spinbtn.Enable()
 					self.spinning = False
+					self.afterSpin()
 				count += 1
 		else:
 			xrot = map(lambda x: x + inc, xrot)
