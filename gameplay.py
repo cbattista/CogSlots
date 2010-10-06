@@ -1,23 +1,28 @@
 #!/usr/bin/env python
 
+#default libs
 import sys
 import os
 import math
 import copy
+import time
+import pickle
+import random
 
+#gl stuff
 from OpenGL.GL import *
 
+#wx stuff
 import wx
 from wx import glcanvas
 
+#cogslots libs
 import cfg
 import commongui
 from Settings import Settings
 import SlotReels
 from CogSub import Subject
-import pickle
 import subjectinfo
-import random
 
 def fitScreen():
 	#get viewport origin and extent
@@ -328,6 +333,8 @@ class GamePlayGUI(wx.Frame):
 		self.Show(True)
 		self.Refresh()
 		self.Update()
+		
+		self.startTime = time.clock()
 
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
@@ -461,6 +468,11 @@ class GamePlayGUI(wx.Frame):
 	def OnSpin(self, event):
 		
 		global settle, inc, stopAt
+		
+		RT = time.clock() - self.startTime
+		
+		self.subject.inputData(self.round, "RT", RT)
+		
 		self.spinbtn.Disable()
 		
 		if self.settings.gamblersFallacy or self.settings.override['engage']:
@@ -483,6 +495,9 @@ class GamePlayGUI(wx.Frame):
 		self.spinning = True
 		
 	def afterSpin(self):
+	
+		self.startTime = time.clock()
+	
 		wager = commongui.StringToType(self.wagertext.GetValue())
 		win = self.judgeOutcome(self.payline)
 		
@@ -540,6 +555,8 @@ class GamePlayGUI(wx.Frame):
 		# Check to see if the maximum number of rounds has been reached 
 		if self.round > self.settings.rounds:
 			self.gameOver("Round limit reached.")
+			
+		self.subject.printData()
 						
 	def judgeOutcome(self, payline):
 		#if we are dealing with the 'any' symbol, we must account for that
