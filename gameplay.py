@@ -466,7 +466,7 @@ class GamePlayGUI(wx.Frame):
 			if cfg.IM_EMPTY in theItem:
 				for i in range(0, len(theItem)):
 					if theItem[i] == cfg.IM_EMPTY:
-						theItem[i] = random.choice(self.settings.symbols)
+						theItem[i] = random.choice(self.settings.visibleSymbols)
 
 			#now we need to come up with the actual payline numbers
 			stopAt = []
