@@ -468,8 +468,6 @@ class GamePlayGUI(wx.Frame):
 			stopAt = []
 			count = 0
 			for item, reel in zip(theItem, self.settings.slots.reels):
-				print item
-				print reel.symbols
 				symbolIndex = reel.symbols.index(item)
 				indeces = []
 				symcount = 0
@@ -611,7 +609,24 @@ class GamePlayGUI(wx.Frame):
 					else:
 						match.append(0)
 				if not match.count(0):
+					#if there's a winning combo in here, return it
 					return match[0]
+				else:
+					if payline.count(cfg.IM_BLANK) == 1:
+						i = payline.index(cfg.IM_BLANK)
+						for c in self.settings.combos:
+							count = 0
+							matchCount = 0
+							match = []
+							for cc, p in zip(c, payline):
+								if count != i:
+									if cc == cfg.IM_EMPTY or cc == p:
+										matchCount += 1
+								count += 1
+								
+							if matchCount == (len(payline) - 1):
+								return "NEAR MISS"
+					
 		else:
 			#otherwise just check for payline membership in combo list
 			if payline in self.settings.combos:
