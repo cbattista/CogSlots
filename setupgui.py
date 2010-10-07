@@ -486,15 +486,20 @@ class SetupGUI(wx.Frame):
 					newC = copy.deepcopy(c)
 					blankIndex = random.choice([0,1,2])
 					newC[blankIndex] = cfg.IM_BLANK
-					ratio.append(nmo.GetValue())
+					amount = float(nmo.GetValue()) * self.settings.rounds / 100.
+					ratio.append(int(amount))
 					items.append(newC)
 			
 			losses = self.settings.rounds - sum(ratio)
 			items = items + ["LOSS"]
 			ratios = ratio + [losses]			
+			
+			print items
+			print ratios
 						
 			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
 			self.settings.stimList = shuffler.shuffleIt()
+		
 			
 
 		
