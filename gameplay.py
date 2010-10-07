@@ -334,6 +334,10 @@ class GamePlayGUI(wx.Frame):
 		# these bindings are for the not-quite-functional background
 		self.Bind(wx.EVT_SIZE, self.OnSize)
 		
+		f = open('introtext.html', 'w')
+		f.write(self.settings.instructions)
+		f.close()
+		
 		# create the initial instructions dialog
 		dialog = commongui.InfoDialog(self, "Welcome to CogSlots", 'introtext.html')
 		

@@ -38,8 +38,14 @@ class SetupGUI(wx.Frame):
 		symbolpage, symbolsizer = self.create_page('Symbols')
 		#self.oddpage, self.oddsizer = self.create_page('Odds')
 		infopage, infosizer = self.create_page('Info')
+		instructionPage, instructionSizer = self.create_page('Instructions')
 		self.infopage = infopage
 
+		self.iCtrl = wx.TextCtrl(instructionPage, -1, self.settings.instructions, style = wx.TE_MULTILINE)
+		flagsExpand = wx.SizerFlags(1)
+		flagsExpand.Expand()
+		instructionSizer.AddF(self.iCtrl, flagsExpand)
+		
 		# same font for all the headers
 		self.hfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
 		self.hfont.SetWeight(wx.FONTWEIGHT_BOLD)
@@ -233,7 +239,7 @@ class SetupGUI(wx.Frame):
 		#*******************************************		
 		
 		self.makeOddsTab()
-
+		
 		#*******************************************
 		# 				Common Elements
 		#*******************************************
@@ -284,11 +290,11 @@ class SetupGUI(wx.Frame):
 
 	#******************************************
 	#				Settings Tab Getters and Setters
-	#******************************************
+	#******************************************		
 	
 	def makeOddsTab(self):		
-		if self.book.GetPageCount() == 4:
-			self.book.DeletePage(3)
+		if self.book.GetPageCount() == 5:
+			self.book.DeletePage(4)
 		
 		oddpage, oddsizer = self.create_page('Odds')
 		
@@ -438,6 +444,7 @@ class SetupGUI(wx.Frame):
 		self.SetSymbols()
 		self.makeOddsTab()
 		self.SetOdds()
+		self.SetInstructions()
 
 	def ActivePage(self):
 		currentPage = self.book.GetSelection()
@@ -450,6 +457,7 @@ class SetupGUI(wx.Frame):
 		self.SetInfoSettings()
 		self.SetBetSettings()
 		self.SetSymbolSettings()
+		self.SetInstructionsSettings()
 						
 		if self.ActivePage() == 'Symbols':
 			self.makeOddsTab()
@@ -515,7 +523,15 @@ class SetupGUI(wx.Frame):
 	
 		elif self.ActivePage() == 'Info':
 			self.SetInfo()
+			
+		elif self.ActivePage() == 'Instructions':
+			self.SetInstructions()
 
+	def SetInstructions(self):
+		self.iCtrl.SetValue(self.settings.instructions)
+			
+	def SetInstructionsSettings(self):
+		self.settings.instructions = self.iCtrl.GetValue()
 	
 	def SetInfo(self):
 		#set the values of the info items (prob est, sub info, etc...)

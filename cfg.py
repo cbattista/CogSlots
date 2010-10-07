@@ -34,3 +34,19 @@ WINNING_GOLD = (255, 150, 0)
 WEIGHTS_TEXT = "Values indicate how often symbols appear on reels."
 
 COMBOS_TEXT = "Adjust the payout and the symbols making up a combo.  Odds are determined by the settings in the weights table above."
+
+INSTRUCTIONS_HTML = """
+<html>
+<body>
+
+<h1>Objective</h1>
+
+<p>The objective is to get a winning combination of three objects along the red payoff line that runs across the reels. 
+</p>
+
+<h1>Payouts</h1>
+<p>Different payouts are awarded depending on the size of the bet and the winning combination. Specific payout amounts are displayed in the Payout Table above the reels.
+</p>
+</body>
+</html>
+"""
