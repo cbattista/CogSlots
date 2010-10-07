@@ -45,13 +45,15 @@ def fitScreen():
 	winY = windowSize[1] / 2
 	
 	payline_size = windowSize[0] / 15
-		
-	payline_pos = [[0 , winY], [windowSize[0] ,winY]]
-	
+			
 	count = 0
 	#coords = []
 	xpos = []
 	#quad_width = 20
+
+	print windowSize
+	
+	print winY
 	
 	for r in range(reels):
 		xpos.append([quad_width * (count + 1), quad_width * count, quad_width * count, quad_width * (count + 1)])
@@ -61,8 +63,8 @@ def fitScreen():
 	theta = (2 * math.pi) / faces
 	radius = quad_width / math.sin(theta/2) / 2
 	
-	payline1 = [[0, winY - payline_size/2, radius+0.5], [payline_size, winY, radius+0.5], [0, winY + payline_size/2, radius+0.5]]
-	payline2 = [[windowSize[0], winY - payline_size/2, radius+0.5], [windowSize[0]-payline_size, winY, radius+0.5], [windowSize[0], winY + payline_size/2, radius+0.5]]
+	payline1 = [[0, winY - payline_size/2, radius-1], [payline_size, winY, radius-1], [0, winY + payline_size/2, radius-1]]
+	payline2 = [[windowSize[0], winY - payline_size/2, radius-1], [windowSize[0]-payline_size, winY, radius-1], [windowSize[0], winY + payline_size/2, radius-1]]
 
 	inset = 0
 	
@@ -733,10 +735,11 @@ class GamePlayGUI(wx.Frame):
 		#inset = -5.0
 		
 		glLoadIdentity()					# Reset The View
+		drawPayline()
+
 		glTranslatef(0.0,windowSize[1]/2 - quad_width/2,0.0)			# Move Into The Screen
 
 		
-		drawPayline()
 		
 		#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
