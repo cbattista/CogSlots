@@ -622,11 +622,12 @@ class GamePlayGUI(wx.Frame):
 				for c in self.settings.combos:
 					count = 0
 					matchCount = 0
-					for pp, cc in zip(payline, self.settings.combos):
+					for pp, cc in zip(payline, c):
 						if count != i:
 							if pp == cc:
 								matchCount += 1
 						count += 1
+						
 					if matchCount == (len(payline) - 1):
 						return "NEAR MISS"
 						
