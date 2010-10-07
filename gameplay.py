@@ -50,10 +50,6 @@ def fitScreen():
 	#coords = []
 	xpos = []
 	#quad_width = 20
-
-	print windowSize
-	
-	print winY
 	
 	for r in range(reels):
 		xpos.append([quad_width * (count + 1), quad_width * count, quad_width * count, quad_width * (count + 1)])
@@ -122,13 +118,8 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()					# Reset The Projection Matrix
-	
-	# Set up orthographic project here
-	
-	#glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near, GLdouble far);
-	
+		
 	glOrtho(0, Width, 0, Height, -1000, 0)
-	#gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
 
 	glMatrixMode(GL_MODELVIEW)
 	
@@ -191,10 +182,12 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 
 def drawPayline():
 	glBegin(GL_TRIANGLES)
-	glColor3f(1.0,0.0,0.0)
 	#triangle 1
+	glColor3f(1.0,1.0,1.0)
 	glVertex3f(payline1[0][0], payline1[0][1], payline1[0][2])
+	glColor3f(1.0,1.0,1.0)
 	glVertex3f(payline1[1][0], payline1[1][1], payline1[1][2])
+	glColor3f(1.0,1.0,1.0)
 	glVertex3f(payline1[2][0], payline1[2][1], payline1[2][2])
 
 	#triangle 2
@@ -215,7 +208,7 @@ class GamePlayGUI(wx.Frame):
 		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
 		
 		#self.SetSize((800, 600))
-		bmp = wx.Bitmap('images/background.png')
+		#bmp = wx.Bitmap('images/background.png')
 		#self.background = wx.StaticBitmap(self, -1, bmp, (0,0))
 		
 		#initialize the game settings
@@ -436,6 +429,7 @@ class GamePlayGUI(wx.Frame):
 	def phoneySpin(self):
 	
 		if self.settings.gamblersFallacy:
+			random.shuffle(self.settings.stimList)
 			theItem = self.settings.stimList.pop(0)
 		else:
 			odds = self.settings.override['odds']
@@ -546,17 +540,20 @@ class GamePlayGUI(wx.Frame):
 		wager = commongui.StringToType(self.wagertext.GetValue())
 		win = self.judgeOutcome(self.payline)
 		
-		if win:
+		if win and win != "NEAR MISS":
 			payout = self.settings.payouts[win-1]
 			self.subject.inputData(self.round, 'outcome', 'WIN')
 			self.balance += wager*payout
 			self.subject.inputData(self.round, 'delta', wager*payout)
 			# Update the balance text box with the current balance
 			self.wintext.SetValue(str(wager*payout))
-
+			
 		else:
 			payout = 0
-			self.subject.inputData(self.round, 'outcome', 'LOSS')
+			if win == "NEAR MISS":
+				self.subject.inputData(self.round, 'outcome', 'NEAR MISS')
+			else:
+				self.subject.inputData(self.round, 'outcome', 'LOSS')
 			self.wintext.SetValue("0")
 			self.subject.inputData(self.round, 'delta', -wager)
 
@@ -605,6 +602,7 @@ class GamePlayGUI(wx.Frame):
 			if cfg.IM_EMPTY in c:
 				any = True				
 		if any:
+			#if the any symbol is involved, grade accordingly
 			for c in self.settings.combos:
 				match = []
 				for cc, p in zip(c, payline):
@@ -615,8 +613,23 @@ class GamePlayGUI(wx.Frame):
 				if not match.count(0):
 					return match[0]
 		else:
+			#otherwise just check for payline membership in combo list
 			if payline in self.settings.combos:
 				return self.settings.combos.index(payline) + 1
+			#but we have to see whether it's a near miss
+			if payline.count(cfg.IM_BLANK) == 1:
+				i = payline.index(cfg.IM_BLANK)
+				for c in self.settings.combos:
+					count = 0
+					matchCount = 0
+					for pp, cc in zip(payline, self.settings.combos):
+						if count != i:
+							if pp == cc:
+								matchCount += 1
+						count += 1
+					if matchCount == (len(payline) - 1):
+						return "NEAR MISS"
+						
 		return 0
 		
 	# Callbacks!
@@ -731,9 +744,6 @@ class GamePlayGUI(wx.Frame):
 		"Draw the window."
 		global xrot, textures, texture_num, settle, radius, inset, inc, settle
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
-		
-		#inset = -5.0
-		
 		glLoadIdentity()					# Reset The View
 		drawPayline()
 
