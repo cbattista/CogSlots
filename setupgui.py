@@ -713,8 +713,11 @@ class SetupGUI(wx.Frame):
 		total = str(round(total, 2))
 	
 		self.totalOdds.SetValue(total)
-		nm = str(round(self.settings.slots.getNearMissOdds() * 100., 2))
-		self.nmOdds.SetValue(nm)
+		if self.settings.override['engage']:
+			nm = sum(self.settings.override['nearMiss'])
+		else:
+			nm = round(self.settings.slots.getNearMissOdds() * 100., 2)
+		self.nmOdds.SetValue(str(nm))
 
 		self.minPay.SetValue(str(self.settings.getMinPay()))
 		self.maxPay.SetValue(str(self.settings.getMaxPay()))
