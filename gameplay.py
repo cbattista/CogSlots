@@ -515,7 +515,8 @@ class GamePlayGUI(wx.Frame):
 		self.wagerDecreases = 0
 		
 		self.spinbtn.Disable()
-		
+		self.decreasebtn.Disable()
+		self.increasebtn.Disable()
 		if self.settings.gamblersFallacy or self.settings.override['engage']:
 			payline,stopAt = self.phoneySpin()
 		else:
@@ -815,6 +816,8 @@ class GamePlayGUI(wx.Frame):
 					
 				if stoppedReels == len(xrot) and self.spinning:
 					self.spinbtn.Enable()
+					self.decreasebtn.Enable()
+					self.increasebtn.Enable()
 					self.spinning = False
 					self.afterSpin()
 				count += 1
