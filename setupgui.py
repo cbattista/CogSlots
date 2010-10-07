@@ -147,7 +147,6 @@ class SetupGUI(wx.Frame):
 				checkbox.cbname = s
 				self.symboxes.append(checkbox)
 				checkSizer = wx.BoxSizer(wx.VERTICAL)
-				print s
 				checkSizer.Add(wx.StaticBitmap(symbolpage, -1, makeBitmap(s, [16, 16])), 1)
 				checkSizer.Add(checkbox, 1)
 				symsizer.AddF(checkSizer, self.bflag)
@@ -485,8 +484,8 @@ class SetupGUI(wx.Frame):
 			for nmo, c in zip(self.nearMissOdds, self.settings.combos):
 				if nmo.GetValue():
 					newC = copy.deepcopy(c)
-					newC[0] = cfg.IM_BLANK
-					random.shuffle(newC)
+					blankIndex = random.choice([0,1,2])
+					newC[blankIndex] = cfg.IM_BLANK
 					ratio.append(nmo.GetValue())
 					items.append(newC)
 			
@@ -494,8 +493,12 @@ class SetupGUI(wx.Frame):
 			items = items + ["LOSS"]
 			ratios = ratio + [losses]			
 			
+			print items
+			print ratios
+			
 			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
 			self.settings.stimList = shuffler.shuffleIt()
+			
 
 		
 	def OnReset(self, event):
