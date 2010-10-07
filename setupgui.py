@@ -691,7 +691,7 @@ class SetupGUI(wx.Frame):
 		self.settings.combos = []
 		self.settings.pads = []
 		
-		for combo, nm in zip(self.allCombos, self.nearMisses):
+		for combo, nm in zip(self.allCombos, self.nearMissOdds):
 			self.settings.pads.append(nm.GetValue())
 			c = []
 			for com in combo:
@@ -704,10 +704,8 @@ class SetupGUI(wx.Frame):
 			total+=odds
 			
 			odds = str(round(odds, 2))
-			self.odds[i].SetValue(odds)
-
-		
-			
+			self.odds[i].SetValue(odds)		
+						
 		self.settings.odds = setOdds	
 		
 		if self.settings.override['engage']:
