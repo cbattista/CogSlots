@@ -707,7 +707,7 @@ class SetupGUI(wx.Frame):
 		self.settings.combos = []
 		self.settings.pads = []
 		
-		for combo, nm in zip(self.allCombos, self.nearMissOdds):
+		for combo, nm in zip(self.allCombos, self.nearMisses):
 			self.settings.pads.append(nm.GetValue())
 			c = []
 			for com in combo:
