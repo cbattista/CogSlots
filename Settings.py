@@ -33,23 +33,34 @@ class Settings:
 		else:
 			odds = self.odds
 				
-		#returns the winnings given indeces of the payout size and bet size  
+		#returns the winnings given indeces of the payout size and bet size
 		winnings = odds[i] * self.payouts[i] * self.betsizes[j]
 		return winnings
 
 	def getMaxPay(self):
+		if self.override['engage']:
+			odds = self.override['odds']
+			odds = map(lambda x: x / 100., odds)
+		else:
+			odds = self.odds
 		#returns the maximum amount of money that can be won
 		maxpay = self.seed
-		subtractor = self.rounds * self.betsizes[0] * (1-sum(self.odds))
+		subtractor = self.rounds * self.betsizes[0] * (1-sum(odds))
 		for j in range(0, len(self.payouts)):
 			maxpay = maxpay + self.getWinnings(j, -1) 
 		maxpay = maxpay - subtractor
 		return maxpay
 
 	def getMinPay(self):
+		if self.override['engage']:
+			odds = self.override['odds']
+			odds = map(lambda x: x / 100., odds)
+		else:
+			odds = self.odds
+				
 		#returns the minimum amount of money that can be one
 		minpay = self.seed
-		subtractor = self.rounds * self.betsizes[-1] * (1-sum(self.odds))
+		subtractor = self.rounds * self.betsizes[-1] * (1-sum(odds))
 		for j in range(0, len(self.payouts)):
 			minpay = minpay + self.getWinnings(j, 0)
 		minpay = minpay - subtractor
@@ -65,6 +76,7 @@ class Settings:
 		combos.append([s, s, cfg.IM_EMPTY*(self.numReels-2)])
 		combos.append([s, cfg.IM_EMPTY*(self.numReels-2)])
 		self.combos = combos[0:self.numPayouts]
+		self.pads = [0] * self.numPayouts
 
 	def setPayoff(self, i, value, combo):
 		#set the value of a particular payoff given an index, value, and combination of symbols [str]
