@@ -302,9 +302,9 @@ class GamePlayGUI(wx.Frame):
 		# the buttons will have to go in a separate sub-sizer
 		bottomflag = wx.SizerFlags(1).Align(wx.ALIGN_BOTTOM|wx.ALIGN_CENTER).Border(wx.ALL, 5)
 		buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
-		self.increasebtn = wx.Button(self, wx.ID_ANY, "Increase Wager")
-		self.decreasebtn = wx.Button(self, wx.ID_ANY, "Decrease Wager")
-		self.spinbtn = wx.Button(self, wx.ID_ANY, "SPIN")
+		self.increasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_INCREASEWAGER))
+		self.decreasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_DECREASEWAGER))
+		self.spinbtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_SPIN))
 		buttonsizer.AddF(self.decreasebtn, bottomflag)
 		buttonsizer.AddF(self.spinbtn, bottomflag)
 		buttonsizer.AddF(self.increasebtn, bottomflag)
