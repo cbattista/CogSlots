@@ -286,12 +286,12 @@ class GamePlayGUI(wx.Frame):
 		payoutpanel.SetBackgroundColour(cfg.FELT_GREEN)
 		
 		# create the first row
-		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
-		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_ORNAMENT_LEFT, (100,100))), centeredflag)
+		centeredflag = wx.SizerFlags(1).Expand().Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
+		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_ORNAMENT_LEFT, (116,219))), centeredflag)
 		
 		self.sizer.AddF(payoutpanel, wx.SizerFlags(1).Expand().Border(wx.ALL, 10))
 		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(
-			cfg.IM_ORNAMENT_RIGHT, (100,100))), centeredflag)
+			cfg.IM_ORNAMENT_RIGHT, (116, 219))), centeredflag)
 			
 		# create the text boxes
 		wagersizer, self.wagertext = self.create_labeled_num_box("Wager")
