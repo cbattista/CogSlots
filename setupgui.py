@@ -293,6 +293,7 @@ class SetupGUI(wx.Frame):
 	#******************************************		
 	
 	def makeOddsTab(self):		
+		print "MAKING ODDS"
 		if self.book.GetPageCount() == 5:
 			self.book.DeletePage(4)
 		
@@ -433,17 +434,15 @@ class SetupGUI(wx.Frame):
 		oddpage.SetSizerAndFit(oddsizer)
 		self.SetOdds()
 		self.makeReels()
-		self.updateOdds()
 		oddpage.SetupScrolling()
 		oddpage.Refresh()
 		oddpage.Update()
 	
-	def UpdateFromSettings(self):
-		self.SetInfo()
+	def UpdateFromSettings(self):		
 		self.SetBets()
-		self.SetSymbols()
 		self.makeOddsTab()
-		self.SetOdds()
+		self.SetInfo()
+		self.SetSymbols()
 		self.SetInstructions()
 
 	def ActivePage(self):
@@ -451,6 +450,15 @@ class SetupGUI(wx.Frame):
 		pageName = self.book.GetPageText(currentPage)
 		return pageName
 
+	def updatePayoutTable(self):
+		self.payoutSizer.Hide(self.payoutframe)
+		self.payoutSizer.Remove(self.payoutframe)
+		self.payoutSizer.Layout()
+		self.payoutframe = commongui.PayoutTable(self.infopage, self.settings)
+		self.payoutSizer.InsertF(0, self.payoutframe, wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand())
+		self.payoutSizer.Layout()
+
+		
 	def OnUpdate(self, event):
 		self.SetCursor(wx.StockCursor(wx.CURSOR_WAIT))
 
@@ -464,12 +472,7 @@ class SetupGUI(wx.Frame):
 
 		self.updateOdds()
 		
-		self.payoutSizer.Hide(self.payoutframe)
-		self.payoutSizer.Remove(self.payoutframe)
-		self.payoutSizer.Layout()
-		self.payoutframe = commongui.PayoutTable(self.infopage, self.settings)
-		self.payoutSizer.InsertF(0, self.payoutframe, wx.SizerFlags().Align(wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM).Border(wx.ALL, 10).Expand())
-		self.payoutSizer.Layout()
+		self.updatePayoutTable()
 		
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 
@@ -555,6 +558,8 @@ class SetupGUI(wx.Frame):
 		self.collecthandedness.SetValue(d["Handedness"])
 		self.collectsex.SetValue(d["Sex"])
 		
+		self.updatePayoutTable()
+		
 	def SetInfoSettings(self):
 		self.settings.probDict['obtain'] = self.getprobestimate.GetValue()
 		self.settings.probDict['when'] = self.estimatetiming.GetStringSelection()
@@ -616,6 +621,7 @@ class SetupGUI(wx.Frame):
 		self.pCtrl.SetSelection(self.settings.numPayouts-1)
 		self.rCtrl.SetSelection(self.settings.numReels-1)
 		
+		
 
 	def SetSymbolSettings(self):
 		#now get the symbols to be used from the checkboxy thang
@@ -627,31 +633,42 @@ class SetupGUI(wx.Frame):
 				
 		self.settings.numPayouts = self.pCtrl.GetSelection() + 1
 		self.settings.numReels = self.rCtrl.GetSelection() + 1
-
+		self.settings.combos = self.settings.combos[0:self.pCtrl.GetSelection()]
+		self.settings.payouts = self.settings.payouts[0:self.pCtrl.GetSelection()]
+		self.settings.odds = self.settings.odds[0:self.pCtrl.GetSelection()]
 		
 	def SetOdds(self):
 
-		#if the reels exist, get their weights...
+		#if the reels exist, get their weights and set them in the gui
 		if "slots" in dir(self.settings):	
 			slotweights = self.settings.slots.getWeights()
 			for w, sw in zip(self.weights, slotweights):
 				for ww, sww in zip(w, sw):
 					ww.SetValue(sww)
-		
+					
+		#set the symbol pads
+		for	pad, spad in zip(self.nearMisses, self.settings.pads):
+			pad.SetValue(spad)
+
+		#set the payouts
 		for p, sp in zip(self.payoffs, self.settings.payouts):
 			p.SetValue(sp)
 		
-		for c, sc, pad, spad in zip(self.allCombos, self.settings.combos, self.nearMisses, self.settings.pads):
+		#set the combos
+		for c, sc in zip(self.allCombos, self.settings.combos):
 			for cc, ssc in zip(c, sc):
 				cc.SetStringSelection(ssc)
-			pad.SetValue(spad)	
-			
+			pad.SetValue(spad)				
+
+		#set the overrides
 		for o, oo in zip(self.overrides, self.settings.override['odds']):
 			o.SetValue(oo)
 
+		#set the near miss odds
 		for nm, nmo in zip(self.nearMissOdds, self.settings.override['nearMiss']):
 			nm.SetValue(nmo)
 			
+		#set the override/gambler's fallacy stuff
 		self.gfBox.SetValue(self.settings.gamblersFallacy)
 		self.overBox.SetValue(self.settings.override['engage'])
 		
@@ -706,8 +723,8 @@ class SetupGUI(wx.Frame):
 		setOdds = []
 		self.settings.combos = []
 		self.settings.pads = []
-		
-		for combo, nm in zip(self.allCombos, self.nearMisses):
+				
+		for combo, nm in zip(self.allCombos, self.nearMissOdds):
 			self.settings.pads.append(nm.GetValue())
 			c = []
 			for com in combo:
@@ -721,7 +738,9 @@ class SetupGUI(wx.Frame):
 			
 			odds = str(round(odds, 2))
 			self.odds[i].SetValue(odds)		
-						
+
+		print self.settings.combos
+			
 		self.settings.odds = setOdds	
 		
 		if self.settings.override['engage']:

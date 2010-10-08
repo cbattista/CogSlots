@@ -38,7 +38,7 @@ class Settings:
 		else:
 			odds = self.odds
 				
-		#returns the winnings given indeces of the payout size and bet size
+		#returns the winnings given indeces of the payout size and bet size		
 		winnings = odds[i] * self.payouts[i] * self.betsizes[j]
 		return winnings
 
