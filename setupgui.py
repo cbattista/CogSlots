@@ -645,11 +645,7 @@ class SetupGUI(wx.Frame):
 			for w, sw in zip(self.weights, slotweights):
 				for ww, sww in zip(w, sw):
 					ww.SetValue(sww)
-					
-		#set the symbol pads
-		for	pad, spad in zip(self.nearMisses, self.settings.pads):
-			pad.SetValue(spad)
-
+							
 		#set the payouts
 		for p, sp in zip(self.payoffs, self.settings.payouts):
 			p.SetValue(sp)
@@ -658,7 +654,6 @@ class SetupGUI(wx.Frame):
 		for c, sc in zip(self.allCombos, self.settings.combos):
 			for cc, ssc in zip(c, sc):
 				cc.SetStringSelection(ssc)
-			pad.SetValue(spad)				
 
 		#set the overrides
 		for o, oo in zip(self.overrides, self.settings.override['odds']):
@@ -672,12 +667,21 @@ class SetupGUI(wx.Frame):
 		self.gfBox.SetValue(self.settings.gamblersFallacy)
 		self.overBox.SetValue(self.settings.override['engage'])
 		
+		if hasattr(self.settings, 'slots'):
+			#set the symbol pads
+			nms = self.settings.slots.reels[0].nms
+			print nms
+			for pad, s in zip(self.nearMisses, self.settings.visibleSymbols):
+				if nms.has_key(s):
+					pad.SetValue(nms[s])
+
+		
 		self.makeReels()
 
+		#set max and min pay
 		self.minPay.SetValue(str(self.settings.getMinPay()))
 		self.maxPay.SetValue(str(self.settings.getMaxPay()))
-	
-				
+		
 
 	def makeReels(self):
 		reels = {}
@@ -704,7 +708,7 @@ class SetupGUI(wx.Frame):
 		self.settings.override['engage'] = self.overBox.GetValue()
 				
 		overrides = []
-		nearMisses = []
+		nearMisses = []			
 		
 		for o, nmo in zip(self.overrides, self.nearMissOdds):
 			overrides.append(o.GetValue())
@@ -718,14 +722,15 @@ class SetupGUI(wx.Frame):
 			payoffs.append(p.GetValue())
 			
 		self.settings.payouts = payoffs
-		
+				
 		total=0
 		setOdds = []
 		self.settings.combos = []
 		self.settings.pads = []
-				
-		for combo, nm in zip(self.allCombos, self.nearMissOdds):
-			self.settings.pads.append(nm.GetValue())
+		
+
+		
+		for combo in self.allCombos:
 			c = []
 			for com in combo:
 				c.append(com.GetStringSelection())
