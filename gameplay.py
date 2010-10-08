@@ -683,7 +683,7 @@ class GamePlayGUI(wx.Frame):
 			# we can't automatically win money!
 			if wager < self.wagerstep:
 				return
-			self.balance += wager - self.wagerstep
+			#self.balance += wager - self.wagerstep
 			wager = self.wagerstep
 		
 		self.wagertext.SetValue(str(wager))
