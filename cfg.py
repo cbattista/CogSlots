@@ -33,6 +33,8 @@ IM_INCREASEWAGER_DOWN = wx.ART_MISSING_IMAGE
 #COLORS
 FELT_GREEN = (0,153,0)
 WINNING_GOLD = (255, 150, 0)
+STEEL_BLUE = (51, 51, 102)
+LIGHT_GREY =(204, 204, 204)
 
 WEIGHTS_TEXT = "Values indicate how often symbols appear on reels."
 

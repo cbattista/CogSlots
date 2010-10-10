@@ -265,7 +265,7 @@ class GamePlayGUI(wx.Frame):
 		self.balance = self.settings.seed
 		# the pretty background - not working properly yet
 		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
-		#self.SetOwnBackgroundColour(cfg.FELT_GREEN)
+		self.SetOwnBackgroundColour(cfg.STEEL_BLUE)
 		
 		# get the user params from the database
 		self.get_user_params()
@@ -283,7 +283,8 @@ class GamePlayGUI(wx.Frame):
 		else:
 			payoutpanel = wx.Panel(self, wx.ID_ANY)
 		
-		payoutpanel.SetBackgroundColour(cfg.FELT_GREEN)
+		payoutpanel.SetBackgroundColour(cfg.LIGHT_GREY)
+		payoutpanel.SetWindowStyle(wx.RAISED_BORDER)
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Expand().Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
@@ -302,9 +303,9 @@ class GamePlayGUI(wx.Frame):
 		# the buttons will have to go in a separate sub-sizer
 		bottomflag = wx.SizerFlags(1).Align(wx.ALIGN_BOTTOM|wx.ALIGN_CENTER).Border(wx.ALL, 5)
 		buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
-		self.increasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_INCREASEWAGER))
-		self.decreasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_DECREASEWAGER))
-		self.spinbtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_SPIN))
+		self.increasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_INCREASEWAGER), style = wx.NO_BORDER)
+		self.decreasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_DECREASEWAGER), style = wx.NO_BORDER)
+		self.spinbtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_SPIN), style = wx.NO_BORDER)
 		buttonsizer.AddF(self.decreasebtn, bottomflag)
 		buttonsizer.AddF(self.spinbtn, bottomflag)
 		buttonsizer.AddF(self.increasebtn, bottomflag)
@@ -366,13 +367,18 @@ class GamePlayGUI(wx.Frame):
 
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
+		GAME_FONT = wx.FFont(16, family=wx.FONTFAMILY_SWISS, flags=wx.FONTFLAG_BOLD)
 		panel = wx.Panel(self)
-		panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+		panel.SetFont(GAME_FONT)
+		panel.SetForegroundColour(cfg.LIGHT_GREY)
+		panel.SetBackgroundColour(cfg.STEEL_BLUE)
 		box = wx.BoxSizer(wx.VERTICAL)
 		box.AddF(wx.StaticText(panel, wx.ID_ANY, label), wx.SizerFlags().Centre().Border(wx.TOP|wx.LEFT|wx.RIGHT, 10))
 		textbox = wx.TextCtrl(panel, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_RIGHT)
 		box.AddF(textbox, wx.SizerFlags().Centre().Border(wx.BOTTOM|wx.LEFT|wx.RIGHT, 10))
 		textbox.SetValue(defaultvalue)
+		textbox.SetBackgroundColour(cfg.STEEL_BLUE)
+		textbox.SetForegroundColour(cfg.LIGHT_GREY)
 		panel.SetSizer(box)
 		return panel, textbox
 	
@@ -395,7 +401,7 @@ class GamePlayGUI(wx.Frame):
 		allstops = []
 		settle = False
 		inc = 0
-		windowSize = (250, 250)
+		windowSize = (350, 250)
 		
 		reels = self.settings.slots.reels
 		
