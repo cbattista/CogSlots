@@ -108,7 +108,7 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	LoadTextures()
 
 	glEnable(GL_TEXTURE_2D)
-	glClearColor(0.0, 0.0, 0.0, 0.0)	# This Will Clear The Background Color To Black
+	glClearColor(0.0, 0.0, 0.0, 1.0)	# This Will Clear The Background Color To Black
 	glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
 	glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
 	glEnable(GL_DEPTH_TEST)				# Enables Depth Testing
@@ -127,8 +127,6 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	
 def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 	
-	#global images, textures
-	glColor3f(1.0,1.0,1.0)
 	
 	faces = len(reelStops)
 	#quad_width = (2 * radius * math.sin(theta/2)) / 2
@@ -160,7 +158,7 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 		glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
 		glBegin(GL_QUADS)
-	
+		glColor3f(1.0,1.0,1.0)
 		glTexCoord2f(1.0, 1.0); glVertex3f(xpos[0], lasty, lastz)
 		glTexCoord2f(0.0, 1.0); glVertex3f(xpos[1], lasty, lastz)
 		glTexCoord2f(0.0, 0.0); glVertex3f(xpos[2], y, z)
@@ -181,13 +179,11 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 		return deg
 
 def drawPayline():
+	glColor3f(1.0,0.0,0.0)
 	glBegin(GL_TRIANGLES)
 	#triangle 1
-	glColor3f(1.0,1.0,1.0)
 	glVertex3f(payline1[0][0], payline1[0][1], payline1[0][2])
-	glColor3f(1.0,1.0,1.0)
 	glVertex3f(payline1[1][0], payline1[1][1], payline1[1][2])
-	glColor3f(1.0,1.0,1.0)
 	glVertex3f(payline1[2][0], payline1[2][1], payline1[2][2])
 
 	#triangle 2
@@ -306,6 +302,10 @@ class GamePlayGUI(wx.Frame):
 		self.increasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_INCREASEWAGER), style = wx.NO_BORDER)
 		self.decreasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_DECREASEWAGER), style = wx.NO_BORDER)
 		self.spinbtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_SPIN), style = wx.NO_BORDER)
+		self.spinbtn.SetBitmapDisabled(commongui.makeBitmap(cfg.IM_SPIN_DEAC))
+		self.increasebtn.SetBitmapDisabled(commongui.makeBitmap(cfg.IM_INCREASEWAGER_DEAC))
+		self.decreasebtn.SetBitmapDisabled(commongui.makeBitmap(cfg.IM_DECREASEWAGER_DEAC))
+		
 		buttonsizer.AddF(self.decreasebtn, bottomflag)
 		buttonsizer.AddF(self.spinbtn, bottomflag)
 		buttonsizer.AddF(self.increasebtn, bottomflag)
