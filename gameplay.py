@@ -29,8 +29,8 @@ import subjectinfo
 
 def fitScreen():
 	#get viewport origin and extent
-	global xpos, inset, radius, quad_width, theta, payline1, payline2
-
+	global xpos, inset, radius, quad_width, theta, payline1, payline2, crossBox, sideBox, boxwidth
+	
 	viewport = glGetIntegerv(GL_VIEWPORT)
 		
 	#get modelview & projection matrix information
@@ -45,7 +45,9 @@ def fitScreen():
 	winY = windowSize[1] / 2
 	
 	payline_size = windowSize[0] / 15
-			
+	
+	
+	
 	count = 0
 	#coords = []
 	xpos = []
@@ -59,9 +61,16 @@ def fitScreen():
 	theta = (2 * math.pi) / faces
 	radius = quad_width / math.sin(theta/2) / 2
 	
-	payline1 = [[0, winY - payline_size/2, radius-1], [payline_size, winY, radius-1], [0, winY + payline_size/2, radius-1]]
-	payline2 = [[windowSize[0], winY - payline_size/2, radius-1], [windowSize[0]-payline_size, winY, radius-1], [windowSize[0], winY + payline_size/2, radius-1]]
+	z = radius  + 2
+	
+	payline1 = [[0, winY - payline_size/2, z], [payline_size, winY, z], [0, winY + payline_size/2, z]]
+	payline2 = [[windowSize[0], winY - payline_size/2, z], [windowSize[0]-payline_size, winY, z], [windowSize[0], winY + payline_size/2, z]]
 
+	boxwidth = payline_size / 2 
+	
+	sideBox = [[0, 0, z], [0, windowSize[1], z], [boxwidth, windowSize[1], z], [boxwidth, 0, z]]
+	crossBox = [[0, 0, z], [0, boxwidth, z], [windowSize[0], boxwidth, z], [windowSize[0], 0, z]]
+	
 	inset = 0
 	
 
@@ -183,6 +192,28 @@ def drawPayline():
 	glBegin(GL_TRIANGLES)
 	#triangle 1
 	glVertex3f(payline1[0][0], payline1[0][1], payline1[0][2])
+	glColor3f(0.9, 0.8, 0.0)
+	glVertex3f(payline1[1][0], payline1[1][1], payline1[1][2])
+	glColor3f(1.0,0.0,0.0)
+	glVertex3f(payline1[2][0], payline1[2][1], payline1[2][2])
+
+	#triangle 2
+	glVertex3f(payline2[0][0], payline2[0][1], payline2[0][2])
+	glColor3f(0.9, 0.8, 0.0)
+	glVertex3f(payline2[1][0], payline2[1][1], payline2[1][2])
+	glColor3f(1.0,0.0,0.0)
+	glVertex3f(payline2[2][0], payline2[2][1], payline2[2][2])
+	
+	glEnd() #done drawing the payline
+
+	#draw payline outline
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+	glLineWidth(3)
+	
+	glColor3f(0.5, 0.0, 0.0)
+	glBegin(GL_TRIANGLES)
+	#triangle 1
+	glVertex3f(payline1[0][0], payline1[0][1], payline1[0][2])
 	glVertex3f(payline1[1][0], payline1[1][1], payline1[1][2])
 	glVertex3f(payline1[2][0], payline1[2][1], payline1[2][2])
 
@@ -191,8 +222,32 @@ def drawPayline():
 	glVertex3f(payline2[1][0], payline2[1][1], payline2[1][2])
 	glVertex3f(payline2[2][0], payline2[2][1], payline2[2][2])
 	
-	glEnd() #done drawing the reel
+	glEnd() #done drawing the payline
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+	
+	glColor3f(0.2, 0.2, 0.2)
+	drawBox(crossBox)
+	drawBox(sideBox)
+	
+	glTranslatef(windowSize[0] - boxwidth, 0, 0)
+	
+	drawBox(sideBox)
+	
+	glLoadIdentity()
+	
+	glTranslatef(0, windowSize[1] - boxwidth, 0)
+	
+	drawBox(crossBox)
+	
+	glLoadIdentity()
+	
+def drawBox(verts):
+	glBegin(GL_QUADS)
+	for v in verts:
+		glVertex3f(v[0],v[1], v[2])
+	glEnd()
+		
 		
 		
 class GamePlayGUI(wx.Frame):
@@ -401,7 +456,7 @@ class GamePlayGUI(wx.Frame):
 		allstops = []
 		settle = False
 		inc = 0
-		windowSize = (350, 250)
+		windowSize = (640, 320)
 		
 		reels = self.settings.slots.reels
 		
@@ -772,6 +827,7 @@ class GamePlayGUI(wx.Frame):
 		global xrot, textures, texture_num, settle, radius, inset, inc, settle
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 		glLoadIdentity()					# Reset The View
+		glDisable(GL_TEXTURE_2D)
 		drawPayline()
 
 		glTranslatef(0.0,windowSize[1]/2 - quad_width/2,0.0)			# Move Into The Screen
@@ -780,7 +836,7 @@ class GamePlayGUI(wx.Frame):
 		
 		#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
-		#glEnable(GL_LIGHTING)
+		glEnable(GL_TEXTURE_2D)
 		
 		stopAngles = []
 			
