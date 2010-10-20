@@ -336,12 +336,8 @@ class GamePlayGUI(wx.Frame):
 		# get the user params from the database
 		self.get_user_params()
 		
-		# create the flexy sizer that everything fits into
-		self.sizer = wx.FlexGridSizer(3, 3, 10, 10)
-		for i in range(0,3):
-			self.sizer.AddGrowableRow(i)
-			self.sizer.AddGrowableCol(i)
-
+		# create the sizer that everything fits into
+		self.sizer = wx.FlexGridSizer(4, 1, 5, 5)
 			
 		# populate the payout sizer with values from the database
 		if self.settings.showPayouts:
@@ -349,16 +345,14 @@ class GamePlayGUI(wx.Frame):
 		else:
 			payoutpanel = wx.Panel(self, wx.ID_ANY)
 		
-		payoutpanel.SetBackgroundColour(cfg.LIGHT_GREY)
+		payoutpanel.SetBackgroundColour(cfg.STEEL_BLUE)
+		payoutpanel.SetForegroundColour(cfg.LIGHT_GREY)
 		payoutpanel.SetWindowStyle(wx.RAISED_BORDER)
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Expand().Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
-		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_ORNAMENT_LEFT, (116,219))), centeredflag)
 		
-		self.sizer.AddF(payoutpanel, wx.SizerFlags(1).Expand().Border(wx.ALL, 10))
-		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(
-			cfg.IM_ORNAMENT_RIGHT, (116, 219))), centeredflag)
+		self.sizer.AddF(payoutpanel, centeredflag)
 			
 		# create the text boxes
 		wagersizer, self.wagertext = self.create_labeled_num_box("Wager")
@@ -366,8 +360,15 @@ class GamePlayGUI(wx.Frame):
 		winsizer, self.wintext = self.create_labeled_num_box("Win")
 		balancesizer, self.balancetext = self.create_labeled_num_box("Balance", str(self.balance))
 		
-		# the buttons will have to go in a separate sub-sizer
 		bottomflag = wx.SizerFlags(1).Align(wx.ALIGN_BOTTOM|wx.ALIGN_CENTER).Border(wx.ALL, 5)
+
+		#sizer for the info (wager size, balance, win)
+		infosizer = wx.BoxSizer(wx.HORIZONTAL)
+		infosizer.AddF(wagersizer, bottomflag)
+		infosizer.AddF(winsizer, bottomflag)
+		infosizer.AddF(balancesizer, bottomflag)
+
+		# the buttons will have to go in a separate sub-sizer
 		buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
 		self.increasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_INCREASEWAGER), style = wx.NO_BORDER)
 		self.decreasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_DECREASEWAGER), style = wx.NO_BORDER)
@@ -380,13 +381,11 @@ class GamePlayGUI(wx.Frame):
 		buttonsizer.AddF(self.spinbtn, bottomflag)
 		buttonsizer.AddF(self.increasebtn, bottomflag)
 		
-		# the second row
-		self.sizer.AddF(wagersizer, centeredflag)
+		#spinning reel
 		self.create_spinning_wheel(self.sizer)
-		self.sizer.AddF(winsizer, centeredflag)
 		
-		# the third row
-		self.sizer.AddF(balancesizer, bottomflag)
+		#buttons and info
+		self.sizer.AddF(infosizer, bottomflag)
 		self.sizer.AddF(buttonsizer, bottomflag)
 		self.sizer.AddStretchSpacer()
 		
@@ -442,7 +441,7 @@ class GamePlayGUI(wx.Frame):
 		panel.SetFont(GAME_FONT)
 		panel.SetForegroundColour(cfg.LIGHT_GREY)
 		panel.SetBackgroundColour(cfg.STEEL_BLUE)
-		box = wx.BoxSizer(wx.VERTICAL)
+		box = wx.BoxSizer(wx.HORIZONTAL)
 		box.AddF(wx.StaticText(panel, wx.ID_ANY, label), wx.SizerFlags().Centre().Border(wx.TOP|wx.LEFT|wx.RIGHT, 10))
 		textbox = wx.TextCtrl(panel, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_RIGHT)
 		box.AddF(textbox, wx.SizerFlags().Centre().Border(wx.BOTTOM|wx.LEFT|wx.RIGHT, 10))
