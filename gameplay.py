@@ -330,7 +330,6 @@ class GamePlayGUI(wx.Frame):
 		self.round = 1
 		self.balance = self.settings.seed
 		# the pretty background - not working properly yet
-		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
 		self.SetOwnBackgroundColour(cfg.STEEL_BLUE)
 		
 		# get the user params from the database
@@ -341,18 +340,21 @@ class GamePlayGUI(wx.Frame):
 			
 		# populate the payout sizer with values from the database
 		if self.settings.showPayouts:
-			payoutpanel = commongui.PayoutTable(self, self.settings)
+			self.payoutpanel = commongui.PayoutTable(self, self.settings)
 		else:
-			payoutpanel = wx.Panel(self, wx.ID_ANY)
+			self.payoutpanel = wx.Panel(self, wx.ID_ANY)
 		
-		payoutpanel.SetBackgroundColour(cfg.STEEL_BLUE)
-		payoutpanel.SetForegroundColour(cfg.LIGHT_GREY)
-		payoutpanel.SetWindowStyle(wx.RAISED_BORDER)
+		self.payoutpanel.Bind(wx.EVT_PAINT, self.on_paint)		
+
+		
+		#payoutpanel.SetBackgroundColour(cfg.STEEL_BLUE)
+		#payoutpanel.SetForegroundColour(cfg.LIGHT_GREY)
+		#payoutpanel.SetWindowStyle(wx.RAISED_BORDER)
 		
 		# create the first row
-		centeredflag = wx.SizerFlags(1).Expand().Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
+		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
 		
-		self.sizer.AddF(payoutpanel, centeredflag)
+		self.sizer.AddF(self.payoutpanel, centeredflag)
 			
 		# create the text boxes
 		wagersizer, self.wagertext = self.create_labeled_num_box("Wager")
@@ -434,6 +436,13 @@ class GamePlayGUI(wx.Frame):
 		self.wagerIncreases = 0
 		self.wagerDecreases = 0
 
+	def on_paint(self, event):
+		# establish the painting canvas
+		dc = wx.PaintDC(self.payoutpanel)
+		x = 0
+		y = 0
+		w, h = self.payoutpanel.GetSize()
+		dc.GradientFillLinear((x, y, w, h), cfg.STEEL_BLUE, cfg.DARK_BLUE, 1)
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
 		GAME_FONT = wx.FFont(16, family=wx.FONTFAMILY_SWISS, flags=wx.FONTFLAG_BOLD)
