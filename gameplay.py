@@ -40,13 +40,11 @@ def fitScreen():
 	
 	reels = len(allstops)
 	
-	quad_width = windowSize[0] / reels
 	
 	winY = windowSize[1] / 2
-	
 	payline_size = windowSize[0] / 15
-	
-	
+	boxwidth = payline_size / 2 
+	quad_width = (windowSize[0]-payline_size) / reels
 	
 	count = 0
 	#coords = []
@@ -54,7 +52,7 @@ def fitScreen():
 	#quad_width = 20
 	
 	for r in range(reels):
-		xpos.append([quad_width * (count + 1), quad_width * count, quad_width * count, quad_width * (count + 1)])
+		xpos.append([quad_width * (count + 1) + boxwidth, quad_width * count + boxwidth, quad_width * count + boxwidth, quad_width * (count + 1) + boxwidth])
 		count+=1
 	
 	faces = len(allstops[0])
@@ -65,8 +63,6 @@ def fitScreen():
 	
 	payline1 = [[0, winY - payline_size/2, z], [payline_size, winY, z], [0, winY + payline_size/2, z]]
 	payline2 = [[windowSize[0], winY - payline_size/2, z], [windowSize[0]-payline_size, winY, z], [windowSize[0], winY + payline_size/2, z]]
-
-	boxwidth = payline_size / 2 
 	
 	sideBox = [[0, 0, z], [0, windowSize[1], z], [boxwidth, windowSize[1], z], [boxwidth, 0, z]]
 	crossBox = [[0, 0, z], [0, boxwidth, z], [windowSize[0], boxwidth, z], [windowSize[0], 0, z]]
@@ -189,6 +185,9 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 
 def drawPayline():
 	glColor3f(1.0,0.0,0.0)
+	
+	z = payline1[0][2]
+	
 	glBegin(GL_TRIANGLES)
 	#triangle 1
 	glVertex3f(payline1[0][0], payline1[0][1], payline1[0][2])
@@ -224,6 +223,22 @@ def drawPayline():
 	
 	glEnd() #done drawing the payline
 
+	glColor3f(0.0, 0.0, 0.0)
+	
+	
+	glBegin(GL_QUADS)
+	glVertex3f(0, 0, z)
+	glVertex3f(0, windowSize[1], z)
+	glVertex3f(windowSize[0], windowSize[1], z)
+	glVertex3f(windowSize[0], 0, z)
+	
+	glVertex3f(boxwidth, boxwidth, z)
+	glVertex3f(boxwidth, windowSize[1] - boxwidth, z)
+	glVertex3f(windowSize[0] - boxwidth, windowSize[1] - boxwidth, z)
+	glVertex3f(windowSize[0] - boxwidth, boxwidth, z)
+	
+	glEnd()
+	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 	
 	glColor3f(0.2, 0.2, 0.2)
@@ -456,7 +471,7 @@ class GamePlayGUI(wx.Frame):
 		allstops = []
 		settle = False
 		inc = 0
-		windowSize = (640, 320)
+		windowSize = (600, 350)
 		
 		reels = self.settings.slots.reels
 		
