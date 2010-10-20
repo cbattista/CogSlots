@@ -3,13 +3,13 @@ import wx
 # slot machine images
 SLOT_SIZE = (16,16)
 CTRL_SIZE = (50, -1)
-IM_BAR = "bar.png"
-IM_BELL = "bell.png"
-IM_CHERRIES = "cherries.png"
-IM_CLOVER = "clover.png"
-IM_GOLDBARS = "gold_bullion.png"
-IM_TREASURECHEST = "chest.png"
-IM_BLANK = "spacer.png"
+IM_BAR = "bar_tile.png"
+IM_BELL = "bell_tile.png"
+IM_CHERRIES = "cherry_tile.png"
+IM_CLOVER = "clover_tile.png"
+IM_GOLDBARS = "gold_tile.png"
+IM_TREASURECHEST = "chest_tile.png"
+IM_BLANK = "blank_tile.png"
 IM_EMPTY = "any.png"
 
 # pack them in to a tuple to make things easier

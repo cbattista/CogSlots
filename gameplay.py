@@ -29,8 +29,8 @@ import subjectinfo
 
 def fitScreen():
 	#get viewport origin and extent
-	global xpos, inset, radius, quad_width, theta, payline1, payline2
-
+	global xpos, inset, radius, quad_width, theta, payline1, payline2, crossBox, sideBox, boxwidth
+	
 	viewport = glGetIntegerv(GL_VIEWPORT)
 		
 	#get modelview & projection matrix information
@@ -40,28 +40,33 @@ def fitScreen():
 	
 	reels = len(allstops)
 	
-	quad_width = windowSize[0] / reels
 	
 	winY = windowSize[1] / 2
-	
 	payline_size = windowSize[0] / 15
-			
+	boxwidth = payline_size / 2 
+	quad_width = (windowSize[0]-payline_size) / reels
+	
 	count = 0
 	#coords = []
 	xpos = []
 	#quad_width = 20
 	
 	for r in range(reels):
-		xpos.append([quad_width * (count + 1), quad_width * count, quad_width * count, quad_width * (count + 1)])
+		xpos.append([quad_width * (count + 1) + boxwidth, quad_width * count + boxwidth, quad_width * count + boxwidth, quad_width * (count + 1) + boxwidth])
 		count+=1
 	
 	faces = len(allstops[0])
 	theta = (2 * math.pi) / faces
 	radius = quad_width / math.sin(theta/2) / 2
 	
-	payline1 = [[0, winY - payline_size/2, radius-1], [payline_size, winY, radius-1], [0, winY + payline_size/2, radius-1]]
-	payline2 = [[windowSize[0], winY - payline_size/2, radius-1], [windowSize[0]-payline_size, winY, radius-1], [windowSize[0], winY + payline_size/2, radius-1]]
-
+	z = radius  + 2
+	
+	payline1 = [[0, winY - payline_size/2, z], [payline_size, winY, z], [0, winY + payline_size/2, z]]
+	payline2 = [[windowSize[0], winY - payline_size/2, z], [windowSize[0]-payline_size, winY, z], [windowSize[0], winY + payline_size/2, z]]
+	
+	sideBox = [[0, 0, z], [0, windowSize[1], z], [boxwidth, windowSize[1], z], [boxwidth, 0, z]]
+	crossBox = [[0, 0, z], [0, boxwidth, z], [windowSize[0], boxwidth, z], [windowSize[0], 0, z]]
+	
 	inset = 0
 	
 
@@ -180,6 +185,31 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 
 def drawPayline():
 	glColor3f(1.0,0.0,0.0)
+	
+	z = payline1[0][2]
+	
+	glBegin(GL_TRIANGLES)
+	#triangle 1
+	glVertex3f(payline1[0][0], payline1[0][1], payline1[0][2])
+	glColor3f(0.9, 0.8, 0.0)
+	glVertex3f(payline1[1][0], payline1[1][1], payline1[1][2])
+	glColor3f(1.0,0.0,0.0)
+	glVertex3f(payline1[2][0], payline1[2][1], payline1[2][2])
+
+	#triangle 2
+	glVertex3f(payline2[0][0], payline2[0][1], payline2[0][2])
+	glColor3f(0.9, 0.8, 0.0)
+	glVertex3f(payline2[1][0], payline2[1][1], payline2[1][2])
+	glColor3f(1.0,0.0,0.0)
+	glVertex3f(payline2[2][0], payline2[2][1], payline2[2][2])
+	
+	glEnd() #done drawing the payline
+
+	#draw payline outline
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+	glLineWidth(3)
+	
+	glColor3f(0.5, 0.0, 0.0)
 	glBegin(GL_TRIANGLES)
 	#triangle 1
 	glVertex3f(payline1[0][0], payline1[0][1], payline1[0][2])
@@ -191,8 +221,48 @@ def drawPayline():
 	glVertex3f(payline2[1][0], payline2[1][1], payline2[1][2])
 	glVertex3f(payline2[2][0], payline2[2][1], payline2[2][2])
 	
-	glEnd() #done drawing the reel
+	glEnd() #done drawing the payline
 
+	glColor3f(0.0, 0.0, 0.0)
+	
+	
+	glBegin(GL_QUADS)
+	glVertex3f(0, 0, z)
+	glVertex3f(0, windowSize[1], z)
+	glVertex3f(windowSize[0], windowSize[1], z)
+	glVertex3f(windowSize[0], 0, z)
+	
+	glVertex3f(boxwidth, boxwidth, z)
+	glVertex3f(boxwidth, windowSize[1] - boxwidth, z)
+	glVertex3f(windowSize[0] - boxwidth, windowSize[1] - boxwidth, z)
+	glVertex3f(windowSize[0] - boxwidth, boxwidth, z)
+	
+	glEnd()
+	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+	
+	glColor3f(0.2, 0.2, 0.2)
+	drawBox(crossBox)
+	drawBox(sideBox)
+	
+	glTranslatef(windowSize[0] - boxwidth, 0, 0)
+	
+	drawBox(sideBox)
+	
+	glLoadIdentity()
+	
+	glTranslatef(0, windowSize[1] - boxwidth, 0)
+	
+	drawBox(crossBox)
+	
+	glLoadIdentity()
+	
+def drawBox(verts):
+	glBegin(GL_QUADS)
+	for v in verts:
+		glVertex3f(v[0],v[1], v[2])
+	glEnd()
+		
 		
 		
 class GamePlayGUI(wx.Frame):
@@ -260,35 +330,31 @@ class GamePlayGUI(wx.Frame):
 		self.round = 1
 		self.balance = self.settings.seed
 		# the pretty background - not working properly yet
-		#self.background = wx.ArtProvider.GetBitmap(cfg.IM_BACKGROUND)
 		self.SetOwnBackgroundColour(cfg.STEEL_BLUE)
 		
 		# get the user params from the database
 		self.get_user_params()
 		
-		# create the flexy sizer that everything fits into
-		self.sizer = wx.FlexGridSizer(3, 3, 10, 10)
-		for i in range(0,3):
-			self.sizer.AddGrowableRow(i)
-			self.sizer.AddGrowableCol(i)
-
+		# create the sizer that everything fits into
+		self.sizer = wx.FlexGridSizer(4, 1, 5, 5)
 			
 		# populate the payout sizer with values from the database
 		if self.settings.showPayouts:
-			payoutpanel = commongui.PayoutTable(self, self.settings)
+			self.payoutpanel = commongui.PayoutTable(self, self.settings)
 		else:
-			payoutpanel = wx.Panel(self, wx.ID_ANY)
+			self.payoutpanel = wx.Panel(self, wx.ID_ANY)
 		
-		payoutpanel.SetBackgroundColour(cfg.LIGHT_GREY)
-		payoutpanel.SetWindowStyle(wx.RAISED_BORDER)
+		self.payoutpanel.Bind(wx.EVT_PAINT, self.on_paint)		
+
+		
+		#payoutpanel.SetBackgroundColour(cfg.STEEL_BLUE)
+		#payoutpanel.SetForegroundColour(cfg.LIGHT_GREY)
+		#payoutpanel.SetWindowStyle(wx.RAISED_BORDER)
 		
 		# create the first row
-		centeredflag = wx.SizerFlags(1).Expand().Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
-		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_ORNAMENT_LEFT, (116,219))), centeredflag)
+		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)
 		
-		self.sizer.AddF(payoutpanel, wx.SizerFlags(1).Expand().Border(wx.ALL, 10))
-		self.sizer.AddF(wx.StaticBitmap(self, wx.ID_ANY, commongui.makeBitmap(
-			cfg.IM_ORNAMENT_RIGHT, (116, 219))), centeredflag)
+		self.sizer.AddF(self.payoutpanel, centeredflag)
 			
 		# create the text boxes
 		wagersizer, self.wagertext = self.create_labeled_num_box("Wager")
@@ -296,8 +362,15 @@ class GamePlayGUI(wx.Frame):
 		winsizer, self.wintext = self.create_labeled_num_box("Win")
 		balancesizer, self.balancetext = self.create_labeled_num_box("Balance", str(self.balance))
 		
-		# the buttons will have to go in a separate sub-sizer
 		bottomflag = wx.SizerFlags(1).Align(wx.ALIGN_BOTTOM|wx.ALIGN_CENTER).Border(wx.ALL, 5)
+
+		#sizer for the info (wager size, balance, win)
+		infosizer = wx.BoxSizer(wx.HORIZONTAL)
+		infosizer.AddF(wagersizer, bottomflag)
+		infosizer.AddF(winsizer, bottomflag)
+		infosizer.AddF(balancesizer, bottomflag)
+
+		# the buttons will have to go in a separate sub-sizer
 		buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
 		self.increasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_INCREASEWAGER), style = wx.NO_BORDER)
 		self.decreasebtn = wx.BitmapButton(self, wx.ID_ANY, commongui.makeBitmap(cfg.IM_DECREASEWAGER), style = wx.NO_BORDER)
@@ -310,13 +383,11 @@ class GamePlayGUI(wx.Frame):
 		buttonsizer.AddF(self.spinbtn, bottomflag)
 		buttonsizer.AddF(self.increasebtn, bottomflag)
 		
-		# the second row
-		self.sizer.AddF(wagersizer, centeredflag)
+		#spinning reel
 		self.create_spinning_wheel(self.sizer)
-		self.sizer.AddF(winsizer, centeredflag)
 		
-		# the third row
-		self.sizer.AddF(balancesizer, bottomflag)
+		#buttons and info
+		self.sizer.AddF(infosizer, bottomflag)
 		self.sizer.AddF(buttonsizer, bottomflag)
 		self.sizer.AddStretchSpacer()
 		
@@ -365,6 +436,13 @@ class GamePlayGUI(wx.Frame):
 		self.wagerIncreases = 0
 		self.wagerDecreases = 0
 
+	def on_paint(self, event):
+		# establish the painting canvas
+		dc = wx.PaintDC(self.payoutpanel)
+		x = 0
+		y = 0
+		w, h = self.payoutpanel.GetSize()
+		dc.GradientFillLinear((x, y, w, h), cfg.STEEL_BLUE, cfg.DARK_BLUE, 1)
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
 		GAME_FONT = wx.FFont(16, family=wx.FONTFAMILY_SWISS, flags=wx.FONTFLAG_BOLD)
@@ -372,7 +450,7 @@ class GamePlayGUI(wx.Frame):
 		panel.SetFont(GAME_FONT)
 		panel.SetForegroundColour(cfg.LIGHT_GREY)
 		panel.SetBackgroundColour(cfg.STEEL_BLUE)
-		box = wx.BoxSizer(wx.VERTICAL)
+		box = wx.BoxSizer(wx.HORIZONTAL)
 		box.AddF(wx.StaticText(panel, wx.ID_ANY, label), wx.SizerFlags().Centre().Border(wx.TOP|wx.LEFT|wx.RIGHT, 10))
 		textbox = wx.TextCtrl(panel, wx.ID_ANY, style=wx.TE_READONLY|wx.TE_RIGHT)
 		box.AddF(textbox, wx.SizerFlags().Centre().Border(wx.BOTTOM|wx.LEFT|wx.RIGHT, 10))
@@ -401,7 +479,7 @@ class GamePlayGUI(wx.Frame):
 		allstops = []
 		settle = False
 		inc = 0
-		windowSize = (350, 250)
+		windowSize = (600, 350)
 		
 		reels = self.settings.slots.reels
 		
@@ -772,6 +850,7 @@ class GamePlayGUI(wx.Frame):
 		global xrot, textures, texture_num, settle, radius, inset, inc, settle
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 		glLoadIdentity()					# Reset The View
+		glDisable(GL_TEXTURE_2D)
 		drawPayline()
 
 		glTranslatef(0.0,windowSize[1]/2 - quad_width/2,0.0)			# Move Into The Screen
@@ -780,7 +859,7 @@ class GamePlayGUI(wx.Frame):
 		
 		#glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
-		#glEnable(GL_LIGHTING)
+		glEnable(GL_TEXTURE_2D)
 		
 		stopAngles = []
 			
