@@ -329,7 +329,7 @@ class SetupGUI(wx.Frame):
 			
 			weightSizer.AddF(wx.StaticBitmap(oddpage, -1, makeBitmap(s, cfg.SLOT_SIZE)), cflag)
 			for r in range(self.settings.numReels):
-				ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=1, size=cfg.CTRL_SIZE)
+				ctrl = wx.SpinCtrl(oddpage, -1, min=0, initial=5, size=cfg.CTRL_SIZE)
 				w.append(ctrl)
 				weightSizer.AddF(ctrl, cflag)
 				
@@ -475,44 +475,7 @@ class SetupGUI(wx.Frame):
 		self.updatePayoutTable()
 		
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
-
-		#determine 
-		if self.settings.gamblersFallacy:
-			ratio = []
-
-			if not self.settings.override['engage']:
-				for o in self.odds:
-					amount = float(o.GetValue()) * self.settings.rounds / 100.
-					ratio.append(int(amount))
-			else:
-				for o in self.settings.override['odds']:
-					amount = o * self.settings.rounds / 100.
-					ratio.append(int(amount))				
-				
-			nearMisses = []
-			items = self.settings.combos
-
-			for nmo, c in zip(self.nearMissOdds, self.settings.combos):
-				if nmo.GetValue():
-					newC = copy.deepcopy(c)
-					blankIndex = random.choice([0,1,2])
-					newC[blankIndex] = cfg.IM_BLANK
-					amount = float(nmo.GetValue()) * self.settings.rounds / 100.
-					ratio.append(int(amount))
-					items.append(newC)
-			
-			losses = self.settings.rounds - sum(ratio)
-			items = items + ["LOSS"]
-			ratios = ratio + [losses]			
-			
-			print items
-			print ratios
-						
-			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
-			self.settings.stimList = shuffler.shuffleIt()
 		
-			
-
 		
 	def OnReset(self, event):
 		if self.ActivePage() == 'Bets':	
@@ -728,8 +691,6 @@ class SetupGUI(wx.Frame):
 		self.settings.combos = []
 		self.settings.pads = []
 		
-
-		
 		for combo in self.allCombos:
 			c = []
 			for com in combo:
@@ -764,6 +725,40 @@ class SetupGUI(wx.Frame):
 
 		self.minPay.SetValue(str(self.settings.getMinPay()))
 		self.maxPay.SetValue(str(self.settings.getMaxPay()))
+
+		#determine the odds and make a stimList if gambler's fallacy is desired
+		if self.settings.gamblersFallacy:
+			ratio = []
+
+			if not self.settings.override['engage']:
+				for o in self.odds:
+					amount = float(o.GetValue()) * self.settings.rounds / 100.
+					ratio.append(int(amount))
+			else:
+				for o in self.settings.override['odds']:
+					amount = o * self.settings.rounds / 100.
+					ratio.append(int(amount))				
+				
+			nearMisses = []
+			items = self.settings.combos
+
+			for nmo, c in zip(self.nearMissOdds, self.settings.combos):
+				if nmo.GetValue():
+					newC = copy.deepcopy(c)
+					blankIndex = random.choice([0,1,2])
+					newC[blankIndex] = cfg.IM_BLANK
+					amount = float(nmo.GetValue()) * self.settings.rounds / 100.
+					ratio.append(int(amount))
+					items.append(newC)
+			
+			losses = self.settings.rounds - sum(ratio)
+			items = items + ["LOSS"]
+			ratios = ratio + [losses]			
+			
+						
+			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
+			self.settings.stimList = shuffler.shuffleIt()
+
 	
 	def onSpin(self, event):
 		self.makeReels()
