@@ -293,7 +293,6 @@ class SetupGUI(wx.Frame):
 	#******************************************		
 	
 	def makeOddsTab(self):		
-		print "MAKING ODDS"
 		if self.book.GetPageCount() == 5:
 			self.book.DeletePage(4)
 		
@@ -633,7 +632,6 @@ class SetupGUI(wx.Frame):
 		if hasattr(self.settings, 'slots'):
 			#set the symbol pads
 			nms = self.settings.slots.reels[0].nms
-			print nms
 			for pad, s in zip(self.nearMisses, self.settings.visibleSymbols):
 				if nms.has_key(s):
 					pad.SetValue(nms[s])
@@ -705,7 +703,6 @@ class SetupGUI(wx.Frame):
 			odds = str(round(odds, 2))
 			self.odds[i].SetValue(odds)		
 
-		print self.settings.combos
 			
 		self.settings.odds = setOdds	
 		
@@ -754,8 +751,7 @@ class SetupGUI(wx.Frame):
 			losses = self.settings.rounds - sum(ratio)
 			items = items + ["LOSS"]
 			ratios = ratio + [losses]			
-			
-						
+									
 			shuffler = Shuffler.Shuffler(items, self.settings.rounds, self.settings.rounds, ratios)
 			self.settings.stimList = shuffler.shuffleIt()
 

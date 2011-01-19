@@ -83,6 +83,8 @@ def LoadTextures():
 		stops = stops + s
 	
 	images = list(set(stops))
+
+	print images
 	
 	textures = glGenTextures(len(images))
 	
@@ -149,7 +151,7 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 	glRotatef(xrot,1.0,0.0,0.0)
 		
 	for f in range(1, faces+1):
-	
+		
 		face = reelStops[f-1]
 		
 		texture_num = images.index(face)
@@ -158,7 +160,7 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 		z = a + (radius * math.cos(angle))
 		y = b + (radius * math.sin(angle))
 				
-		#print texture_num, textures[texture_num]
+		#print face, texture_num, textures
 
 		glBindTexture(GL_TEXTURE_2D, int(textures[texture_num]))
 
@@ -172,7 +174,7 @@ def drawCylinder(reelStops = [], xpos=[], xrot=0, stopAt=0):
 		lastz = z
 		lasty = y
 	
-		glEnd() #done drawing the reel
+		glEnd() #done drawing the tile
 		
 	glRotatef(-xrot,1.0,0.0,0.0)
 		
@@ -327,11 +329,14 @@ class GamePlayGUI(wx.Frame):
 
 		#create a Slots object
 		self.slots = self.settings.slots
+
 		self.round = 1
 		self.balance = self.settings.seed
 		# the pretty background - not working properly yet
 		self.SetOwnBackgroundColour(cfg.STEEL_BLUE)
 		
+		#print self.settings.combos
+
 		# get the user params from the database
 		self.get_user_params()
 		
@@ -442,7 +447,7 @@ class GamePlayGUI(wx.Frame):
 		x = 0
 		y = 0
 		w, h = self.payoutpanel.GetSize()
-		dc.GradientFillLinear((x, y, w, h), cfg.STEEL_BLUE, cfg.DARK_BLUE, 1)
+		#dc.GradientFillLinear((x, y, w, h), cfg.STEEL_BLUE, cfg.DARK_BLUE, 1)
 	
 	def create_labeled_num_box(self, label, defaultvalue="0"):
 		GAME_FONT = wx.FFont(16, family=wx.FONTFAMILY_SWISS, flags=wx.FONTFLAG_BOLD)
@@ -684,11 +689,11 @@ class GamePlayGUI(wx.Frame):
 						
 	def judgeOutcome(self, payline):
 		#if we are dealing with the 'any' symbol, we must account for that
-		any = False
+		any_sym = False
 		for c in self.settings.combos:
 			if cfg.IM_EMPTY in c:
-				any = True				
-		if any:
+				any_sym = True				
+		if any_sym:
 			#if the any symbol is involved, grade accordingly
 			for c in self.settings.combos:
 				match = []
@@ -748,26 +753,22 @@ class GamePlayGUI(wx.Frame):
 		if 'increase' in name:
 			self.wagerIncreases += 1
 			if (i + 1) >= len(self.betsizes):
-				return
-
-			self.wagerstep = self.betsizes[i+1]
+				self.wagerstep = self.betsizes[i+1]
+			else:
+				self.wagerstep = self.betsizes[i+1]
 
 			if (self.balance < self.wagerstep) and not self.settings.debt:
-				return 
-			#self.balance -= self.wagerstep - int(wager)
-			wager = self.wagerstep
+				pass
+			else:
+				wager = self.wagerstep
 					
 		elif 'decrease' in name:
 			self.wagerDecreases += 1
 			if i == 0:
-				return
+				self.wagerstep = self.betsizes[i]
+			else:
+				self.wagerstep = self.betsizes[i-1]
 
-			self.wagerstep = self.betsizes[i-1]
-
-			# we can't automatically win money!
-			if wager < self.wagerstep:
-				return
-			#self.balance += wager - self.wagerstep
 			wager = self.wagerstep
 		
 		self.wagertext.SetValue(str(wager))
