@@ -126,7 +126,7 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()					# Reset The Projection Matrix
 		
-	glOrtho(0, Width, 0, Height, -1000, 0)
+	glOrtho(0, Width, 0, Height, -100000, 0)
 
 	glMatrixMode(GL_MODELVIEW)
 	
