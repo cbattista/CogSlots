@@ -9,7 +9,7 @@ IM_CHERRIES = "cherries.png"
 IM_CLOVER = "clover.png"
 IM_GOLDBARS = "gold_bullion.png"
 IM_TREASURECHEST = "chest.png"
-IM_BLANK = "spacer2.png"
+IM_BLANK = "spacer.png"
 IM_EMPTY = "any.png"
 
 # pack them in to a tuple to make things easier
