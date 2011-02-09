@@ -349,7 +349,7 @@ class GamePlayGUI(wx.Frame):
 		else:
 			self.payoutpanel = wx.Panel(self, wx.ID_ANY)
 		
-		self.payoutpanel.Bind(wx.EVT_PAINT, self.on_paint)		
+		#self.payoutpanel.Bind(wx.EVT_PAINT, self.on_paint)		
 
 		
 		self.payoutpanel.SetBackgroundColour(cfg.STEEL_BLUE)
@@ -646,7 +646,7 @@ class GamePlayGUI(wx.Frame):
 				self.subject.inputData(self.round, 'outcome', 'NEAR MISS')
 			else:
 				self.subject.inputData(self.round, 'outcome', 'LOSS')
-			self.wintext.SetValue("0")
+			self.wintext.SetValue("-%s" % str(wager))
 			self.subject.inputData(self.round, 'delta', -wager)
 
 		self.subject.inputData(self.round, 'wager', wager)
