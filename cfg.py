@@ -33,8 +33,8 @@ IM_INCREASEWAGER_DEAC = "increase_deac.png"
 #COLORS
 FELT_GREEN = (0,153,0)
 WINNING_GOLD = (255, 150, 0)
-STEEL_BLUE = (51, 51, 102)
-LIGHT_GREY =(204, 204, 204)
+STEEL_BLUE = (25, 25, 55)
+LIGHT_GREY =(234, 234, 255)
 DARK_BLUE = (0, 0, 75)
 
 WEIGHTS_TEXT = "Values indicate how often symbols appear on reels."

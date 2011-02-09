@@ -345,16 +345,16 @@ class GamePlayGUI(wx.Frame):
 			
 		# populate the payout sizer with values from the database
 		if self.settings.showPayouts:
-			self.payoutpanel = commongui.PayoutTable(self, self.settings)
+			self.payoutpanel = commongui.PayoutTable(self, self.settings, cfg.LIGHT_GREY)
 		else:
 			self.payoutpanel = wx.Panel(self, wx.ID_ANY)
 		
 		self.payoutpanel.Bind(wx.EVT_PAINT, self.on_paint)		
 
 		
-		#payoutpanel.SetBackgroundColour(cfg.STEEL_BLUE)
-		#payoutpanel.SetForegroundColour(cfg.LIGHT_GREY)
-		#payoutpanel.SetWindowStyle(wx.RAISED_BORDER)
+		self.payoutpanel.SetBackgroundColour(cfg.STEEL_BLUE)
+		self.payoutpanel.SetForegroundColour(cfg.LIGHT_GREY)
+		self.payoutpanel.SetWindowStyle(wx.RAISED_BORDER)
 		
 		# create the first row
 		centeredflag = wx.SizerFlags(1).Align(wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER)

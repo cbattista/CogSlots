@@ -64,12 +64,15 @@ class InfoDialog(wx.Dialog):
 
 class PayoutTable(wx.Panel):
 	""" A class to display the payout information """
-	def __init__(self, parent, settings):
+	def __init__(self, parent, settings, color = ""):
 		wx.Panel.__init__(self, parent)
 		
 		# copy the values over to class variables
 		self.settings = settings
 		
+		if color:
+			self.SetForegroundColour(color)
+
 		# make a pretty static box to enclose everything
 		self.boxsizer = wx.StaticBoxSizer(wx.StaticBox(self, label="Payout Table"), wx.VERTICAL)
 		
